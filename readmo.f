@@ -52,6 +52,7 @@ C
       CHARACTER KEYWRD*241, KOMENT*81, TITLE*81, LINE*80, BANNER*80
       CHARACTER KEYS(80)*1, SPACE*1, SPACE2*2, CH*1, CH2*2
       CHARACTER ELEMNT*2, IDATE*24, GETNAM*80
+      CHARACTER*50 CTYPE(100)
       COMMON /KEYWRD/ KEYWRD
       COMMON /TITLES/ KOMENT,TITLE
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
@@ -66,11 +67,28 @@ C
      1NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GEOSYM/ NDEP, LOCPAR(MAXPAR), IDEPFN(MAXPAR),
      1                      LOCDEP(MAXPAR)
+      COMMON /SURF  / SURFCT,SURFACT(NUMATM),ATAR(NUMATM),ITYPE(NUMATM)
       LOGICAL INT, AIGEO, ISOK
       SAVE SPACE, SPACE2, IREACT, INT
       DIMENSION COORD(3,NUMATM),VALUE(40)
       EQUIVALENCE (KEYS(1),KEYWRD)
       DATA SPACE, SPACE2/' ','  '/
+      DATA CTYPE/'any CARBON or attached HYDROGEN                   '
+     2          ,'HYDROGEN attached to a nitrogen                   '
+     3          ,'HYDROGEN attached to an oxygen                    '
+     4          ,'HYDROGEN attached to a sulfur                     '
+     5          ,'sp3 or amide NITROGEN                             '
+     6          ,'sp2 or sp or aromatic NITROGEN                    '
+     7          ,'sp3 OXYGEN                                        '
+     8          ,'sp2 OXYGEN                                        '
+     9          ,'FLUORINE ATOM                                     '
+     t          ,'SULFUR ATOM                                       '
+     1          ,'CHLORINE ATOM                                     '
+     2          ,'BROMINE ATOM                                      '
+     3          ,'IODINE ATOM                                       '
+     4       ,87*'                                                  '/
+      SAVE
+C
       CONVTR=2.D0*ASIN(1.D0)/180.D0
       AIGEO=.FALSE.
    10 CONTINUE
@@ -266,6 +284,12 @@ C
 C WRITE KEYWORDS BACK TO USER AS FEEDBACK
       CALL WRTKEY(KEYWRD)
       WRITE(6,'(1X,14(''*****''),''*'',I3.3,''BY'',I3.3)')MAXHEV,MAXLIT
+      IF(INDEX(KEYWRD,'AQUO').NE.0) WRITE (6,86)
+   86 FORMAT(1X,"*  AQUO     - AM1-SM1 calculations will be performed")
+      IF(INDEX(KEYWRD,'ENVAQ').NE.0) WRITE (6,88)
+   88 FORMAT(1X,"*  ENVAQ    - AM1-SM1a calculations will be performed")
+      WRITE(6,'(1X,80(''*''))')
+C
 C
 C FILL IN GEO MATRIX IF NEEDED
       IF(INDEX(KEYWRD,'OLDGEO').EQ.0.AND.INDEX(KEYWRD,'SYM') .NE. 0
@@ -378,9 +402,21 @@ C READ IN PATH VALUES
       IEND=IREACT+1
       REACT(IEND)=-1.D12
 C
+C       READ IN ATOM/CHEMICAL ENVIRONMENT TYPE SURFACE CORRECTION TERM
+C       IDENTIFIERS
+C
+  220   IF(INDEX(KEYWRD,'ENVAQ').EQ.0) GO TO 229
+        DO 221 IENV=1,NUMAT
+  221   READ(5,'(I3)')ITYPE(IENV)
+        WRITE(6,'(/,"ENVIRONMENT SPECIFIC ATOM TYPES FOR AQUEOUS SOLVATION
+     1 ENERGY",//)')
+       DO 222 I=1,NUMAT
+  222   WRITE(6,223)I,CTYPE(ITYPE(I))
+  223   FORMAT(' ATOM #',I3,' ASSIGNED AS ',A50)
+C
 C OUTPUT GEOMETRY AS FEEDBACK
 C
-  220 CALL WRTTXT(6)
+  229 CALL WRTTXT(6)
       IF(INDEX(KEYWRD,'NOLOG').EQ.0)THEN
          OPEN(UNIT=11, FORM='FORMATTED', STATUS='UNKNOWN',
      +FILE=GETNAM('FOR011'))
@@ -487,5 +523,20 @@ C
             STOP
          ENDIF
       ENDIF
-      RETURN
+      IF((INDEX(KEYWRD,'AQUO')+INDEX(KEYWRD,'ENVAQ')).EQ.0) GO TO 300
+      IF(INDEX(KEYWRD,'AM1').NE.0) GO TO 290
+      WRITE(6,'(//,"ONLY AM1 IS CURRENTLY SUPPLIED WITH SOLVENT CORRECTI
+     1ON TERMS.")')
+      STOP
+290   IF(INDEX(KEYWRD,'ANALYT').EQ.0) GO TO 295
+      WRITE(6,'(//,"ANALYTICAL DERIVATIVES MAY NOT BE USED FOR SOLVATION
+     1 CALCULATIONS.")')
+      STOP
+295   IF((INDEX(KEYWRD,'BIRADICAL')+INDEX(KEYWRD,'MECI')+INDEX(KEYWRD,
+     1'C.I.=')+INDEX(KEYWRD,'EXCITED')).EQ.0) GO TO 300
+      IF(INDEX(KEYWRD,'NOANCI').NE.0) GO TO 300
+      WRITE(6,'(//,"*NOANCI* MUST BE SPECIFIED FOR C.I. CALCULATIONS DON
+     1E WITH SOLVATION.")')
+      STOP
+300   RETURN
       END

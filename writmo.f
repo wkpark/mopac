@@ -38,6 +38,9 @@
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
+      COMMON /BORN  / BP(NUMATM),FGB(NPACK),CCT1,ZEFF(NUMATM),
+     1                QEFF(NUMATM)
+      COMMON /SURF  / SURFCT,SURFACT(NUMATM),ATAR(NUMATM),ITYPE(NUMATM)
 ************************************************************************
 *
 *   WRITE PRINTS OUT MOST OF THE RESULTS.
@@ -47,8 +50,8 @@
 ************************************************************************
       DIMENSION Q(MAXORB), Q2(MAXORB), COORD(3,NUMATM)
      1,IEL1(107), NELEMT(107), IEL2(107)
-      DIMENSION W(N2ELEC), DUMY(3)
-      LOGICAL UHF, CI, SINGLT, TRIPLT, EXCITD, PRTGRA, STILL
+      DIMENSION W(N2ELEC), DUMY(3), EBP(NPACK), EST(100)
+      LOGICAL UHF, CI, SINGLT, TRIPLT, EXCITD, PRTGRA, STILL, AQCHK, FAIL
       CHARACTER TYPE(3)*11, IDATE*24, CALCN(2)*5, GTYPE*13, GRTYPE*14,
      1          FLEPO(16)*58, ITER(2)*58, NUMBRS(11)*1, GETNAM*80
       CHARACTER*2 ELEMNT, IELEMT(20), CALTYP*7, NAMFIL*80
@@ -87,11 +90,13 @@
 C
 C SUMMARY OF RESULTS (NOTE: THIS IS IN A SUBROUTINE SO IT
 C          CAN BE USED BY THE PATH OPTION)
+      SAVE
       IF(ICALCN.EQ.0)NAMFIL='**NULL**'
       IDATE=' '
       IF(IFLEPO.EQ.0) IFLEPO=7
       IUHF=MIN(INDEX(KEYWRD,' UHF'),1)+1
       PRTGRA=(INDEX(KEYWRD,' GRAD').NE.0.AND.NVAR.GT.0)
+      AQCHK=(INDEX(KEYWRD,'AQUO')+INDEX(KEYWRD,'ENVAQ').NE.0)
       LINEAR=(NORBS*(NORBS+1))/2
       SINGLT=(INDEX(KEYWRD,' SING') .NE. 0)
       TRIPLT=(INDEX(KEYWRD,' TRIP') .NE. 0)
@@ -137,13 +142,21 @@ C
          CALL GEOUT(1)
          STOP
       ENDIF
-      WRITE(6,'(////10X,''FINAL HEAT OF FORMATION ='',F17.5,'' KCAL''
+      IF(AQCHK) THEN
+      WRITE(6,'(////10X,''FINAL HEAT OF FORMATION  '')')
+      WRITE(6,'(10X,"+ DELTA-G SOLVATION     =",F13.6," KCAL")')FUNCT
+      ELSE
+      WRITE(6,'(////10X,''FINAL HEAT OF FORMATION ='',F13.6,'' KCAL''
      1)')FUNCT
+      ENDIF
       IF(LATOM.EQ.0) WRITE(6,'(/)')
-      WRITE(6,'(    10X,''TOTAL ENERGY            ='',F17.5,'' EV''
-     1)')ELECT+ENUCLR
-      WRITE(6,'(    10X,''ELECTRONIC ENERGY       ='',F17.5,'' EV''
+      IF(AQCHK) THEN
+      WRITE(6,'(    10X,''ELECTRONIC ENERGY        '')')
+      WRITE(6,'(10X,"+ DELTA-G SOLVATION     =",F13.6," EV",/)')ELECT
+      ELSE
+      WRITE(6,'(    10X,''ELECTRONIC ENERGY       ='',F13.6,'' EV''
      1)')ELECT
+      ENDIF
       WRITE(6,'(    10X,''CORE-CORE REPULSION     ='',F17.5,'' EV''
      1)')ENUCLR
       IF(LATOM.EQ.0) WRITE(6,'(1X)')
@@ -206,8 +219,14 @@ C   CORRECTION TO I.P. OF DOUBLETS
          I=NCLOSE*NORBS+1
          EIONIS=EIONIS+0.5D0*RJKAB(1,1)
       ENDIF
-      IF(ABS(EIONIS).GT.1.D-5)
-     1WRITE(6,'(       10X,''IONIZATION POTENTIAL    ='',F17.5)')EIONIS
+      IF(AQCHK) THEN
+      WRITE(6,'(       10X,''HOMO ENERGY (EV)        ='',F13.6)')
+     .-EIONIS
+      ELSE
+      WRITE(6,'(       10X,''IONIZATION POTENTIAL    ='',F13.6)')
+     .EIONIS
+      ENDIF
+      WRITE(6,'(55X,A24)')IDATE
       IF( UHF ) THEN
          WRITE(6,'(      10X,''NO. OF ALPHA ELECTRONS  ='',I11)')NALPHA
          WRITE(6,'(      10X,''NO. OF BETA  ELECTRONS  ='',I11)')NBETA
@@ -504,6 +523,88 @@ C#     +F13.5)')PA((I*(I+1))/2),I,J,C(I+J)
          IF (INDEX(KEYWRD,' GRAPH') .NE. 0)
      1   WRITE(6,'(/10X,'' DATA FOR GRAPH WRITTEN TO DISK'')')
       ENDIF
+      IF((INDEX(KEYWRD,'AQUO')+INDEX(KEYWRD,'ENVAQ')).EQ.0) GO TO 2156
+      WRITE(6,'(//,"f(GB) factors as defined by Still et al., J. Amer. C
+     1hem. Soc. 1990, 112, 6127")')
+      CALL VECPRT(FGB,NUMAT)
+      WRITE(6,'(//)')
+      WRITE(6,'(" Generalized Born Polarization Energy decomposition"/)'
+     1)
+      DO 260 I=1,NUMAT
+      CELEID=1.D0/78.3D0
+      AK=-166.D0*(1.D0-CELEID)
+      JP=I+1
+      BP(I)=0.D0
+      DO 270 J=1,I
+      IJ=(I*(I-1))/2+J
+      EBP(IJ)=AK*QEFF(I)*QEFF(J)/FGB(IJ)
+270   BP(I)=BP(I)+EBP(IJ)
+      DO 280 K=JP,NUMAT
+      IJ=(K*(K-1))/2+I
+      EBP(IJ)=AK*QEFF(I)*QEFF(K)/FGB(IJ)
+280   BP(I)=BP(I)+EBP(IJ)
+260   CONTINUE
+      CALL VECPRT(EBP,NUMAT)
+      WRITE(6,'(//" BY ATOM:"/)')
+      DO 290 L=1,NUMAT
+290   WRITE(6,'(" ATOM #",I3," BORN ENERGY ",F7.2," KCAL/MOL")')L,BP(L)
+      WRITE(6,'(/)')
+      DO 2151 I=1,NUMAT
+2151  WRITE(6,2152)I,ATAR(I),SURFACT(I)
+2152  FORMAT(' FOR ATOM #',I3,' WITH AREA',F7.2,' ANG^2 THE SURFACE CORR
+     1ECTION IS',F7.2,' KCAL/MOL')
+      WRITE(6,'(//)')
+      WRITE(6,'(" BY ELEMENT",/)')
+      BPGT=0.D0
+      DO 300 M=1,100
+      BPT=0.D0
+      ST=0.D0
+      EST(M)=0.D0
+      IF(INDEX(KEYWRD,'ENVAQ').EQ.0) GO TO 305
+      DO 307 N=1,NUMAT
+      IF(ITYPE(N).NE.M) GO TO 307
+      EST(M)=EST(M)+ATAR(N)
+307   CONTINUE
+305   DO 310 N=1,NUMAT
+      IF(NAT(N).NE.M) GO TO 310
+      BPT=BPT+BP(N)
+      ST=ST+SURFACT(N)
+      BPGT=BPGT+BP(N)
+310   CONTINUE
+      IF(ST.EQ.0.D0.AND.BPT.EQ.0.D0) GO TO 300
+      WRITE(6,'(" ATOMIC #",I3," BORN: ",F7.2," SURFACE: ",F7.2," TOTAL:
+     1 ",F7.2," KCAL/MOL")')M,BPT,ST,BPT+ST
+300   CONTINUE
+      WRITE(6,'(/," ** NET ENERGIES:  ",F7.2,10X,F7.2,8X,F7.2," KCAL/MOL
+     1")')BPGT,SURFCT,BPGT+SURFCT
+      WRITE(6,'(//,"**** NOTA BENE:  THE NET SOLVATION ENERGY IS FOR THI
+     1S EXACT MOLECULAR",/,"GEOMETRY! The true AM1-SM1 or AM1-SM1a solva
+     2tion energy",/,"should be obtained as the difference between the h
+     3eat of",/,"formation for the relaxed aqueous system and that for t
+     4he",/,"relaxed gas-phase system.",/)')
+      IF(INDEX(KEYWRD,'NOFUL').NE.0) WRITE(6,306)
+306   FORMAT(' * THIS IS NOT A TRUE STATIONARY POINT ')
+      IF(INDEX(KEYWRD,'ENVAQ').EQ.0) GO TO 312
+      DO 311 N=1,18
+      IF(EST(N).EQ.0.D0) GO TO 311
+      WRITE(6,'(" TOTAL AREA FOR ENVIRONMENT TYPE ",I2," IS ",F7.2," A^2
+     1")')N,EST(N)
+ 311   CONTINUE
+312   IF(INDEX(KEYWRD,'FOCK').EQ.0) GO TO 2156
+      WRITE(6,'(///)')
+      DO 2154 J=1,NUMAT
+2154  WRITE(6,2155)J,BP(J)
+2155  FORMAT('ATOM #',I3,' BORN CONTRIBUTION TO FOCK DIAGONAL:',F12.6,
+     1' EV')
+C
+C   *****************************************************************
+C   *                                                               *
+C   *      SUMMARY OF OUTPUT ON FILE IWRITE ( . ARC FILE )          *
+C   *                                                               *
+C   *****************************************************************
+C
+C     NOT DONE IF OPTIMISATION NOT ACHIEVED
+2156  IF (IFLEPO.EQ.5 .OR. IFLEPO.EQ.9 .OR. IFLEPO.EQ.12) RETURN
 C
 C  NOTE THAT THE DENSITY, H AND F MATRICES ARE CORRUPTED BY A
 C  CALL TO MULLIK.
@@ -548,10 +649,21 @@ C  CALL TO MULLIK.
       CALL WRTTXT(IWRITE)
       WRITE(IWRITE,'(//4X,A58)')FLEPO(IFLEPO)
       WRITE(IWRITE,'(4X,A58)')ITER(IITER)
-      WRITE(IWRITE,'(//10X,''HEAT OF FORMATION       =''
-     1,F17.6,'' KCAL'')')FUNCT
-      WRITE(IWRITE,'(  10X,''ELECTRONIC ENERGY       =''
-     1,F17.6,'' EV'')')ELECT
+      IXRT=IWRITE
+      IF(AQCHK) THEN
+      WRITE(IXRT,'(/10X,''FINAL HEAT OF FORMATION  '')')
+      WRITE(IXRT,'(10X,"+ DELTA-G SOLVATION     =",F13.6," KCAL")')FUNCT
+      ELSE
+      WRITE(IXRT,'(/10X,''FINAL HEAT OF FORMATION ='',F13.6,'' KCAL''
+     1)')FUNCT
+      ENDIF
+      IF(AQCHK) THEN
+      WRITE(IXRT,'(    10X,''ELECTRONIC ENERGY        '')')
+      WRITE(IXRT,'(10X,"+ DELTA-G SOLVATION     =",F13.6," EV")')ELECT
+      ELSE
+      WRITE(IXRT,'(    10X,''ELECTRONIC ENERGY       ='',F13.6,'' EV''
+     1)')ELECT
+      ENDIF
       WRITE(IWRITE,'(  10X,''CORE-CORE REPULSION     =''
      1,F17.6,'' EV'')')ENUCLR
       IF(PRTGRA)
@@ -590,8 +702,13 @@ C  CALL TO MULLIK.
      1WRITE(IWRITE,'(  10X,''CONFIGURATION INTERACTION WAS USED'')')
       IF(KCHRGE.NE.0)
      1WRITE(IWRITE,'(  10X,''CHARGE ON SYSTEM        ='',I10)')KCHRGE
-      WRITE(IWRITE,'(  10X,''IONIZATION POTENTIAL    =''
-     1,F17.6,'' EV'')')EIONIS
+      IF(AQCHK) THEN
+      WRITE(IWRITE,'(       10X,''HOMO ENERGY (EV)        ='',F13.6)')
+     .-EIONIS
+      ELSE
+      WRITE(IWRITE,'(       10X,''IONIZATION POTENTIAL    ='',F13.6)')
+     .EIONIS
+      ENDIF
       WRITE(IWRITE,'(  10X,''MOLECULAR WEIGHT        ='',F14.3)')SUMW
       WRITE(IWRITE,'(  10X,''SCF CALCULATIONS        =''
      1,I10)') NSCF

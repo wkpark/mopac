@@ -87,9 +87,9 @@ C
       VDERW(17)=3.0D0
       VDERW(35)=3.15D0
       VDERW(53)=3.35D0
-      SHELL=1.2D0
+      SHELL=1.6D0
       NESP=0
-      GRID=0.8D0
+      GRID=0.4D0
       CLOSER=0.D0
 C     CHECK IF VDERW IS DEFINED FOR ALL ATOMS
 C

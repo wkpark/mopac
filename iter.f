@@ -16,6 +16,8 @@
       COMMON /NUMCAL/ NUMCAL
       COMMON /SCFTYP/ EMIN, LIMSCF
       COMMON /TIME  / TIME0
+      COMMON /BORN  / BP(NUMATM),FGB(NPACK),CCT1,ZEFF(NUMATM),
+     1                QEFF(NUMATM)
       LOGICAL FULSCF, RAND, LIMSCF
       DOUBLE PRECISION WJ, WK
 C***********************************************************************
@@ -139,6 +141,7 @@ C
          NEWDG =.FALSE.
          PLCHEK=0.005D0
          PL    =1.D0
+         IFILL=0
          BSHIFT=0.D0
          SHIFT=1.D0
 *
@@ -446,6 +449,13 @@ C#      CALL TIMER('BEFORE FOCK2')
 C#      CALL TIMER('AFTER FOCK2')
 C#      CALL TIMER('BEFORE FOCK1')
       CALL FOCK1(F,P,PA,PB)
+      IF((INDEX(KEYWRD,'AQUO')+INDEX(KEYWRD,'ENVAQ')).EQ.0) GO TO 982
+      K=0
+      CALL BORNPOL(NITER)
+      DO 66 I=1,NUMAT
+      DO 66 J=NFIRST(I),NLAST(I)
+        K=K+J
+   66   F(K)=F(K)+BP(I)
 C#      CALL TIMER('AFTER FOCK1')
       IF(TIMITR)THEN
          T0=SECOND()
@@ -457,7 +467,7 @@ C#      CALL TIMER('AFTER FOCK1')
 *                        MAKE THE BETA FOCK MATRIX                     *
 *                                                                      *
 ************************************************************************
-      IF (UHF) THEN
+  982 IF (UHF) THEN
          IF(SHIFTB .NE. 0.D0) THEN
             L=0
             DO 180 I=1,NORBS
@@ -476,7 +486,14 @@ C#      CALL TIMER('AFTER FOCK1')
          ENDIF
          CALL FOCK2(FB,P,PB,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
          CALL FOCK1(FB,P,PB,PA)
-      ENDIF
+      IF((INDEX(KEYWRD,'AQUO')+INDEX(KEYWRD,'ENVAQ')).EQ.0) GO TO 983
+      K=0
+      DO 67 I=1,NUMAT
+      DO 67 J=NFIRST(I),NLAST(I)
+        K=K+J
+   67   FB(K)=FB(K)+BP(I)
+  983 ENDIF
+C
       IF( .NOT. FULSCF) GOTO 380
       IF(PRTFOK) THEN
          WRITE(6,210)NITER
@@ -524,6 +541,7 @@ C
       IF(BSHIFT.NE.0.D0)
      1SCORR=SHIFT*(NOPEN-NCLOSE)*23.061D0*0.25D0*(FRACT*(2.D0-FRACT))
       ESCF=(EE+ENUCLR)*23.061D0+ATHEAT+SCORR
+      ESCF=ESCF+CCT1
       IF(INCITR)THEN
          DIFF=ESCF-EOLD
          IF(DIFF.GT.0)THEN
@@ -804,6 +822,7 @@ C#      CALL TIMER('AFTER CNVG')
          EE=EE*2.D0 +
      1SHIFT*(NOPEN-NCLOSE)*23.061D0*0.25D0*(FRACT*(2.D0-FRACT))
       ENDIF
+      EE=EE+CCT1
       IF(CAPPS)EE=EE+CAPCOR(NAT,NFIRST,NLAST,NUMAT,P,H)
 C
 C   NORMALLY THE EIGENVALUES ARE INCORRECT BECAUSE THE
