@@ -1,4 +1,4 @@
-      SUBROUTINE ITER  (H, W, WJ, WK, EE, FULSCF)
+      SUBROUTINE ITER  (H, W, WJ, WK, EE, FULSCF,RAND)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       PARAMETER (MPULAY=MPACK)
@@ -19,10 +19,10 @@
       COMMON /ATHEAT/ ATHEAT
       COMMON /ENUCLR/ ENUCLR
       COMMON /CITERM/ XI,XJ,XK
-      COMMON /PATH  / LATOM,LPARAM,REACT(100)
+      COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /NUMCAL/ NUMCAL
       COMMON /TIME  / TIME0
-      LOGICAL FULSCF
+      LOGICAL FULSCF, RAND
       REAL WJ, WK
 C***********************************************************************
 C
@@ -54,7 +54,7 @@ C   ON SHIFT: "UNCONDITIONAL CONVERGENCE IN SCF THEORY: A GENERAL LEVEL
 C             SHIFT TECHNIQUE"
 C             CARBO, R., HERNANDEZ, J.A., SANZ, F., CHEM. PHYS. LETT.,
 C             47, 581, (1977)
-C   ON HALF-ELECTRON: "MINDO/3 COMPARISON OF THE GENERALISED S.C.F.
+C   ON HALF-ELECTRON: "MINDO/3 COMPARISON OF THE GENERALIZED S.C.F.
 C             COUPLING OPERATOR AND "HALF-ELECTRON" METHODS FOR
 C             CALCULATING THE ENERGIES AND GEOMETRIES OF OPEN SHELL
 C             SYSTEMS"
@@ -67,12 +67,12 @@ C             STEWART. J.J.P., CSASZAR, P., PULAY, P., J. COMP. CHEM.,
 C             3, 227, (1982)
 C
 C***********************************************************************
-      DIMENSION POLD(MPULAY), POLD2(MPULAY), POLD3(400)
-      DIMENSION PBOLD(MPULAY), PBOLD2(MPULAY), PBOLD3(400)
-      DIMENSION  AR1(NPULAY), AR2(NPULAY), AR3(NPULAY),
-     1 AR4(NPULAY)
-      DIMENSION  BR1(NPULAY), BR2(NPULAY), BR3(NPULAY),
-     1 BR4(NPULAY)
+      DIMENSION POLD(MPULAY), POLD2(MPULAY), POLD3(MAXORB+400)
+      DIMENSION PBOLD(MPULAY), PBOLD2(MPULAY), PBOLD3(MAXORB+400)
+      DIMENSION  AR1(2*NPULAY), AR2(2*NPULAY), AR3(2*NPULAY),
+     1 AR4(2*NPULAY)
+      DIMENSION  BR1(2*NPULAY), BR2(2*NPULAY), BR3(2*NPULAY),
+     1 BR4(2*NPULAY)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,
      2                NALPHA, NBETA, NCLOSE, NOPEN, NDUMY, FRACT
@@ -93,25 +93,23 @@ C  INITIALIZE
 C
       EOLD=1.D2
       READY=.FALSE.
-      IITER=1
       IF (ICALCN.NE.NUMCAL) THEN
          ICALCN=NUMCAL
          LINEAR=(NORBS*(NORBS+1))/2
 C
 C    DEBUG KEY-WORDS WORKED OUT
 C
-         IF( INDEX(KEYWRD,'ITER') .NE. 0 ) DEBUG  = .TRUE.
          MINPRT=(INDEX(KEYWRD,'SADDLE')+
      1      LATOM .EQ.0 .OR. DEBUG)
-         IF( INDEX(KEYWRD,'EIGS') .NE. 0 ) PRTEIG = .TRUE.
-         IF( INDEX(KEYWRD,'ENERGY').NE.0 ) PRTENG = .TRUE.
-         IF( INDEX(KEYWRD,' PL ')  .NE.0 ) PRTPL  = .TRUE.
-         IF( INDEX(KEYWRD,'DEBUG').NE. 0 ) THEN
-            IF( INDEX(KEYWRD,'1ELEC') .NE.0 ) PRT1EL = .TRUE.
-            IF( INDEX(KEYWRD,'DENSITY').NE.0) PRTDEN = .TRUE.
-            IF( INDEX(KEYWRD,'FOCK') .NE. 0 ) PRTFOK = .TRUE.
-            IF( INDEX(KEYWRD,'VECT') .NE. 0 ) PRTVEC = .TRUE.
-         END IF
+         PRTEIG=( INDEX(KEYWRD,'EIGS') .NE. 0 )
+         PRTENG=( INDEX(KEYWRD,'ENERGY').NE.0 )
+         PRTPL =( INDEX(KEYWRD,' PL ')  .NE.0 )
+         DEBUG=( INDEX(KEYWRD,'DEBUG') .NE. 0 )
+         PRT1EL=( INDEX(KEYWRD,'1ELEC') .NE.0 .AND. DEBUG)
+         PRTDEN=( INDEX(KEYWRD,'DENS').NE.0 .AND. DEBUG)
+         PRTFOK=( INDEX(KEYWRD,'FOCK') .NE. 0  .AND. DEBUG)
+         PRTVEC=( INDEX(KEYWRD,'VECT') .NE. 0  .AND. DEBUG)
+         DEBUG=( INDEX(KEYWRD,'ITER') .NE. 0 )
 C
 C INITIALIZE SOME LOGICALS AND CONSTANTS
 C
@@ -121,28 +119,27 @@ C
 *
 * SCFCRT AND PLTEST ARE MACHINE-PRECISION DEPENDENT
 *
-         SCFCRT=1.D-5
+         SCFCRT=1.D-6
          PLTEST=0.0001D0
          ITRMAX = 200
          NMOS=0
          NCIS=0
          NA2EL=NCLOSE
-         NSCF=0
          NA1EL=NALPHA+NOPEN
          NB2EL=0
          NB1EL=NBETA+NOPEN
 C
 C  USE KEY-WORDS TO ASSIGN VARIOUS CONSTANTS
 C
-         IF(INDEX(KEYWRD,'C.I.=').NE.0)
-     1      NMOS=READA(KEYWRD,INDEX(KEYWRD,'C.I.=')+5)
+         IF(INDEX(KEYWRD,'C.I.').NE.0)
+     1      NMOS=READA(KEYWRD,INDEX(KEYWRD,'C.I.')+5)
          IF(INDEX(KEYWRD,'MICROS').NE.0)
      1      NCIS=READA(KEYWRD,INDEX(KEYWRD,'MICROS'))
-         IF(INDEX(KEYWRD,'FILL=').NE.0)
-     1      IFILL=-READA(KEYWRD,INDEX(KEYWRD,'FILL='))
+         IF(INDEX(KEYWRD,'FILL').NE.0)
+     1      IFILL=-READA(KEYWRD,INDEX(KEYWRD,'FILL'))
          IF(INDEX(KEYWRD,'SHIFT').NE.0)
      1      BSHIFT=-READA(KEYWRD,INDEX(KEYWRD,'SHIFT'))
-         IF(INDEX(KEYWRD,'ITRY=').NE.0)
+         IF(INDEX(KEYWRD,'ITRY').NE.0)
      1      ITRMAX=READA(KEYWRD,INDEX(KEYWRD,'ITRY'))
          CAMKIN=(INDEX(KEYWRD,'KING')+INDEX(KEYWRD,'CAMP') .NE. 0)
          CI=(INDEX(KEYWRD,'MICROS')+INDEX(KEYWRD,'C.I.') .NE. 0)
@@ -164,9 +161,12 @@ C
             IF(INDEX(KEYWRD,'TRIPLET')+INDEX(KEYWRD,'QUART').NE.0)NCIS=1
             IF(INDEX(KEYWRD,'QUINTET')+INDEX(KEYWRD,'SEXTE').NE.0)NCIS=2
          ENDIF
+         IITER=1
          TRANS=0.1D0
          IF(INDEX(KEYWRD,'RESTART')+INDEX(KEYWRD,'OLDENS')
      1      .NE. 0) THEN
+            IF(INDEX(KEYWRD,'OLDENS').NE.0)
+     1   OPEN(UNIT=10,FILE='FOR010',STATUS='UNKNOWN',FORM='UNFORMATTED')
             REWIND 10
             READ(10)(PA(I),I=1,LINEAR)
             IF( UHF) THEN
@@ -178,6 +178,7 @@ C
    20          P(I)=PA(I)*2.D0
             ENDIF
          ELSE
+            NSCF=0
             DO 30 I=1,LINEAR
                P(I)=0.D0
                PA(I)=0.D0
@@ -188,6 +189,7 @@ C
             IF(W2.LT.1.D-6)W2=0.5D0
             RANDOM=1.0D0
             IF(UHF.AND.NA1EL.EQ.NB1EL) RANDOM=1.1D0
+            IF(.NOT.RAND)RANDOM=0.D0
             DO 40 I=1,NORBS
                J=(I*(I+1))/2
                P(J)=PDIAG(I)
@@ -199,15 +201,6 @@ C
    50       POLD(I)=PA(I)
          ENDIF
          HALFE=(NOPEN .NE. NCLOSE)
-         IF( HALFE ) THEN
-            IF(NOPEN-NCLOSE.EQ.1) THEN
-               IHOMO=(NCLOSE-1)*NORBS+1
-               ILUMO=IHOMO+NORBS
-            ELSE
-               IPART1=NCLOSE*NORBS+1
-               IPART2=IPART1+NORBS
-            ENDIF
-         ENDIF
 C
 C   DETERMINE THE SELF-CONSISTENCY CRITERION
 C
@@ -216,17 +209,17 @@ C
      2 INDEX(KEYWRD,'SIGMA') .NE. 0)
      3                 SCFCRT=SCFCRT*0.01D0
          IF(FORCE)SCFCRT=SCFCRT*0.01D0
-         SCRCRT=MAX(SCFCRT,1.D-9)
+         SCFCRT=MAX(SCFCRT,1.D-10)
 C
 C  THE USER CAN STATE THE SCF CRITERION, IF DESIRED.
 C
          I=INDEX(KEYWRD,'SCFCRT')
          IF(I.NE.0) THEN
             SCFCRT=READA(KEYWRD,I)
-            WRITE(6,'(''  SCF CRITERION ='',F13.9)')SCFCRT
-            IF(SCFCRT.LT.1.D-9)
-     1 WRITE(6,'(//10X,'' THERE IS A RISK OF INFINITE LOOPING WITH'',
-     2'' THE SCFCRT LESS THAN 0.000000001'')')
+            WRITE(6,'(''  SCF CRITERION ='',G14.4)')SCFCRT
+            IF(SCFCRT.LT.1.D-10)
+     1 WRITE(6,'(//2X,'' THERE IS A RISK OF INFINITE LOOPING WITH'',
+     2'' THE SCFCRT LESS THAN 0.000,000,000,1'')')
          ELSE
             IF(DEBUG)WRITE(6,'(''  SCF CRITERION ='',F13.9)')SCFCRT
          ENDIF
@@ -234,9 +227,9 @@ C
 C
 C   END OF INITIALIZATION SECTION.
 C
-      END IF
+      ENDIF
 C
-C   INITIOALIZATION OPERATIONS DONE EVERY TIME ITER IS CALLED
+C   INITIALIZATION OPERATIONS DONE EVERY TIME ITER IS CALLED
 C
       MAKEA=.TRUE.
       MAKEB=.TRUE.
@@ -308,11 +301,16 @@ C
                L=L+1
    80       F(L)=H(L)+SHIFT*PA(L)
    90    F(L)=F(L)-SHIFT
-      ELSE
+      ELSEIF (RAND.AND.LAST.EQ.0.AND.NITER.LT.2.AND.FULSCF)THEN
+         RANDOM=0.001D0
          DO 100 I=1,LINEAR
-  100    F(I)=H(I)
+            RANDOM=-RANDOM
+  100    F(I)=H(I)+RANDOM
+      ELSE
+         DO 110 I=1,LINEAR
+  110    F(I)=H(I)
       ENDIF
-  110 CALL FOCK2(F,P,PA,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
+  120 CALL FOCK2(F,P,PA,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
       CALL FOCK1(F,P,PA,PB)
 ************************************************************************
 *                                                                      *
@@ -322,24 +320,29 @@ C
       IF (UHF) THEN
          IF(SHIFT .NE. 0.D0) THEN
             L=0
-            DO 130 I=1,NORBS
-               DO 120 J=1,I
+            DO 140 I=1,NORBS
+               DO 130 J=1,I
                   L=L+1
-  120          FB(L)=H(L)+SHIFT*PB(L)
-  130       FB(L)=FB(L)-SHIFT
+  130          FB(L)=H(L)+SHIFT*PB(L)
+  140       FB(L)=FB(L)-SHIFT
+         ELSEIF (RAND.AND.LAST.EQ.0.AND.NITER.LT.2.AND.FULSCF)THEN
+            RANDOM=0.001
+            DO 150 I=1,LINEAR
+               RANDOM=-RANDOM
+  150       FB(I)=H(I)+RANDOM
          ELSE
-            DO 140 I=1,LINEAR
-  140       FB(I)=H(I)
+            DO 160 I=1,LINEAR
+  160       FB(I)=H(I)
          ENDIF
          CALL FOCK2(FB,P,PB,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
          CALL FOCK1(FB,P,PB,PA)
       ENDIF
-      IF( .NOT. FULSCF) GOTO 240
+      IF( .NOT. FULSCF) GOTO 260
       IF(PRTFOK) THEN
-         WRITE(6,150)NITER
-  150    FORMAT('   FOCK MATRIX ON ITERATION',I3)
+         WRITE(6,170)NITER
+  170    FORMAT('   FOCK MATRIX ON ITERATION',I3)
          CALL VECPRT (F,NORBS)
-      END IF
+      ENDIF
 ************************************************************************
 *                                                                      *
 *                        CALCULATE THE ENERGY IN KCAL/MOLE             *
@@ -351,23 +354,25 @@ C
       ELSE
          EE=EE*2.D0
       ENDIF
-      ESCF=(EE+ENUCLR + SHIFT*(NOPEN-NCLOSE)*0.25D0)*23.061D0+ATHEAT
+      EE=EE+CAPCOR(NAT,NFIRST,NLAST,NUMAT,P,H)
+      ESCF=(EE+ENUCLR +SHIFT*(NOPEN-NCLOSE)*0.25D0)*23.061D0+
+     1ATHEAT
       IF(INCITR)THEN
          DIFF=ESCF-EOLD
-         IF(PL.LT.PLTEST.AND.
+         IF(NITER.GT.4.AND.PL.LT.PLTEST.AND.
      1   ABS(DIFF).LT.SELCON .AND. READY) THEN
 ************************************************************************
 *                                                                      *
 *          SELF-CONSISTENCY TEST, EXIT MODE FROM ITERATIONS            *
 *                                                                      *
 ************************************************************************
-            IF (ABS(SHIFT) .LT. 1.D-10) GOTO 240
+            IF (ABS(SHIFT) .LT. 1.D-10) GOTO 260
             SHIFT=0.D0
-            DO 160 I=1,LINEAR
-  160       F(I)=H(I)
+            DO 180 I=1,LINEAR
+  180       F(I)=H(I)
             MAKEA=.TRUE.
             MAKEB=.TRUE.
-            GOTO 110
+            GOTO 120
          ENDIF
          READY=(IREDY.GT.0.AND.ABS(DIFF).LT.SELCON*10.D0)
          IREDY=IREDY+1
@@ -382,19 +387,19 @@ C
       IF(INCITR)EOLD=ESCF
 ************************************************************************
 *                                                                      *
-*                        INVOLK THE CAMP-KING CONVERGER                *
+*                        INVOKE THE CAMP-KING CONVERGER                *
 *                                                                      *
 ************************************************************************
       IF(NITER.GT.2 .AND. CAMKIN .AND. MAKEA)
      1CALL INTERP(NORBS,NA1EL,NORBS-NA1EL, MODEA, ESCF/23.061D0,
      2F, C, AR1, AR2, AR3, AR4, AR1)
       MAKEB=.FALSE.
-      IF(MODEA.EQ.3)GOTO 180
+      IF(MODEA.EQ.3)GOTO 200
       MAKEB=.TRUE.
       IF( NEWDG ) THEN
 ************************************************************************
 *                                                                      *
-*                        INVOLK PULAY'S CONVERGER                      *
+*                        INVOKE PULAY'S CONVERGER                      *
 *                                                                      *
 ************************************************************************
          IF(OKPULY.AND.MAKEA.AND.IREDY.GT.1)
@@ -406,13 +411,13 @@ C
 *                                                                      *
 ************************************************************************
          IF (HALFE.OR.CAMKIN) THEN
-            CALL HQRII(F,NORBS,NORBS,EIGS,C)
+            CALL RSP(F,NORBS,NORBS,EIGS,C)
          ELSE
             CALL DIAG (F,C,NA1EL,EIGS,NORBS,NORBS)
          ENDIF
       ELSE
-         CALL HQRII(F,NORBS,NORBS,EIGS,C)
-      END IF
+         CALL RSP(F,NORBS,NORBS,EIGS,C)
+      ENDIF
       J=1
       IF(PRTVEC) THEN
          J=1
@@ -422,22 +427,24 @@ C
      2   ABPRT(J),NITER
          CALL MATOUT(C,EIGS,NORBS,NORBS,NORBS)
       ELSE
-         IF (PRTEIG) WRITE(6,170)ABPRT(J),NITER,(EIGS(I),I=1,NORBS)
+         IF (PRTEIG) WRITE(6,190)ABPRT(J),NITER,(EIGS(I),I=1,NORBS)
       ENDIF
-  170 FORMAT(10X,A,'  EIGENVALUES ON ITERATION',I3,/10(6F13.6,/))
-  180 IF(IFILL.NE.0)CALL SWAP(C,NORBS,NORBS,NA2EL,IFILL)
+  190 FORMAT(10X,A,'  EIGENVALUES ON ITERATION',I3,/10(6G13.6,/))
+  200 IF(IFILL.NE.0)CALL SWAP(C,NORBS,NORBS,NA2EL,IFILL)
 ************************************************************************
 *                                                                      *
 *            CALCULATE THE ALPHA OR RHF DENSITY MATRIX                 *
 *                                                                      *
 ************************************************************************
       IF(UHF)THEN
-         CALL DENSIT( C,NORBS, NORBS, NA2EL,NA1EL, FRACT, PA)
+         CALL DENSIT( C,NORBS, NORBS, NA2EL,NA1EL, FRACT, PA, 1)
+         IF(MODEA.NE.3.AND..NOT. (NEWDG.AND.OKPULY))
+     1    CALL CNVG(PA, POLD, POLD2, NORBS, NITER, PL)
       ELSE
-         CALL DENSIT( C,NORBS, NORBS, NA2EL,NA1EL, FRACT, P)
-      ENDIF
-      IF(MODEA.NE.3.AND..NOT. (NEWDG.AND.OKPULY))
+         CALL DENSIT( C,NORBS, NORBS, NA2EL,NA1EL, FRACT, P, 1)
+         IF(MODEA.NE.3.AND..NOT. (NEWDG.AND.OKPULY))
      1    CALL CNVG(P, POLD, POLD2, NORBS, NITER, PL)
+      ENDIF
 ************************************************************************
 *                                                                      *
 *                       UHF-SPECIFIC CODE                              *
@@ -446,47 +453,51 @@ C
       IF( UHF )THEN
 ************************************************************************
 *                                                                      *
-*                        INVOLK THE CAMP-KING CONVERGER                *
+*                        INVOKE THE CAMP-KING CONVERGER                *
 *                                                                      *
 ************************************************************************
          IF(NITER.GT.2 .AND. CAMKIN .AND. MAKEB )
      1CALL INTERP(NORBS,NB1EL,NORBS-NB1EL, MODEB, ESCF/23.061D0,
      2FB, CBETA, BR1, BR2, BR3, BR4, BR1)
-C#      IF(MODEB.EQ.3)WRITE(6,*)' MODEB',MODEB
          MAKEA=.FALSE.
-         IF(MODEB.EQ.3) GOTO 190
+         IF(MODEB.EQ.3) GOTO 210
          MAKEA=.TRUE.
+         IF( NEWDG ) THEN
 ************************************************************************
 *                                                                      *
-*                        INVOLK PULAY'S CONVERGER                      *
+*                        INVOKE PULAY'S CONVERGER                      *
 *                                                                      *
 ************************************************************************
-         IF( NEWDG.AND.OKPULY.AND.MAKEB.AND.IREDY.GT.1) THEN
-            CALL PULAY(FB,PB,NORBS,PBOLD,PBOLD2,
-     1               PBOLD3,JBET,IBET,MPULAY,BFRST,PLB)
+            IF( OKPULY.AND.MAKEB.AND.IREDY.GT.1)
+     1CALL PULAY(FB,PB,NORBS,PBOLD,PBOLD2,
+     2PBOLD3,JBET,IBET,MPULAY,BFRST,PLB)
 ************************************************************************
 *                                                                      *
 *           DIAGONALIZE THE ALPHA OR RHF SECULAR DETERMINANT           *
 * WHERE POSSIBLE, USE THE PULAY-STEWART METHOD, OTHERWISE USE BEPPU'S  *
 *                                                                      *
 ************************************************************************
-            CALL DIAG (FB,CBETA,NB1EL,EIGB,NORBS,NORBS)
+            IF (HALFE.OR.CAMKIN) THEN
+               CALL RSP(FB,NORBS,NORBS,EIGB,CBETA)
+            ELSE
+               CALL DIAG (FB,CBETA,NB1EL,EIGB,NORBS,NORBS)
+            ENDIF
          ELSE
-            CALL HQRII(FB,NORBS,NORBS,EIGB,CBETA)
-         END IF
+            CALL RSP(FB,NORBS,NORBS,EIGB,CBETA)
+         ENDIF
          IF(PRTVEC) THEN
             WRITE(6,'(//10X,A,'' EIGENVECTORS AND EIGENVALUES ON '',
      1''ITERATION'',I3)')ABPRT(3),NITER
             CALL MATOUT(CBETA,EIGB,NORBS,NORBS,NORBS)
          ELSE
-            IF (PRTEIG) WRITE(6,170)ABPRT(3),NITER,(EIGB(I),I=1,NORBS)
+            IF (PRTEIG) WRITE(6,190)ABPRT(3),NITER,(EIGB(I),I=1,NORBS)
          ENDIF
 ************************************************************************
 *                                                                      *
 *                CALCULATE THE BETA DENSITY MATRIX                     *
 *                                                                      *
 ************************************************************************
-  190    CALL DENSIT( CBETA,NORBS, NORBS, NB2EL, NB1EL, FRACT, PB)
+  210    CALL DENSIT( CBETA,NORBS, NORBS, NB2EL, NB1EL, FRACT, PB, 1)
          IF( .NOT. (NEWDG.AND.OKPULY))
      1CALL CNVG(PB, PBOLD, PBOLD2, NORBS, NITER, PLB)
       ENDIF
@@ -496,31 +507,31 @@ C#      IF(MODEB.EQ.3)WRITE(6,*)' MODEB',MODEB
 *                                                                      *
 ************************************************************************
       IF(UHF) THEN
-         DO 200 I=1,LINEAR
-  200    P(I)=PA(I)+PB(I)
+         DO 220 I=1,LINEAR
+  220    P(I)=PA(I)+PB(I)
       ELSE
-         DO 210 I=1,LINEAR
+         DO 230 I=1,LINEAR
             PA(I)=P(I)*0.5D0
-  210    PB(I)=PA(I)
+  230    PB(I)=PA(I)
       ENDIF
       IF(PRTDEN) THEN
          WRITE(6,'('' DENSITY MATRIX ON ITERATION'',I4)')NITER
          CALL VECPRT (P,NORBS)
-      END IF
+      ENDIF
       OKNEWD=(PL.LT.SELCON .OR. OKNEWD)
       NEWDG=(PL.LT.TRANS .AND. OKNEWD .OR. NEWDG)
       IF(PL.LT.TRANS*0.3333D0)OKNEWD=.TRUE.
       IF (NITER .GE. ITRMAX) THEN
-         IF(MINPRT)WRITE (6,220)
-  220    FORMAT (//10X,'"""""""""""""UNABLE TO ACHIEVE SELF-CONSISTENCE'
+         IF(MINPRT)WRITE (6,240)
+  240    FORMAT (//10X,'"""""""""""""UNABLE TO ACHIEVE SELF-CONSISTENCE'
      1,/)
-         WRITE (6,230) DIFF,PL
-  230    FORMAT (//,10X,'DELTAE= ',E12.4,5X,'DELTAP= ',E12.4,///)
+         WRITE (6,250) DIFF,PL
+  250    FORMAT (//,10X,'DELTAE= ',E12.4,5X,'DELTAP= ',E12.4,///)
          IFLEPO=9
          IITER=2
          CALL WRITE (TIME0,ESCF)
          STOP
-      END IF
+      ENDIF
       GO TO 70
 **********************************************************************
 *                                                                    *
@@ -532,28 +543,35 @@ C#      IF(MODEB.EQ.3)WRITE(6,*)' MODEB',MODEB
 **********************************************************************
 *          SELF-CONSISTENCE ACHEIVED.
 *
-  240 EE=HELECT(NORBS,PA,H,F)
+  260 EE=HELECT(NORBS,PA,H,F)
       IF(UHF) THEN
          EE=EE+HELECT(NORBS,PB,H,FB)
       ELSE
          EE=EE*2.D0 + SHIFT*(NOPEN-NCLOSE)*0.25D0
       ENDIF
+      EE=EE+CAPCOR(NAT,NFIRST,NLAST,NUMAT,P,H)
       IF( NSCF.EQ.0 .OR. ABS(SHIFT) .GT. 1.D-5 .OR. CI .OR. HALFE ) THEN
 C
 C  PUT F AND FB INTO POLD IN ORDER TO NOT DESTROY F AND FB
 C  AND DO EXACT DIAGONALISATIONS
-         DO 250 I=1,LINEAR
-  250    POLD(I)=F(I)
-         CALL HQRII(POLD,NORBS,NORBS,EIGS,C)
+         DO 270 I=1,LINEAR
+  270    POLD(I)=F(I)
+         CALL RSP(POLD,NORBS,NORBS,EIGS,C)
          IF(UHF) THEN
-            DO 260 I=1,LINEAR
-  260       POLD(I)=FB(I)
-            CALL HQRII(POLD,NORBS,NORBS,EIGB,CBETA)
+            DO 280 I=1,LINEAR
+  280       POLD(I)=FB(I)
+            CALL RSP(POLD,NORBS,NORBS,EIGB,CBETA)
          ENDIF
+         DO 290 I=1,LINEAR
+  290    POLD(I)=P(I)
          IF(CI.OR.HALFE) THEN
             SUM=MECI(EIGS,C,CBETA,EIGB, NORBS,NMOS,NCIS,.FALSE.)
-C#      WRITE(6,'(''  VALUE OF MECI'',F13.6)')SUM
             EE=EE+SUM
+            IF(PRTPL)THEN
+               ESCF=(EE+ENUCLR)*23.061 +ATHEAT
+               WRITE(6,'(27X,''AFTER MECI, ENERGY  '',F14.7)')ESCF
+            ENDIF
+C#      WRITE(6,'(''  VALUE OF MECI'',F13.6)')SUM,EE
          ENDIF
       ENDIF
       NSCF=NSCF+1

@@ -14,8 +14,8 @@
 *
 * ON OUTPUT LABELS = ATOMIC NUMBERS OF ALL ATOMS, INCLUDING DUMMIES.
 *           GEO    = INTERNAL COORDINATES, IN ANGSTROMS, AND DEGREES.
-*           LOPT   = INTEGER ARRAY, A '1' MEANS OPTIMISE THIS PARAMETER,
-*                    '0' MEANS DO NOT OPTIMISE, AND A '-1' LABELS THE
+*           LOPT   = INTEGER ARRAY, A '1' MEANS OPTIMIZE THIS PARAMETER,
+*                    '0' MEANS DO NOT OPTIMIZE, AND A '-1' LABELS THE
 *                    REACTION COORDINATE.
 *           NA     = INTEGER ARRAY OF ATOMS (SEE DATA INPUT)
 *           NB     = INTEGER ARRAY OF ATOMS (SEE DATA INPUT)
@@ -23,10 +23,12 @@
 *           ATMASS = ATOMIC MASSES OF ATOMS.
 ************************************************************************
       COMMON /ATMASS/ ATMASS(NUMATM)
+      COMMON /KEYWRD/ KEYWRD
       DIMENSION ISTART(40), XYZ(3,NUMATM)
-      LOGICAL LEADSP
+      LOGICAL LEADSP, IRCDRC
+      CHARACTER*80 KEYWRD
       CHARACTER ELEMNT(107)*2, LINE*80, SPACE*1, NINE*1,ZERO*1,
-     1TAB*1, COMMA*1, STRING*80, ELE*2
+     1TAB*1, COMMA*1, STRING*80, ELE*2, TURN*1
       DATA (ELEMNT(I),I=1,107)/'H','HE',
      1 'LI','BE','B','C','N','O','F','NE',
      2 'NA','MG','AL','SI','P','S','CL','AR',
@@ -38,9 +40,10 @@
      8 'HO','ER','TM','YB','LU','HF','TA','W','RE','OS','IR','PT',
      9 'AU','HG','TL','PB','BI','PO','AT','RN',
      1 'FR','RA','AC','TH','PA','U','NP','PU','AM','CM','BK','CF','XX',
-     2 'FM','MD','NO','++','+','--','-','TV'/
+     2 'FM','MD','CB','++','+','--','-','TV'/
       DATA COMMA,SPACE,NINE,ZERO/',',' ','9','0'/
       TAB=CHAR(9)
+      IRCDRC=(INDEX(KEYWRD,'IRC')+INDEX(KEYWRD,'DRC') .NE.0)
       ILOWA = ICHAR('a')
       ILOWZ = ICHAR('z')
       ICAPA = ICHAR('A')
@@ -98,8 +101,8 @@
          GO TO 70
       END IF
 *  ATOMIC SYMBOL USED
-      REAL=READA(STRING,1)
-      IF (REAL.LT..005) THEN
+      REAL=ABS(READA(STRING,1))
+      IF (REAL.LT.1.D-15) THEN
 *   NO ISOTOPE
          ELE=STRING(1:2)
       ELSE
@@ -111,6 +114,7 @@
          END IF
       END IF
 *   CHECK FOR ERROR IN ATOMIC SYMBOL
+      IF(ELE(1:1).EQ.'-'.AND.ELE(2:2).NE.'-')ELE(2:2)=' '
       DO 60 I=1,107
          IF(ELE.EQ.ELEMNT(I)) THEN
             LABEL=I
@@ -125,18 +129,41 @@
    70 IF (LABEL.NE.99) NUMAT=NUMAT+1
       IF(WEIGHT.NE.0.D0)THEN
          WRITE(6,'('' FOR ATOM'',I4,''  ISOTOPIC MASS:''
-     1    ,F12.5)')NATOMS, WEIGHT
+     1    ,F15.5)')NATOMS, WEIGHT
          ATMASS(NUMAT)=WEIGHT
       ELSE
          IF(LABEL .NE. 99)  ATMASS(NUMAT)=AMS(LABEL)
       ENDIF
       LABELS(NATOMS)   =LABEL
       GEO(1,NATOMS)    =READA(LINE,ISTART(2))
-      LOPT(1,NATOMS)   =READA(LINE,ISTART(3))
       GEO(2,NATOMS)    =READA(LINE,ISTART(4))
-      LOPT(2,NATOMS)   =READA(LINE,ISTART(5))
       GEO(3,NATOMS)    =READA(LINE,ISTART(6))
-      LOPT(3,NATOMS)   =READA(LINE,ISTART(7))
+      IF(IRCDRC)THEN
+         TURN=LINE(ISTART(3):ISTART(3))
+         IF(TURN.EQ.'T')THEN
+            LOPT(1,NATOMS)=1
+            IF(NATOMS.EQ.1)WRITE(6,'(A)')' IN DRC MONITOR POTENTIAL ENER
+     1GY'//' TURNING POINTS'
+         ELSE
+            LOPT(1,NATOMS)=0
+         ENDIF
+         TURN=LINE(ISTART(5):ISTART(5))
+         IF(TURN.EQ.'T')THEN
+            LOPT(2,NATOMS)=1
+         ELSE
+            LOPT(2,NATOMS)=0
+         ENDIF
+         TURN=LINE(ISTART(7):ISTART(7))
+         IF(TURN.EQ.'T')THEN
+            LOPT(3,NATOMS)=1
+         ELSE
+            LOPT(3,NATOMS)=0
+         ENDIF
+      ELSE
+         LOPT(1,NATOMS)   =READA(LINE,ISTART(3))
+         LOPT(2,NATOMS)   =READA(LINE,ISTART(5))
+         LOPT(3,NATOMS)   =READA(LINE,ISTART(7))
+      ENDIF
       NA(NATOMS)       =READA(LINE,ISTART(8))
       NB(NATOMS)       =READA(LINE,ISTART(9))
       NC(NATOMS)       =READA(LINE,ISTART(10))
@@ -158,9 +185,9 @@
          DO 100 I=1,NATOMS
             DO 100 J=1,3
   100    XYZ(J,I)=GEO(J,I)
-         DEGREE=180.D0/3.141592652589D0
+         DEGREE=90.D0/ASIN(1.D0)
          CALL XYZINT(XYZ,NATOMS,NA,NB,NC,DEGREE,GEO)
-      ELSE
+      ELSEIF (.NOT.IRCDRC) THEN
          IF(LOPT(1,1)+LOPT(2,1)+LOPT(3,1)+LOPT(2,2)+LOPT(3,2)+
      1        LOPT(3,3) .GT. 0)THEN
             LOPT(1,1)=0
@@ -191,5 +218,5 @@
       DO 130 K=1,J
   130 WRITE(6,140)LABELS(K),(GEO(J,K),LOPT(J,K),J=1,3),NA(K),NB(K),NC(K)
   140 FORMAT(I4,2X,3(F10.5,2X,I2,2X),3(I2,1X))
-      CALL EXIT
+      STOP
       END

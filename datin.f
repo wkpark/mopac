@@ -1,15 +1,15 @@
       SUBROUTINE AM1
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      CHARACTER NUMBRS(0:9)*1, PARTYP(25)*5, FILES*64,
-     1          KEYWRD*80, TEXT*50, ELEMNT(107)*2
+      CHARACTER NUMBRS(0:9)*1, PARTYP(25)*5, FILES*64, DUMMY*50,
+     1          KEYWRD*80, TEXT*50, TXTNEW*50, ELEMNT(107)*2
       COMMON /ATHEAT/ ATHEAT
      1       /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      2                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      3                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /ATOMIC/ EISOL(107),EHEAT(107)
       COMMON /KEYWRD/ KEYWRD
-      DIMENSION  IJPARS(5,99), PARSIJ(99)
+      DIMENSION  IJPARS(5,500), PARSIJ(500)
       DATA NUMBRS/' ','1','2','3','4','5','6','7','8','9'/
       DATA PARTYP/'USS  ','UPP  ','UDD  ','ZS   ','ZP   ','ZD   ',
      1    'BETAS','BETAP','BETAD','GSS  ','GSP  ','GPP  ','GP2  ',
@@ -26,7 +26,7 @@
      8 'HO','ER','TM','YB','LU','HF','TA','W ','RE','OS','IR','PT',
      9 'AU','HG','TL','PB','BI','PO','AT','RN',
      1 'FR','RA','AC','TH','PA','U ','NP','PU','AM','CM','BK','CF','XX',
-     2 'FM','MD','NO','++','+','--','-','TV'/
+     2 'FM','MD','CB','++','+','--','-','TV'/
       I=INDEX(KEYWRD,'EXTERNAL=')+9
       J=INDEX(KEYWRD(I:),' ')+I-1
       FILES=KEYWRD(I:J)
@@ -49,7 +49,15 @@
 ************************************************************************
       IF(INDEX(TEXT,'END') .NE. 0) GOTO 100
       DO 30 J=1,25
-   30 IF(INDEX(TEXT,PARTYP(J)(1:3)) .NE. 0) GOTO 50
+         IF(J.GT.21) THEN
+            IT=INDEX(TEXT,'FN')
+            TXTNEW = TEXT(1:IT+2)
+            IF(INDEX(TXTNEW,PARTYP(J)) .NE. 0) GOTO 50
+         ENDIF
+         IF(INDEX(TEXT,PARTYP(J)) .NE. 0) GOTO 50
+   30 CONTINUE
+      WRITE(6,'(''  FAULTY LINE:'',A)')TXTNEW
+      WRITE(6,'(''  FAULTY LINE:'',A)')TEXT
       WRITE(6,'(''   NAME NOT FOUND'')')
       STOP
    40 CONTINUE
@@ -59,7 +67,11 @@
          KFN=READA(TEXT,I+3)
       ELSE
          KFN=0
+         I=INDEX(TEXT,PARTYP(J))
       ENDIF
+      K=INDEX(TEXT(I:),' ')+1
+      DUMMY=TEXT(K:)
+      TEXT=DUMMY
       DO 60 J=1,107
    60 IF(INDEX(TEXT,' '//ELEMNT(J)) .NE. 0) GOTO 70
       WRITE(6,'('' ELEMENT NOT FOUND '')')
@@ -89,9 +101,15 @@
                IF(IPARAM.NE.K) GOTO 110
                IF(IELMNT.NE.J) GOTO 110
                PARAM=PARSIJ(I)
-               WRITE(6,'(10X,A5,A1,11X,A2,F17.6)')
-     1PARTYP(IPARAM),NUMBRS(KFN),
+               IF(KFN.NE.0)THEN
+                  WRITE(6,'(10X,A6,11X,A2,F17.6)')
+     1PARTYP(IPARAM)(:3)//NUMBRS(KFN)//'  ',
      2ELEMNT(IELMNT),PARAM
+               ELSE
+                  WRITE(6,'(10X,A6,11X,A2,F17.6)')
+     1PARTYP(IPARAM)//NUMBRS(KFN),
+     2ELEMNT(IELMNT),PARAM
+               ENDIF
                CALL UPDATE(IPARAM,IELMNT,PARAM,1,KFN)
   110       CONTINUE
   120    CONTINUE

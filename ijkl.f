@@ -1,7 +1,7 @@
       SUBROUTINE IJKL(I1, I2, J1, J2, ELEM, A1, MDIM)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION A1(MDIM,10)
+      DIMENSION A1(MDIM,NMECI)
       COMMON /XYIJKL/ XY(NMECI,NMECI,NMECI,NMECI)
 ************************************************************************
 *

@@ -1,5 +1,6 @@
-      SUBROUTINE DRC
+      SUBROUTINE DRC(STARTV, STARTK)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION STARTV(*), STARTK(*)
 ************************************************************************
 *                                                                      *
 *    DRC IS DESIGNED TO FOLLOW A REACTION PATH FROM THE TRANSITION     *
@@ -13,105 +14,108 @@
 ************************************************************************
       INCLUDE 'SIZES'
       COMMON /KEYWRD/ KEYWRD
-      COMMON /TITLES/ KOMENT,TITLE
+      COMMON /DENSTY/ P(MPACK),PA(MPACK),PB(MPACK)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)
-      COMMON /ELEMTS/ ELEMNT(107)
       COMMON /GEOM  / GEO(3,NUMATM)
       COMMON /ATMASS/ ATMASS(NUMATM)
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
-      COMMON /CORE  / CORE(107)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
-     2                NCLOSE,NOPEN,NDUMY,FRACT
-      COMMON /DENSTY/ P(MPACK),PA(MPACK),PB(MPACK)
-      DIMENSION Q(3), COORDS(3,NUMATM), IEL1(3), Q2(NUMATM)
-      CHARACTER KEYWRD*80, KOMENT*80, TITLE*80, ELEMNT*2, ALPHA*2
+     2                NCLOSE,NOPEN,NDUMY,XRACT
+      COMMON /DRCCOM/ MCOPRT(2,MAXPAR), NCOPRT, PRTMAX
+      CHARACTER KEYWRD*80
       CHARACTER SPACE*1, CHDOT*1, ZERO*1, NINE*1, CH*1
-      DIMENSION VELO0(MAXPAR), VELO1(MAXPAR), VELO2(MAXPAR),
-     1VELO3(MAXPAR),
-     2VOLD(MAXPAR), COORD(3,NUMATM), GROLD2(MAXPAR),
-     3GROLD(MAXPAR), PAROLD(MAXPAR), PARREF(MAXPAR),
+      DIMENSION VELREF(MAXPAR), VELO0(MAXPAR), VELO1(MAXPAR),
+     1VELO2(MAXPAR), VELO3(MAXPAR), GERROR(MAXPAR),
+     2COORD(3,NUMATM), GROLD2(MAXPAR),
+     3GROLD(MAXPAR), PAROLD(MAXPAR), GEOREF(3,NUMATM),
      4 SQRTMS(MAXPAR)
-      LOGICAL INT, ADDK
-      EQUIVALENCE (COORD,VOLD)
-      DATA VELO0/MAXPAR*0.D0/, INT/.TRUE./, VOLD/MAXPAR*0.D0/
-      DATA ADDK/.TRUE./
+      LOGICAL INT, ADDK, LETOT, LET,
+     1PRTMAX, IRCDRC
+      DATA VELO0/MAXPAR*0.D0/, INT/.TRUE./
       DATA SPACE,CHDOT,ZERO,NINE /' ','.','0','9'/
+      DATA ADDK/.TRUE./
       CLOSE (5)
       TNOW=SECOND()
+      OLDTIM=SECOND()
+      DELOLD=10.D0
+      GTOT=0.D0
+      OPEN(UNIT=7,STATUS='SCRATCH')
       IF(INDEX(KEYWRD,' PREC').NE.0)THEN
-         ACCU=1.D0
+         ACCU=0.5D0
       ELSE
-         ACCU=0.1D0
+         ACCU=1.D0
       ENDIF
       LPOINT=0
-      STEPT=0.D0
-      STEPH=0.D0
-      STEPX=0.D0
-      IF(INDEX(KEYWRD,' T-PRIO').NE.0)THEN
-         IF(INDEX(KEYWRD,' T-PRIORITY=').NE.0)THEN
-            STEPT=READA(KEYWRD,INDEX(KEYWRD,'T-PRIO')+5)
-         ELSE
-            STEPT=0.1D0
-         ENDIF
-         WRITE(6,'(/,'' TIME PRIORITY, INTERVAL ='',F4.1,
-     1'' FEMTOSECONDS'',/)')STEPT
-         STEPT=STEPT*1.D-15
-      ELSEIF(INDEX(KEYWRD,' H-PRIO').NE.0)THEN
-         IF(INDEX(KEYWRD,' H-PRIORITY=').NE.0)THEN
-            STEPH=READA(KEYWRD,INDEX(KEYWRD,'H-PRIO')+5)
-         ELSE
-            STEPH=0.1D0
-         ENDIF
-         WRITE(6,'(/,'' KINETIC ENERGY PRIORITY, STEP ='',F4.1,
-     1'' KCAL/MOLE'',/)')STEPH
-      ELSEIF(INDEX(KEYWRD,' X-PRIO').NE.0)THEN
-         IF(INDEX(KEYWRD,' X-PRIORITY=').NE.0)THEN
-            STEPX=READA(KEYWRD,INDEX(KEYWRD,'X-PRIO')+5)
-         ELSE
-            STEPX=0.05D0
-         ENDIF
-         WRITE(6,'(/,'' GEOMETRY PRIORITY, STEP ='',F5.2,
-     1'' ANGSTROMS'',/)')STEPX
-      ENDIF
+      LET=(INDEX(KEYWRD,' GEO-OK').NE.0)
       IF(INDEX(KEYWRD,' SYMME').NE.0)THEN
          WRITE(6,*)'  SYMMETRY SPECIFIED, BUT CANNOT BE USED IN DRC'
          NDEP=0
       ENDIF
+C
+C      CONVERT TO CARTESIAN COORDINATES, IF NOT ALREADY DONE.
+C
       IF(INDEX(KEYWRD,' XYZ').EQ.0)THEN
+         NA(1)=0
          CALL GMETRY(GEO,COORD)
          L=0
-         DO 10 I=1,NUMAT
+         DO 20 I=1,NUMAT
             LABELS(I)=NAT(I)
             SUM=SQRT(ATMASS(NAT(I)))
             DO 10 J=1,3
                L=L+1
                SQRTMS(L)=SUM
-   10    GEO(J,I)=COORD(J,I)
+               GEO(J,I)=COORD(J,I)
+   10       COORD(J,I)=0.D0
+   20    CONTINUE
          NA(1)=99
       ENDIF
+C
+C  TRANSFER COORDINATES TO XPARAM AND LOC
+C
+      IF(INDEX(KEYWRD,' DRC').NE.0)THEN
+         PRTMAX=(LOC(1,1).EQ.1)
+         IF(PRTMAX)THEN
+            J=1
+         ELSE
+            J=0
+         ENDIF
+         NVAR=NVAR-J
+         DO 30 I=1,NVAR
+            MCOPRT(1,I)=LOC(1,I+J)
+   30    MCOPRT(2,I)=LOC(2,I+J)
+         IF(LOC(1,1).EQ.0)NVAR=0
+         NCOPRT=NVAR
+      ELSE
+         NCOPRT=0
+      ENDIF
       L=0
-      DO 20 I=1,NUMAT
-         DO 20 J=1,3
+      DO 40 I=1,NUMAT
+         DO 40 J=1,3
             L=L+1
             LOC(1,L)=I
             LOC(2,L)=J
-   20 XPARAM(L)=GEO(J,I)
+            GEOREF(J,I)=GEO(J,I)
+   40 XPARAM(L)=GEO(J,I)
       NVAR=NUMAT*3
 C
 C DETERMINE DAMPING FACTOR
 C
+      IRCDRC=(INDEX(KEYWRD,'IRC=').NE.0)
       IF(INDEX(KEYWRD,'DRC=').NE.0) THEN
          HALF=READA(KEYWRD,INDEX(KEYWRD,'DRC='))
          WRITE(6,'(//10X,'' DAMPING FACTOR FOR KINETIC ENERGY ='',F12.6)
      1')HALF
+      ELSEIF (INDEX(KEYWRD,'DRC').EQ.0) THEN
+         HALF=0.D0
       ELSE
          HALF=1.D6
       ENDIF
-      HALF=MAX(0.0001D0,HALF)
+      LETOT=(.NOT.IRCDRC.AND.HALF.LT.1.D0)
+      HALF=SIGN(MAX(0.000001D0,ABS(HALF)),HALF)
 C
 C DETERMINE EXCESS KINETIC ENERGY
 C
@@ -128,55 +132,131 @@ C
       DELTAT=1.D-16
       QUADR=1.D0
       TOTIME=0.D0
+      ONCE=0.D0
       ETOT=0.D0
       ESCF=0.D0
       CONST=1.D0
-         I=INDEX(KEYWRD,' T=')
-         IF(I.NE.0) THEN
-            TIM=READA(KEYWRD,I)
-            DO 11 J=I+3,80
-               CH=KEYWRD(J:J)
-               IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE))
+      I=INDEX(KEYWRD,' T=')
+      IF(I.NE.0) THEN
+         TIM=READA(KEYWRD,I)
+         DO 50 J=I+3,80
+            CH=KEYWRD(J:J)
+            IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE))
      1 THEN
-                  IF( CH .EQ. 'M') TIM=TIM*60
-                  GOTO 21
-               ENDIF
-   11       CONTINUE
+               IF( CH .EQ. 'M') TIM=TIM*60
+               GOTO 60
+            ENDIF
+   50    CONTINUE
 C             4 SECONDS TO LOAD IN EXECUTABLE!
-   21       TLEFT=TIM-4
-         ELSE
+   60    TLEFT=TIM-4
+      ELSE
          TLEFT=3596
-         ENDIF
-      IF( INDEX(KEYWRD,'REST').NE.0)THEN
+      ENDIF
+      IF( INDEX(KEYWRD,'REST').NE.0.AND.INDEX(KEYWRD,'IRC=').EQ.0)THEN
 C
 C  RESTART FROM A PREVIOUS RUN
 C
-      OPEN(UNIT=9,FILE='FOR009',STATUS='UNKNOWN',FORM='FORMATTED')
-      REWIND 9
-      READ(9,'(A)')ALPHA
-      READ(9,'(8F10.6)')(XPARAM(I),I=1,NVAR)
-      READ(9,'(A)')ALPHA
-      READ(9,'(8F10.1)')(VELO0(I),I=1,NVAR)
-      READ(9,'(A)')ALPHA
-      READ(9,*)(GRAD(I),I=1,NVAR)
-      READ(9,*)(GROLD(I),I=1,NVAR)
-      READ(9,*)(GROLD2(I),I=1,NVAR)
-      READ(9,*)(PARREF(I),I=1,NVAR)
-      READ(9,*)ETOT,ESCF,EKIN,DELOLD,DELTAT,DLOLD2,ILOOP,
-     +TOTIME,OLDT,TREF,OLDH,OLDT,REFSCF
-      WRITE(6,'(//10X,''CALCULATION RESTARTED, CURRENT'',
-     +'' KINETIC ENERGY='',F10.5,//)')EKIN
+         OPEN(UNIT=9,FILE='FOR009',STATUS='UNKNOWN',FORM='FORMATTED')
+         REWIND 9
+         OPEN(UNIT=10,FILE='FOR010',STATUS='UNKNOWN',FORM='UNFORMATTED')
+         REWIND 10
+         READ(9,'(A)')ALPHA
+         READ(9,'(3F19.13)')(XPARAM(I),I=1,NVAR)
+         READ(9,'(A)')ALPHA
+         READ(9,'(3F19.3)')(VELO0(I),I=1,NVAR)
+         READ(9,'(A)')ALPHA
+         READ(9,*)(GRAD(I),I=1,NVAR)
+         READ(9,*)(GROLD(I),I=1,NVAR)
+         READ(9,*)(GROLD2(I),I=1,NVAR)
+         READ(9,*)ETOT,ESCF,EKIN,DELOLD,DELTAT,DLOLD2,ILOOP,
+     1GNORM,LETOT,ELOST1,GTOT
+         WRITE(6,'(//10X,''CALCULATION RESTARTED, CURRENT'',
+     1'' KINETIC ENERGY='',F10.5,//)')EKIN
+         GOTO 110
       ELSE
-      ILOOP=1
+         ILOOP=1
+         IF(INDEX(KEYWRD,'IRC=').NE.0)THEN
+            K=READA(KEYWRD,INDEX(KEYWRD,'IRC='))
+            IF(K.LT.0)THEN
+               K=-K
+               ONE=-1.D0
+            ELSE
+               ONE=1.D0
+            ENDIF
+            KL=(K-1)*NVAR
+            SUMM=0.D0
+            VELO1(1)=0
+            VELO1(2)=0
+            VELO1(3)=0
+C
+C     WEIGH EIGENVECTOR COEFFICIENTS SO THAT CENTER OF MASS IS CONSTANT
+C
+            SUMMAS=0.D0
+            I=0
+            DO 70 II=1,NUMAT
+               AMS=ATMASS(II)
+               SUMMAS=SUMMAS+AMS
+               DO 70 I1=1,3
+                  I=I+1
+                  VELO0(I)=STARTV(KL+I)*ONE
+                  VELREF(I)=VELO0(I)
+                  VELO1(I1)=VELO1(I1)+VELO0(I)*AMS
+   70       CONTINUE
+            DO 80 I=1,3
+   80       VELO1(I)=-VELO1(I)/SUMMAS
+            I=0
+            DO 90 II=1,NUMAT
+               AMS=ATMASS(II)
+               DO 90 I1=1,3
+                  I=I+1
+                  VELO0(I)=VELO0(I)+VELO1(I1)
+   90       SUMM=SUMM+VELO0(I)**2*AMS
+            IF(ADDONK.LT.1.D-5)THEN
+               IF(ABS(HALF).GT.1.D-3.AND.STARTK(K).GT.105.D0)THEN
+                  WRITE(6,'(A,F10.3,A,/,A)')' BY DEFAULT, ONE QUANTUM OF
+     1 ENERGY,'//' EQUIVALENT TO',STARTK(K),' CM(-1)',
+     2' WILL BE USED TO START THE DRC'
+C
+C    2.8585086D-3 CONVERTS CM(-1) INTO KCAL/MOLE
+C
+                  ADDONK=STARTK(K)*2.8585086D-3
+                  WRITE(6,'(A,F7.2,A)')' THIS REPRESENTS AN ENERGY OF',A
+     1DDONK,' KCALS/MOLE'
+               ELSEIF(ABS(HALF).GT.1.D-3)THEN
+                  WRITE(6,'(A,F7.2,A)')' THE VIBRATIONAL FREQUENCY (',ST
+     1ARTK(K),' IS TOO SMALL FOR ONE QUANTUM TO BE USED'
+                  WRITE(6,'(A)')
+     1' INSTEAD 0.3KCAL/MOLE WILL BE USED TO START THE IRC'
+                  ADDONK=0.3D0
+               ELSE
+                  ADDONK=0.3D0
+               ENDIF
+            ENDIF
+C
+C   AT THIS POINT ADDONK IS IN KCAL/MOLE
+C   NORMALIZE SO THAT TOTAL K.E. = ONE QUANTUM (DEFAULT) (DRC ONLY)
+C                              OR 0.3KCAL/MOLE (IRC ONLY)
+C                              OR ADDONK IF KINETIC=NN SUPPLIED
+C
+            SUMM=SQRT(ADDONK/(0.5D0*SUMM/4.184D10))
+            ADDK=.FALSE.
+            DO  100 I=1,NVAR
+  100       VELO0(I)=VELO0(I)*SUMM
+         ENDIF
       ENDIF
-      IUPPER=ILOOP+399
-      DO 230 ILOOP=ILOOP,IUPPER
+  110 CONTINUE
+      IUPPER=ILOOP+4999
+      ILP=ILOOP
+      ONE=0.D0
+      IF(INDEX(KEYWRD,'REST').NE.0.AND.INDEX(KEYWRD,'IRC=').EQ.0)
+     1ONE=1.D0
+      DO 190 ILOOP=ILP,IUPPER
 C
 C  MOVEMENT OF ATOMS WILL BE PROPORTIONAL TO THE AVERAGE VELOCITIES
 C  OF THE ATOMS BEFORE AND AFTER TIME INTERVAL
 C
-         DO 30 I=1,NVAR
-   30    VOLD(I)=VELO0(I)
+C
+C  RAPID CHANGE IN GRADIENT IMPLIES SMALL STEP SIZE FOR DELTAT
 C
 C   KINETIC ENERGY = 1/2 * M * V * V
 C                  = 0.5 / (4.184D10) * M * V * V
@@ -191,78 +271,65 @@ C
          ERROR=(ETOT-(EKIN+ESCF))
          IF(ILOOP.GT.2)THEN
             QUADR = 1.D0+ERROR/(EKIN*CONST+0.001D0)*0.5D0
-C#      WRITE(6,'(''   QUADR'',3F13.6)')QUADR,ERROR,EKIN
             QUADR = MIN(1.3D0,MAX(0.8D0,QUADR))
          ELSE
             QUADR=1.D0
          ENDIF
-         IF(EKIN.GT.0.2.AND.ADDK)THEN
-            ETOT=ETOT+ADDONK
-            ADDK=.FALSE.
-         ENDIF
-         EKOLD=EKIN
-         IF(EKIN.GT.0.2.AND.ADDK)THEN
+         IF((LET.OR.EKIN.GT.0.2).AND.ADDK)THEN
 C
 C   DUMP IN EXCESS KINETIC ENERGY
 C
             ETOT=ETOT+ADDONK
             ADDK=.FALSE.
+            ADDONK=0.D0
          ENDIF
-         DLOLD2=DELOLD
-         DELOLD=DELTAT
+         EKOLD=EKIN
 C
 C  CALCULATE THE DURATION OF THE NEXT STEP.
+C  STEP SIZE IS THAT REQUIRED TO PRODUCE A CONSTANT CHANGE IN GEOMETRY
 C
-         IF(CONST.GT.0.99D0) THEN
-            DELTAT= MAX(DELTAT*(MIN(1.5D0,0.0005D0*ACCU/ABS(ERROR+1.D-11
-     1))),1.D-16)
-         ELSE
-            DELTAT=ACCU*1.D-15
-         ENDIF
-         EROLD=ERROR
 C
 C  IF DAMPING IS USED, CALCULATE THE NEW TOTAL ENERGY AND
 C  THE RATIO FOR REDUCING THE KINETIC ENERGY
 C
-         CONST=0.5D0**(DELTAT*1.D14/HALF)
-         ETOT=ETOT-EKIN*(1-CONST)
+         CONST=MAX(1.D-36,0.5D0**(DELTAT*1.D14/HALF))
          CONST=SQRT(CONST)
-C
          VELVEC=0.D0
          EKIN=0.D0
-C#      WRITE(6,*)' VELOCITY, FIRST DERIV AND SECOND DERIV'
-C#      WRITE(6,'(6E13.4)')(VELO0(J),J=1,NVAR)
-         DELTA1=DELTAT+DELOLD
-         DELTA2=DELTA1+DLOLD2
-         DO 40 I=1,NVAR
+         DELTA1=DELOLD+DLOLD2
+         ELOST=0.D0
+         DO 120 I=1,NVAR
 C
 C   CALCULATE COMPONENTS OF VELOCITY AS
 C   V = V(0) + V'*T + V"*T*T
 C   WE NEED ALL THREE TERMS, V(0), V' AND V"
 C
             VELO1(I) = 1.D0/ATMASS(LOC(1,I))*GRAD(I)
-            VELO2(I) = 1.D0/ATMASS(LOC(1,I))*
-     1                 (GRAD(I)-GROLD(I))/DELOLD
-            IF(ILOOP.GT.3) VELO3(I) = 2.D0/ATMASS(LOC(1,I))*
-     1      ((DELTAT-DELTA2)*(GRAD(I)-GROLD(I))
-     2      -(DELTAT-DELTA1)*(GRAD(I)-GROLD2(I)))/
-     3      ((1.D30*DELTAT**2-1.D30*DELTA1**2)*(DELTAT-DELTA2)
-     4      -(1.D30*DELTAT**2-1.D30*DELTA2**2)*(DELTAT-DELTA1))
+            IF(ILOOP.GT.3) THEN
+               VELO3(I) = 2.D0/ATMASS(LOC(1,I))*
+     1(DELTA1*(GROLD(I)-GRAD(I))-DELOLD*(GROLD2(I)-GRAD(I)))/
+     2(DELTA1*(DELOLD**2*1.D30)-DELOLD*(DELTA1**2*1.D30))
+               VELO2(I)=1.D0/ATMASS(LOC(1,I))*
+     1(GRAD(I)-GROLD(I)-0.5D0*VELO3(I)*(1.D30*DELOLD**2))/(DELOLD*1.D15)
+            ELSE
+               VELO2(I) = 1.D0/ATMASS(LOC(1,I))*
+     1                 (GRAD(I)-GROLD(I))/(1.D15*DELOLD)
+               VELO3(I)=0.D0
+            ENDIF
 C
 C  MOVE ATOMS THROUGH DISTANCE EQUAL TO VELOCITY * DELTA-TIME, NOTE
 C  VELOCITY CHANGES FROM START TO FINISH, THEREFORE AVERAGE.
 C
             PAROLD(I)=XPARAM(I)
             XPARAM(I)=XPARAM(I)
-     1             -1.D8*(DELTAT*VELO0(I)
+     1             -1.D8*(DELTAT*VELO0(I)*ONE
      2             +0.5D0*DELTAT**2*VELO1(I)
-     3             +0.3333333D0*DELTAT**3*VELO2(I)
-     4             +0.25D0*DELTAT**2*(1.D30*DELTAT**2)*VELO3(I))
+     3             +0.16666D0*(DELTAT**2*1.D15)*DELTAT*VELO2(I)
+     4             +0.0416666D0*DELTAT**2*(1.D30*DELTAT**2)*VELO3(I))
 C
 C   CORRECT ERRORS DUE TO CUBIC COMPONENTS IN ENERGY GRADIENT,
 C   ALSO TO ADD ON EXCESS ENERGY, IF NECESSARY.
 C
-            VELO0(I)=VELO0(I) *  QUADR
             VELVEC=VELVEC+VELO0(I)**2
 C
 C   MODIFY VELOCITY IN LIGHT OF CURRENT ENERGY GRADIENTS.
@@ -276,252 +343,139 @@ C
 C   THIS EXPRESSION IS ACCURATE TO SECOND ORDER IN TIME.
 C
             VELO0(I) = VELO0(I) + DELTAT*VELO1(I) + 0.5D0*DELTAT**2*VELO
-     12(I)                 + 0.3333333D0*DELTAT*(1.D30*DELTAT**2)*VELO3(
+     12(I)*1.D15           + 0.166666D0*DELTAT*(1.D30*DELTAT**2)*VELO3(
      2I)
+            IF(LET.OR.GNORM.GT.3.D0)THEN
+               LET=.TRUE.
+               ELOST=ELOST+VELO0(I)**2*ATMASS(LOC(1,I))*(1-CONST**2)
+               VELO0(I)=VELO0(I)*CONST*QUADR
+            ENDIF
 C
 C  CALCULATE KINETIC ENERGY (IN 2*ERGS AT THIS POINT)
 C
             EKIN=EKIN+VELO0(I)**2*ATMASS(LOC(1,I))
-C#      WRITE(6,*)'   VELVEC:',VELVEC,' QUADR:',QUADR
-C#      WRITE(6,*)'  VELOCITY DUE TO GRADIENT TERM'
-C#      WRITE(6,'(6F13.1)')(VELO0(I)-VOLD(I),I=1,NVAR)
-C#      WRITE(6,*)'  VELOCITY AFTER ADDING IN GRADIENT TERM'
-C#      WRITE(6,'(6F13.1)')(VELO0(I),I=1,NVAR)
-   40    CONTINUE
-C#      WRITE(6,'(6E13.4)')(VELO1(J),J=1,NVAR)
-C#      WRITE(6,'(6E13.4)')(VELO2(J),J=1,NVAR)
-C#      WRITE(6,'(6E13.4)')(VELO3(J),J=1,NVAR)
+  120    CONTINUE
+         ONE=1.D0
+         IF(LET.OR.GNORM.GT.3.D0)THEN
+            IF(.NOT.LETOT)THEN
+               ETOT=ESCF+ADDONK
+               ADDONK=0.D0
+               ELOST1=0.D0
+               ELOST=0.D0
+            ENDIF
+            LETOT=.TRUE.
+         ENDIF
 C
 C  CONVERT ENERGY INTO KCAL/MOLE
 C
          EKIN=0.5*EKIN/4.184D10
+         IF(LETOT.AND.ABS(HALF).GT.0.00001D0)
+     1ETOT=ETOT-EKIN/CONST**2+EKIN
+         ELOST1=ELOST1+0.5D0*ELOST/4.184D10
 C
 C STORE OLD GRADIENTS FOR DELTA - VELOCITY CALCULATION
 C
-         DO 50 I=1,NVAR
+         DO 130 I=1,NVAR
             GROLD2(I)=GROLD(I)
             GROLD(I)=GRAD(I)
-   50    GRAD(I)=0.D0
+  130    GRAD(I)=0.D0
 C
 C   CALCULATE ENERGY AND GRADIENTS
 C
-         CALL COMPFG(XPARAM,INT,ESCF,.TRUE.,GRAD,.TRUE.)
+         SCFOLD=ESCF
+         CALL COMPFG(XPARAM,.TRUE.,ESCF,.TRUE.,GRAD,.TRUE.)
+         IF(ILOOP.GT.2)THEN
+            GNORM=0.D0
+            DO 150 I=1,NVAR,3
+               SUM=SQRT(DOT(GRAD(I),GRAD(I),3)/
+     1(DOT(VELO0(I),VELO0(I),3)+1.D-20))
+               DO 140 J=I,I+2
+  140          GERROR(J)=GERROR(J)+GRAD(J)+VELO0(J)*SUM
+  150       CONTINUE
+            GNORM=SQRT(DOT(GERROR,GERROR,NVAR))
+            GTOT=GNORM
+         ENDIF
+         GNORM=SQRT(DOT(GRAD,GRAD,NVAR))
 C
 C   CONVERT GRADIENTS INTO ERGS/CM
 C
-         DO 60 I=1,NVAR
-   60    GRAD(I)=GRAD(I)*4.184D18
+         DO 160 I=1,NVAR
+  160    GRAD(I)=GRAD(I)*4.184D18
 C
 C   SPECIAL TREATMENT FOR FIRST POINT - SET "OLD" GRADIENTS EQUAL TO
 C   CURRENT GRADIENTS.
 C
          IF(ILOOP.EQ.1) THEN
-            DO 70 I=1,NVAR
-   70       GROLD(I)=GRAD(I)
+            DO 170 I=1,NVAR
+  170       GROLD(I)=GRAD(I)
          ENDIF
-C
-C   GO THROUGH THE CRITERIA FOR DECIDING WHETHER OR NOT TO PRINT THIS
-C   POINT.  IF YES, THEN ALSO CALCULATE THE EXACT POINT AS A FRACTION
-C   BETWEEN THE LAST POINT AND THE CURRENT POINT
-C
-         FRACT=-1.D-4
-         NFRACT=1
-         IF(OLDH.EQ.0)OLDH=ESCF
-         IF(STEPH.EQ.0)GOTO 80
-C
-C   CRITERION FOR PRINTING RESULTS  IS A CHANGE IN HEAT OF FORMATION =
-C   -CHANGE IN KINETIC ENERGY
-C
-         IF(REFSCF.EQ.0.D0) THEN
-            I=ESCF/STEPH
-            REFSCF=I*STEPH
-         ENDIF
-         IF(ABS(ESCF-REFSCF).GT.STEPH)THEN
-C
-C   FRACT IS THE FRACTIONAL DISTANCE FROM THE OLD TO THE NEW POINT
-C   FOR THE FIRST POINT TO BE PRINTED
-C
-C   FINCR IS THE DISTANCE BETWEEN ANY TWO POINTS TO BE PRINTED
-C
-C   NFRACT IS THE NUMBER OF POINTS TO BE PRINTED IN THE CURRENT DOMAIN
-C
-            FRACT=(REFSCF+SIGN(STEPH,ESCF-OLDH)-OLDH)/(ESCF-OLDH)
-            FINCR=STEPH/ABS(ESCF-OLDH)
-            NFRACT=(ESCF-REFSCF)/STEPH
-            REFSCF=REFSCF+STEPH*NFRACT
-            NFRACT=ABS(NFRACT)
-         ENDIF
-         GOTO 140
-   80    IF(STEPT.EQ.0.D0) GOTO 90
-C
-C   CRITERION FOR PRINTING RESULTS IS A CHANGE IN TIME.
-C
-         IF(ABS(TOTIME-TREF).GT.STEPT)THEN
-            FRACT = (TREF+STEPT-OLDT) / (TOTIME-OLDT)
-            FINCR=STEPT/(TOTIME-OLDT)
-            NFRACT= (TOTIME-TREF)/STEPT
-            TREF=TREF+NFRACT*STEPT
-         ENDIF
-         GOTO 140
-   90    IF(STEPX.EQ.0.D0)GOTO 130
-C
-C   CRITERION FOR PRINTING RESULTS IS A CHANGE IN GEOMETRY.
-C
-         XOLD=XNOW
-         XNOW=0.D0
-         L=0
-         DO 110 I=1,NUMAT
-            SUM=0.D0
-            DO 100 J=1,3
-               L=L+1
-  100       SUM=SUM+(PARREF(L)-XPARAM(L))**2
-  110    XNOW=XNOW+SQRT(SUM)
-         IF(XNOW.GT.STEPX)THEN
-            NFRACT=XNOW/STEPX
-            SHIFT = STEPX*NFRACT
-            DO 120 J=1,NVAR
-  120       PARREF(J)=PARREF(J)+(XPARAM(J)-PARREF(J))/XNOW*NFRACT*STEPX
-            FRACT = (STEPX-XOLD)/(XNOW-XOLD)
-            FINCR=STEPX/(XNOW-XOLD)
-            XNOW=XNOW-NFRACT*STEPX
-            IF(ILOOP.EQ.1)NFRACT=1
-         ENDIF
-         GOTO 140
-C
-C   PRINT EVERY POINT.
-C
-  130    FRACT=1.0
-  140    IF(ILOOP.NE.1.AND.FRACT.LT.0.D0)GOTO 210
-         FRACT=FRACT-FINCR
-C
-C  LOOP OVER ALL POINTS IN CURRENT DOMAIN
-C
-         DO 220 II=1,NFRACT
-            FRACT=FRACT+FINCR
-            TPOINT = (1.D0-FRACT)*OLDT + FRACT*TOTIME
-            HPOINT = (1.D0-FRACT)*OLDH + FRACT*ESCF
-            POINTK = (1.D0-FRACT)*OLDK + FRACT*EKIN
-            L=0
-            DO 150 I=1,NUMAT
-               DO 150 J=1,3
-                  L=L+1
-  150       GEO(J,I)=(1.D0-FRACT)*PAROLD(L) + FRACT*XPARAM(L)
-            LPOINT=LPOINT+1
-            IF(ETOT.EQ.0)ETOT=ESCF+EKIN
-            IF(LPOINT.EQ.1)THEN
-               WRITE(6,'(//,'' TIME IN FEMTOSECONDS  POINT  POTENTIAL +'
-     1','' KINETIC  =  TOTAL     ERROR    REF%'')')
-            ELSE
-               WRITE(6,'(//,'' TIME IN FEMTOSECONDS  POINT  POTENTIAL +'
-     1','' KINETIC  =  TOTAL     ERROR    REF'')')
+         DLOLD2=DELOLD
+         DELOLD=DELTAT
+         SUM=0.D0
+         DO 180 I=1,NVAR
+  180    SUM=SUM + ((GRAD(I)-GROLD(I))/4.184D18)**2
+         IF(ABS(HALF).LT.0.001D0)THEN
+            DELTAT= DELTAT*
+     1MIN(2.D0, (5.D-5*ACCU/(ABS(ESCF+ELOST1-ETOLD)+1.D-20)))**0.25D0
+            ETOLD=ESCF+ELOST1
+            IF(ILOOP.GT.5.AND.SCFOLD-ESCF.LT.-1.D-3 .OR.
+     1      ILOOP.GT.30.AND.SCFOLD-ESCF.LT.0.D0)  THEN
+               WRITE(6,'(//,'' IRC CALCULATION COMPLETE '')')
+               STOP
             ENDIF
-            WRITE(6,'(F10.3,I16,F12.5,F11.5,F11.5, F10.5,''   ''
-     1,I3,''%'')')TPOINT*1.D15, ILOOP, HPOINT, POINTK, HPOINT+POINTK,
-     2HPOINT+POINTK-ETOT, LPOINT
-C#     1,HPOINT+POINTK-ETOT,HPOINT,POINTK,HPOINT+POINTK
-            WRITE(6,*)'                CARTESIAN GEOMETRY
-     1 '//'VELOCITY (IN CM/SEC)'
-            WRITE(6,*)'  ATOM        X          Y          Z
-     1    '//'X          Y          Z'
-            DO 160 I=1,NUMAT
-               LL=(I-1)*3+1
-               LU=LL+2
-               HPOINT = (1.D0-FRACT)*OLDH + FRACT*ESCF
-               WRITE(6,'(I4,3X,A2,3F11.5,2X,3F11.1)')
-     1I, ELEMNT(NAT(I)),(GEO(J,I),J=1,3),
-     2((1.D0-FRACT)*VOLD(L) + FRACT*VELO0(L),L=LL,LU)
-  160       CONTINUE
-            CALL CHRGE(P,Q2)
-            DO 170 I=1,NUMAT
-               L=NAT(I)
-  170       Q2(I)=CORE(L) - Q2(I)
-            CALL XYZINT(GEO,NATOMS,NA,NB,NC,1.D0,COORDS)
-            DEGREE=57.29577951D0
-            COORDS(2,1)=0.D0
-            COORDS(3,1)=0.D0
-            COORDS(1,1)=0.D0
-            COORDS(2,2)=0.D0
-            COORDS(3,2)=0.D0
-            COORDS(3,3)=0.D0
-            IVAR=1
-            NA(1)=0
-            L=0
-            WRITE(6,'(//10X,''FINAL GEOMETRY OBTAINED'',33X,''CHARGE'')'
+         ELSE
+            DELTAT= DELTAT*MIN(1.05D0, 10.D0*ACCU/(SUM+1.D-4))
+************************************************************************
+*
+*         TESTING CODE - REMOVE BEFORE FINAL VERSION ASSEMBLED
+C#          (ILOOP/400)*400.EQ.ILOOP)DELTAT=-DELTAT
+*
+************************************************************************
+         ENDIF
+         DELTAT=MAX(1.D-16,DELTAT)
+C#         DELTAT=3.D-16
+         IF(ABS(HALF).LT.0.00001D0)THEN
+            CALL PRTDRC(ESCF,DELTAT,XPARAM,GEOREF,
+     1ELOST1,GTOT,ETOT,VELO0,NVAR)
+         ELSE
+            CALL PRTDRC(ESCF,DELTAT,XPARAM,GEOREF,
+     1EKIN,ELOST,ETOT,VELO0,NVAR)
+         ENDIF
+C#         ETOT=ESCF+EKIN
+         TNOW=SECOND()
+         TCYCLE=TNOW-OLDTIM
+         OLDTIM=TNOW
+         TLEFT=TLEFT-TCYCLE
+         IF (ILOOP.EQ.IUPPER.OR.TLEFT.LT.3*TCYCLE) THEN
+            IF( INDEX(KEYWRD,'REST')+INDEX(KEYWRD,'ISOT').NE.0) CLOSE (9
      1)
-            WRITE(6,'(1X,A)')KEYWRD,KOMENT,TITLE
-            DO 200 I=1,NATOMS
-               J=I/26
-               ALPHA(1:1)=CHAR(ICHAR('A')+J)
-               J=I-J*26
-               ALPHA(2:2)=CHAR(ICHAR('A')+J-1)
-               DO 180 J=1,3
-  180          IEL1(J)=0
-  190          CONTINUE
-               IF(LOC(1,IVAR).EQ.I) THEN
-                  IEL1(LOC(2,IVAR))=1
-                  IVAR=IVAR+1
-                  GOTO 190
-               ENDIF
-               IF(I.LT.4) THEN
-                  IEL1(3)=0
-                  IF(I.LT.3) THEN
-                     IEL1(2)=0
-                     IF(I.LT.2) THEN
-                        IEL1(1)=0
-                     ENDIF
-                  ENDIF
-               ENDIF
-               IF(I.EQ.LATOM)IEL1(LPARAM)=-1
-               Q(1)=COORDS(1,I)
-               Q(2)=COORDS(2,I)*DEGREE
-               Q(3)=COORDS(3,I)*DEGREE
-               IF(LABELS(I).LT.99)THEN
-                  L=L+1
-                  WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,F13.4,I5,A)')
-     1    ELEMNT(LABELS(I)),(Q(K),IEL1(K),K=1,3),NA(I),NB(I),NC(I),Q2(L)
-     2    ,LPOINT,ALPHA//'*'
-               ELSE
-                  WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,13X,I5,A)')
-     1    ELEMNT(LABELS(I)),(Q(K),IEL1(K),K=1,3),NA(I),NB(I),NC(I)
-     2    ,LPOINT,ALPHA//'%'
-               ENDIF
-  200       CONTINUE
-            NA(1)=99
-            WRITE(6,*)
-            WRITE(6,*)
-  210       CONTINUE
-  220    CONTINUE
-         OLDT=TOTIME
-         TOTIME=TOTIME+DELTAT
-         OLDH=ESCF
-         XOLD=XNOW
-         OLDK=EKIN
-      OLDTIM=TNOW
-      TNOW=SECOND()
-      TCYCLE=TNOW-OLDTIM
-      TLEFT=TLEFT-TCYCLE      
-      IF (ILOOP.EQ.IUPPER.OR.TLEFT.LT.3*TCYCLE) THEN
-      OPEN(UNIT=9,FILE='FOR009',STATUS='UNKNOWN',FORM='FORMATTED')
-      REWIND 9
-      OPEN(UNIT=10,FILE='FOR010',STATUS='UNKNOWN',FORM='UNFORMATTED')
-      REWIND 10
-      WRITE(9,'(A)')' CARTESIAN GEOMETRY PARAMETERS IN ANGSTROMS'
-      WRITE(9,'(8F10.6)')(XPARAM(I),I=1,NVAR)
-      WRITE(9,'(A)')' VELOCITY FOR EACH CARTESIAN COORDINATE, IN CM/SEC'
-      WRITE(9,'(8F10.1)')(VELO0(I),I=1,NVAR)
-      WRITE(9,'(A)')' FIRST, SECOND, AND THIRD-ORDER GRADIENTS, ETC'
-      WRITE(9,*)(GRAD(I),I=1,NVAR)
-      WRITE(9,*)(GROLD(I),I=1,NVAR)
-      WRITE(9,*)(GROLD2(I),I=1,NVAR)
-      WRITE(9,*)(PARREF(I),I=1,NVAR)
-      I=ILOOP+1
-      WRITE(9,*)ETOT,ESCF,EKIN,DELOLD,DELTAT,DLOLD2,I,
-     +TOTIME,OLDT,TREF,OLDH,OLDT,REFSCF
-         LINEAR=(NORBS*(NORBS+1))/2
-         WRITE(10)(PA(I),I=1,LINEAR)
-         IF(NALPHA.NE.0)WRITE(10)(PB(I),I=1,LINEAR)
-      WRITE(6,'(//10X,'' RUNNING OUT OF TIME, RESTART FILE WRITTEN'')')
-      STOP
-      ENDIF
-  230 CONTINUE
+            OPEN(UNIT=9,FILE='FOR009',STATUS='NEW',FORM='FORMATTED')
+            REWIND 9
+            OPEN(UNIT=10,FILE='FOR010',STATUS='UNKNOWN',FORM='UNFORMATTE
+     1D')
+            REWIND 10
+            WRITE(9,'(A)')' CARTESIAN GEOMETRY PARAMETERS IN ANGSTROMS'
+            WRITE(9,'(3F19.13)')(XPARAM(I),I=1,NVAR)
+            WRITE(9,'(A)')' VELOCITY FOR EACH CARTESIAN COORDINATE, IN C
+     1M/SEC'
+            WRITE(9,'(3F19.3)')(VELO0(I),I=1,NVAR)
+            WRITE(9,'(A)')' FIRST, SECOND, AND THIRD-ORDER GRADIENTS, ET
+     1C'
+            WRITE(9,*)(GRAD(I),I=1,NVAR)
+            WRITE(9,*)(GROLD(I),I=1,NVAR)
+            WRITE(9,*)(GROLD2(I),I=1,NVAR)
+            I=ILOOP+1
+            WRITE(9,*)ETOT,ESCF,EKIN,DELOLD,DELTAT,DLOLD2,I,
+     1GNORM,LETOT,ELOST1,GTOT
+            ESCF=-1.D9
+            CALL PRTDRC(ESCF,DELTAT,XPARAM,GEOREF,
+     1EKIN,ELOST,ETOT,VELO0,NVAR)
+            LINEAR=(NORBS*(NORBS+1))/2
+            WRITE(10)(PA(I),I=1,LINEAR)
+            IF(NALPHA.NE.0)WRITE(10)(PB(I),I=1,LINEAR)
+            WRITE(6,'(//10X,'' RUNNING OUT OF TIME, RESTART FILE WRITTEN
+     1'')')
+            STOP
+         ENDIF
+  190 CONTINUE
       END

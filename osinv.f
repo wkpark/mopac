@@ -1,9 +1,10 @@
       SUBROUTINE OSINV (A,N,D)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
       DIMENSION A(*)
 ************************************************************************
 *
-*    OSINV INVERTS A GENERAL SQUARE MATRIX OF ORDER UP TO 100. SEE
+*    OSINV INVERTS A GENERAL SQUARE MATRIX OF ORDER UP TO MAXORB. SEE
 *          DIMENSION STATEMENTS BELOW.
 *
 *   ON INPUT       A = GENERAL SQUARE MATRIX STORED LINEARLY.
@@ -15,7 +16,7 @@
 *                      IN WHICH CASE D = 0.0
 *
 ************************************************************************
-      DIMENSION L(100), M(100)
+      DIMENSION L(MAXORB), M(MAXORB)
 ************************************************************************
 *
 *    IF THE VALUE OF TOL GIVEN HERE IS UNSUITABLE, IT CAN BE CHANGED.

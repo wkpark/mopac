@@ -5,8 +5,9 @@
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /KEYWRD/ KEYWRD
+      COMMON /ISTOPE/ AMS(107)
       COMMON /MULTIP/ DD(107), QQ(107), AM(107), AD(107), AQ(107)
-      DIMENSION P(*),Q(*),COORD(3,*),DIPVEC(3)
+      DIMENSION P(*),Q(*),COORD(3,*),DIPVEC(3), CENTER(3)
       CHARACTER*80 KEYWRD
 C***********************************************************************
 C     DIPOLE CALCULATES DIPOLE MOMENTS
@@ -46,7 +47,7 @@ C     S.P.MCGLYNN, ET AL: APPLIED QUANTUM CHEMISTRY
 C
       DIMENSION DIP(4,3)
       DIMENSION HYF(107,2)
-      LOGICAL FIRST, FORCE
+      LOGICAL FIRST, FORCE, CHARGD
       DATA HYF(1,1)     / 0.0D00           /
       DATA   HYF(1,2) /0.0D0     /
       DATA   HYF(5,2) /6.520587D0/
@@ -60,39 +61,62 @@ C
       DATA   HYF(17,2)/2.522964D0/
       DATA FIRST /.TRUE./
       IF (FIRST) THEN
-         DO 10 I=4,107
-            HYF(I,1)= 5.0832*DD(I)
-   10    CONTINUE
+         DO 10 I=2,107
+   10    HYF(I,1)= 5.0832*DD(I)
+         WTMOL=0.D0
+         SUM=0.D0
+         DO 20 I=1,NUMAT
+            WTMOL=WTMOL+AMS(NAT(I))
+   20    SUM=SUM+Q(I)
+         CHARGD=(ABS(SUM).GT.0.5D0)
          FIRST=.FALSE.
-         FORCE=(INDEX(KEYWRD,'FORCE') .NE. 0)
+         FORCE=(INDEX(KEYWRD,'FORCE') +INDEX(KEYWRD,'IRC').NE. 0)
          ITYPE=1
          IF(INDEX(KEYWRD,'MINDO') .NE. 0)ITYPE=2
       ENDIF
-      DO 20 I=1,4
-         DO 20 J=1,3
-   20 DIP(I,J)=0.0D00
-      DO 30 I=1,NUMAT
+      IF(CHARGD)THEN
+C
+C   NEED TO RESET ION'S POSITION SO THAT THE CENTER OF MASS IS AT THE
+C   ORIGIN.
+C
+         DO 30 I=1,3
+   30    CENTER(I)=0.D0
+         DO 40 I=1,3
+            DO 40 J=1,NUMAT
+   40    CENTER(I)=CENTER(I)+AMS(NAT(J))*COORD(I,J)
+         DO 50 I=1,3
+   50    CENTER(I)=CENTER(I)/WTMOL
+         DO 60 I=1,3
+            DO 60 J=1,NUMAT
+   60    COORD(I,J)=COORD(I,J)-CENTER(I)
+      ENDIF
+      DO 70 I=1,4
+         DO 70 J=1,3
+   70 DIP(I,J)=0.0D00
+      DO 90 I=1,NUMAT
          NI=NAT(I)
          IA=NFIRST(I)
-         DO 30 J=1,3
+         L=NLAST(I)-IA
+         DO 80 J=1,L
             K=((IA+J)*(IA+J-1))/2+IA
-            DIP(J,2)=DIP(J,2)-HYF(NI,ITYPE)*P(K)
-   30 DIP(J,1)=DIP(J,1)+4.803D00*Q(I)*COORD(J,I)
-      DO 40 J=1,3
-   40 DIP(J,3)=DIP(J,2)+DIP(J,1)
-      DO 50 J=1,3
-   50 DIP(4,J)=SQRT(DIP(1,J)**2+DIP(2,J)**2+DIP(3,J)**2)
+   80    DIP(J,2)=DIP(J,2)-HYF(NI,ITYPE)*P(K)
+         DO 90 J=1,3
+   90 DIP(J,1)=DIP(J,1)+4.803D00*Q(I)*COORD(J,I)
+      DO 100 J=1,3
+  100 DIP(J,3)=DIP(J,2)+DIP(J,1)
+      DO 110 J=1,3
+  110 DIP(4,J)=SQRT(DIP(1,J)**2+DIP(2,J)**2+DIP(3,J)**2)
       IF( FORCE) THEN
          DIPVEC(1)=DIP(1,3)
          DIPVEC(2)=DIP(2,3)
          DIPVEC(3)=DIP(3,3)
       ELSE
-         WRITE (6,60) ((DIP(I,J),I=1,4),J=1,3)
+         WRITE (6,120) ((DIP(I,J),I=1,4),J=1,3)
       ENDIF
       DIPOLE = DIP(4,3)
       RETURN
 C
-   60 FORMAT (' DIPOLE',11X,2HX ,8X,2HY ,8X,2HZ ,6X,'TOTAL',/,
+  120 FORMAT (' DIPOLE',11X,2HX ,8X,2HY ,8X,2HZ ,6X,'TOTAL',/,
      1' POINT-CHG.',4F10.3/,' HYBRID',4X,4F10.3/,' SUM',7X,4F10.3)
 C
       END

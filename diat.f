@@ -19,8 +19,10 @@
 *         EXPONENTS ARE ASSUMED TO BE PRESENT IN COMMON BLOCK EXPONT.
 *
 ************************************************************************
-      INTEGER A,PQ2,B,PQ1,AA,BB,YETA
-      LOGICAL FIRST
+      COMMON /KEYWRD/KEYWRD
+      CHARACTER*80 KEYWRD
+      INTEGER A,PQ2,B,PQ1,AA,BB
+      LOGICAL FIRST, ANALYT
       COMMON /EXPONT/ EMUS(107),EMUP(107),EMUD(107)
       DIMENSION DI(9,9),S(3,3,3),UL1(3),UL2(3),C(3,5,5),NPQ(107)
      1          ,XI(3),XJ(3), SLIN(27), IVAL(3,5)
@@ -31,11 +33,12 @@
      1            (C3(1,1),C(1,1,3)), (C4(1,1),C(1,1,4)),
      2            (C5(1,1),C(1,1,5)), (S1(1,1),S(1,1,1)),
      3            (S2(1,1),S(1,1,2)), (S3(1,1),S(1,1,3))
-      DATA NPQ/1,0, 2,2,2,2,2,2,2,0, 3,3,3,3,3,3,3,0, 4,4,4,4,4,4,4,4,
+      DATA NPQ/1,0, 2,2,2,2,2,2,2,0, 0,3,3,3,3,3,3,0, 0,4,4,4,4,4,4,4,
      14,4,4,4,4,4,4,4,4,0, 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-     1,32*6,21*0/
+     2,32*6,15*0,3,5*0/
       DATA IVAL/1,0,9,1,3,8,1,4,7,1,2,6,0,0,5/
       DATA FIRST /.TRUE./
+      ANALYT=(INDEX(KEYWRD,'ANALYT').NE.0)
       X1=XI(1)
       X2=XJ(1)
       Y1=XI(2)
@@ -51,27 +54,32 @@
    20 CONTINUE
       CALL COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)
       IF(PQ1.EQ.0.OR.PQ2.EQ.0.OR.R.GE.10.D0) RETURN
-      IF(R.LT.0.1)THEN
+      IF(R.LT.0.001)THEN
          RETURN
       ENDIF
       IA=MIN(PQ1,3)
       IB=MIN(PQ2,3)
       A=IA-1
       B=IB-1
-      IF(PQ1.LT.3.AND.PQ2.LT.3) THEN
+      IF(ANALYT)THEN
+         CALL GOVER(NI,NJ,XI,XJ,R,DI)
+C#      WRITE(6,*)' OVERLAP FROM GOVER'
+C#      WRITE(6,'(4F15.10)')SG
+         RETURN
+      ENDIF
+      IF(NI.LT.18.AND.NJ.LT.18) THEN
          CALL DIAT2(NI,EMUS(NI),EMUP(NI),R,NJ,EMUS(NJ),EMUP(NJ),S)
       ELSE
          UL1(1)=EMUS(NI)
          UL2(1)=EMUS(NJ)
          UL1(2)=EMUP(NI)
          UL2(2)=EMUP(NJ)
-         UL1(3)=EMUD(NI)
-         UL2(3)=EMUD(NJ)
+         UL1(3)=MAX(EMUD(NI),0.3D0)
+         UL2(3)=MAX(EMUD(NJ),0.3D0)
          DO 30 I=1,27
    30    SLIN(I)=0.0D0
          NEWK=MIN(A,B)
          NK1=NEWK+1
-         YETA=PQ1+PQ2+3
          DO 40 I=1,IA
             ISS=I
             IB=B+1
@@ -80,8 +88,7 @@
                DO 40 K=1,NK1
                   IF(K.GT.I.OR.K.GT.J) GOTO 40
                   KSS=K
-                  S(I,J,K)=SS(PQ1,PQ2,ISS,JSS,KSS,UL1(I),UL2(J),R,YETA,F
-     1IRST)
+                  S(I,J,K)=SS(PQ1,PQ2,ISS,JSS,KSS,UL1(I),UL2(J),R,FIRST)
    40    CONTINUE
       ENDIF
       DO 50 I=1,IA
@@ -109,90 +116,87 @@
      1(C4(I,K)*C4(J,L)+C2(I,K)*C2(J,L))*BB*S2(I,J)+(C5(I,K)*C5(J,L)
      2+C1(I,K)*C1(J,L))*S3(I,J)
    50 CONTINUE
+C#      WRITE(6,*)' OVERLAP FROM DIAT2'
+C#      DO 12 I=1,4
+C#  12  WRITE(6,'(4F15.10)')(DI(J,I),J=1,4)
       RETURN
       END
-      FUNCTION SS(NA,NB,LA,LB,M,UC,UD,R1,YETA,FIRST)
+      DOUBLE PRECISION FUNCTION SS(NA,NB,LA1,LB1,M1,UA,UB,R1,FIRST)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL FIRST
-      INTEGER A,PP,B,Q,YETA
-      DIMENSION FA(14),BI(13,13),AFF(3,3,3),AF(20),BF(20)
+      DIMENSION FA(0:13),AFF(0:2,0:2,0:2),AF(0:19),BF(0:19),
+     1BI(0:12,0:12)
       DATA AFF/27*0. D0/
       DATA FA/1.D0,1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
      1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0/
-      R=R1
-      UA=UC
-      UB=UD
-      R=R/0.529167D0
-      ER=R
+      M=M1-1
+      LB=LB1-1
+      LA=LA1-1
+      R=R1/0.529167D0
       IF(FIRST) THEN
          FIRST=.FALSE.
-         DO 10 I=1,13
-            BI(I,1)=1.D0
+C
+C           INITIALISE SOME CONSTANTS
+C
+C                  BINOMIALS
+C
+         DO 10 I=0,12
+            BI(I,0)=1.D0
             BI(I,I)=1.D0
    10    CONTINUE
-         DO 20 I=1,12
+         DO 20 I=0,11
             I1=I-1
-            DO 20 J=1,I1
+            DO 20 J=0,I1
                BI(I+1,J+1)=BI(I,J+1)+BI(I,J)
    20    CONTINUE
-         AFF(1,1,1)=1.D0
-         AFF(2,1,1)=1.D0
-         AFF(2,2,1)=1.D0
-         AFF(3,1,1)=1.5D0
-         AFF(3,2,1)=1.73205D0
-         AFF(3,3,1)=1.224745D0
-         AFF(3,1,3)=-0.5D0
+         AFF(0,0,0)=1.D0
+         AFF(1,0,0)=1.D0
+         AFF(1,1,0)=1.D0
+         AFF(2,0,0)=1.5D0
+         AFF(2,1,0)=1.73205D0
+         AFF(2,2,0)=1.224745D0
+         AFF(2,0,2)=-0.5D0
       ENDIF
-      P=(UA+UB)*ER*0.5D0
-      BA=(UA-UB)*ER*0.5D0
-      EX=EXP(BA)
+      P=(UA+UB)*R*0.5D0
+      B=(UA-UB)*R*0.5D0
+      EX=EXP(B)
       QUO=1/P
-      AF(1)=QUO*EXP(-P)
-      NANB=NA+NB
+      AF(0)=QUO*EXP(-P)
       DO 30 N=1,19
-         AF(N+1)=N*QUO*AF(N)+AF(1)
+         AF(N)=N*QUO*AF(N-1)+AF(0)
    30 CONTINUE
-      NANB1=NANB+1
-      CALL BFN(BA,BF)
+      CALL BFN(B,BF)
       SUM=0.D0
-      LAM1=LA-M+1
-      LBM1=LB-M+1
-      DO 50 I=1,LAM1,2
-         A=NA+I-LA
-         IC=LA+2-I-M
-         DO 50 J=1,LBM1,2
-            B=NB+J-LB
-            ID=LB-J-M+2
+      LAM1=LA-M
+      LBM1=LB-M
+C
+C          START OF OVERLAP CALCULATION PROPER
+C
+      DO 50 I=0,LAM1,2
+         IA=NA+I-LA
+         IC=LA-I-M
+         DO 50 J=0,LBM1,2
+            IB=NB+J-LB
+            ID=LB-J-M
             SUM1=0.D0
-            IA=A+1
-            IB=B+1
-            AB=A+B-1
-            DO 40 K1=1,IA
-               PART1=BI(IA,K1)
-               DO 40 K2=1,IB
-                  PART2=PART1*BI(IB,K2)
-                  DO 40 K3=1,IC
-                     PART3=PART2*BI(IC,K3)
-                     DO 40 K4=1,ID
-                        PART4=PART3*BI(ID,K4)
-                        DO 40 K5=1,M
-                           PART5=PART4*BI(M,K5)
-                           Q=AB-K1-K2+K3+K4+2*K5
-                           DO 40 K6=1,M
-                              PART6=PART5*BI(M,K6)
-                              PP=K1+K2+K3+K4+2*K6-5
-                              JX=M+K2+K4+K5+K6-5
-                              IX=JX/2
-                              SUM1=SUM1+PART6*(IX*2-JX+0.5D0)*AF(Q)*BF(P
-     1P)
+            IAB=IA+IB
+            DO 40 K1=0,IA
+               DO 40 K2=0,IB
+                  DO 40 K3=0,IC
+                     DO 40 K4=0,ID
+                        DO 40 K5=0,M
+                           IAF=IAB-K1-K2+K3+K4+2*K5
+                           DO 40 K6=0,M
+                              IBF=K1+K2+K3+K4+2*K6
+                              JX=(-1)**(M+K2+K4+K5+K6)
+                              SUM1=SUM1+BI(ID,K4)*
+     1BI(M,K5)*BI(IC,K3)*BI(IB,K2)*BI(IA,K1)*
+     2BI(M,K6)*JX*AF(IAF)*BF(IBF)
    40       CONTINUE
-            SUM=SUM+SUM1*AFF(LA,M,I)*AFF(LB,M,J)*2.D0
+            SUM=SUM+SUM1*AFF(LA,M,I)*AFF(LB,M,J)
    50 CONTINUE
-      X=R**(NA+NB+1)*UA**NA*UB**NB
-      SA=SUM*X*SQRT(UA*UB/(FA(NA+NA+1)*FA(NB+NB+1))*((LA+LA-1
-     1)*(LB+LB-1)))/(2.D0**M)
-   60 CONTINUE
-      SS=SA
+      SS=SUM*R**(NA+NB+1)*UA**NA*UB**NB/(2.D0**(M+1))*
+     1SQRT(UA*UB/(FA(NA+NA)*FA(NB+NB))*((LA+LA+1)*(LB+LB+1)))
       RETURN
       END
       SUBROUTINE COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)

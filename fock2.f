@@ -1,6 +1,7 @@
       SUBROUTINE FOCK2(F, PTOT, P, W, WJ, WK, NUMAT, NFIRST,
      1NMIDLE, NLAST)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
       DIMENSION F(*), PTOT(*), WJ(*), WK(*), NFIRST(*), NMIDLE(*),
      1          NLAST(*), P(*), W(*)
       REAL WJ,WK
@@ -16,7 +17,8 @@ C  ON OUTPUT F   = PARTIAL FOCK MATRIX
 C***********************************************************************
       COMMON /EULER / TVEC(3,3), ID
       COMMON /KEYWRD/ KEYWRD
-      DIMENSION SPPOP(200), DPOP(200), IFACT(300), I1FACT(300)
+      DIMENSION SPPOP(NUMATM), DPOP(NUMATM), IFACT(MAXORB),
+     1I1FACT(MAXORB)
       CHARACTER*80 KEYWRD
       LOGICAL LID
       DATA ITYPE /1/
@@ -26,7 +28,7 @@ C***********************************************************************
 C
 C   SET UP ARRAY OF (I*(I-1))/2
 C
-      DO 30 I=1,300
+      DO 30 I=1,MAXORB
          IFACT(I)=(I*(I-1))/2
    30 I1FACT(I)=IFACT(I)+I
       LID=(ID.EQ.0)
@@ -39,9 +41,6 @@ C
       ENDIF
       GOTO 10
    40 KK=0
-      NORBS=NLAST(NUMAT)
-      LINEA1=(NORBS*(NORBS+1))/2 + 1
-      P(LINEA1)=0.D0
       DO 160 II=1,NUMAT
          IA=NFIRST(II)
          IB=NLAST(II)
@@ -113,23 +112,23 @@ C BUT IT WORKS,
                         IF(I.GE.K) THEN
                            IK=KA+K
                         ELSE
-                           IK=LINEA1
+                           IK=0
                         ENDIF
                         IF(J.GE.K) THEN
                            JK=KB+K
                         ELSE
-                           JK=LINEA1
+                           JK=0
                         ENDIF
                         DO 80 L=JA,K
                            IF(I.GE.L) THEN
                               IL=KA+L
                            ELSE
-                              IL=LINEA1
+                              IL=0
                            ENDIF
                            IF(J.GE.L) THEN
                               JL=KB+L
                            ELSE
-                              JL=LINEA1
+                              JL=0
                            ENDIF
                            KL=KC+L
                            BB=2.0D00

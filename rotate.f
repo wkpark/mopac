@@ -27,7 +27,7 @@ C***********************************************************************
       COMMON /KEYWRD/ KEYWRD
       CHARACTER*80 KEYWRD
       DIMENSION X(3),Y(3),Z(3),RI(22),CORE(4,2)
-      LOGICAL SI,SK, AM1
+      LOGICAL SI,SK, AM1, ANALYT
       EQUIVALENCE (CORE(1,1),CSS1),(X(1),X1),(Y(1),Y1),(Z(1),Z1)
       DATA ITYPE /1/
 C
@@ -46,7 +46,7 @@ C
       DO 10 I=1,3
          X(I)=XI(I)-XJ(I)
    10 RIJ=RIJ+X(I)**2
-      IF(RIJ.LT.0.2D0) THEN
+      IF(RIJ.LT.1.D-10) THEN
          DO 20 I=1,10
             E1B(I)=0.D0
    20    E2A(I)=0.D0
@@ -56,6 +56,11 @@ C
       ENDIF
    30 GOTO (40,50,110) ITYPE
    40 CONTINUE
+      ANALYT=(INDEX(KEYWRD,'ANALYT') .NE. 0)
+      IF(ANALYT)THEN
+         OPEN(UNIT=2,STATUS='SCRATCH',FORM='UNFORMATTED')
+         REWIND 2
+      ENDIF
       IF(INDEX(KEYWRD,'MINDO') .NE. 0) THEN
          ITYPE=2
       ELSE
@@ -80,8 +85,8 @@ C
       RIJ=SQRT(RIJ)
       SCALE=0
       IF(NATORB(NI).EQ.0) SCALE=EXP(-ALP(NI)*RIJ)
-      IF(NATORB(NJ).EQ.0) SCALE=SCALE+EXP(-ALP(NI)*RIJ)
-      IF(NBOND.LT.154) THEN
+      IF(NATORB(NJ).EQ.0) SCALE=SCALE*EXP(-ALP(NJ)*RIJ)
+      IF(NBOND.LE.154) THEN
          IF(NBOND.EQ.22 .OR. NBOND .EQ. 29) GO TO 80
          GO TO 90
    80    SCALE=ALP3(NBOND)*EXP(-RIJ)
@@ -94,13 +99,14 @@ C
       ELSEIF (RIJ.LT.1.D0.AND.NATORB(NI)*NATORB(NJ).EQ.0) THEN
          ENUC=0.D0
       ELSE
-         ENUC=TORE(NI)*TORE(NJ)*SUM+
-     1         ABS(TORE(NI)*TORE(NJ)*(14.399D0/RIJ-SUM)*SCALE)
+         ENUC=TORE(NI)*TORE(NJ)*SUM
+     1         +ABS(TORE(NI)*TORE(NJ)*(14.399D0/RIJ-SUM)*SCALE)
       ENDIF
       RETURN
   110 CONTINUE
       RIJ=MIN(SQRT(RIJ),CUTOFF)
       CALL REPP(NI,NJ,RIJ,RI,CORE)
+      IF(ANALYT)WRITE(2)(RI(I),I=1,22)
       GAM=RI(1)
 C
 C *** THE REPULSION INTEGRALS OVER MOLECULAR FRAME (W) ARE STORED IN THE
@@ -112,7 +118,7 @@ C
       DO 120 I=1,3
   120 X(I)=X(I)*A
       Z(3)=0.D0
-      IF(ABS(X(3)).GT.0.99999999D0) THEN
+      IF(ABS(X(3)).GT.1.D0-1.D-13) THEN
          X(3)=SIGN(1.D0,X(3))
          GOTO 130
       ENDIF
@@ -223,7 +229,7 @@ C
   270 CONTINUE
   280 CONTINUE
       E1B(1)=-CSS1
-      IF(NI.GT.3) THEN
+      IF(NI.GT.1) THEN
          E1B(2) = -CSP1 *X1
          E1B(3) = -CPPS1*X1**2-CPPP1*(Y1**2+Z1**2)
          E1B(4) = -CSP1 *X2
@@ -233,9 +239,9 @@ C
          E1B(8) = -CPPS1*X1*X3-CPPP1*(Y1*Y3+Z1*Z3)
          E1B(9) = -CPPS1*X2*X3-CPPP1*(Y2*Y3+Z2*Z3)
          E1B(10)= -CPPS1*X3*X3-CPPP1*(Y3*Y3+Z3*Z3)
-      END IF
+      ENDIF
       E2A(1)=-CSS2
-      IF(NJ.GT.3) THEN
+      IF(NJ.GT.1) THEN
          E2A(2) = -CSP2 *X1
          E2A(3) = -CPPS2*X1**2-CPPP2*(Y1**2+Z1**2)
          E2A(4) = -CSP2 *X2
@@ -245,7 +251,7 @@ C
          E2A(8) = -CPPS2*X1*X3-CPPP2*(Y1*Y3+Z1*Z3)
          E2A(9) = -CPPS2*X2*X3-CPPP2*(Y2*Y3+Z2*Z3)
          E2A(10)= -CPPS2*X3*X3-CPPP2*(Y3*Y3+Z3*Z3)
-      END IF
+      ENDIF
       IF(ABS(TORE(NI)).GT.20.AND.ABS(TORE(NJ)).GT.20) THEN
 C SPARKLE-SPARKLE INTERACTION
          ENUC=0.D0
@@ -266,10 +272,10 @@ C SPARKLE-SPARKLE INTERACTION
          DO 290 IG=1,10
             IF(ABS(FN1(NI,IG)).GT.0.D0)
      1SCALE=SCALE +TORE(NI)*TORE(NJ)/RIJ*
-     2FN1(NI,IG)*EXP(-FN2(NI,IG)*(RIJ-FN3(NI,IG))**2)
+     2FN1(NI,IG)*EXP(MAX(-30.D0,-FN2(NI,IG)*(RIJ-FN3(NI,IG))**2))
             IF(ABS(FN1(NJ,IG)).GT.0.D0)
      1SCALE=SCALE +TORE(NI)*TORE(NJ)/RIJ*
-     2FN1(NJ,IG)*EXP(-FN2(NJ,IG)*(RIJ-FN3(NJ,IG))**2)
+     2FN1(NJ,IG)*EXP(MAX(-30.D0,-FN2(NJ,IG)*(RIJ-FN3(NJ,IG))**2))
   290    CONTINUE
       ENDIF
       ENUC=ENUC+SCALE

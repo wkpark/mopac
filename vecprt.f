@@ -25,9 +25,9 @@ C
 C  NONE OF THE ARGUMENTS ARE ALTERED BY THE CALL OF VECPRT
 C
 C*********************************************************************
-      DIMENSION NATOM(200)
+      DIMENSION NATOM(MAXORB)
       CHARACTER * 6 LINE(21)
-      CHARACTER*2 ELEMNT,ATORBS(9), ITEXT(200),JTEXT(200)
+      CHARACTER*2 ELEMNT,ATORBS(9), ITEXT(MAXORB), JTEXT(MAXORB)
       DATA ATORBS/' S','PX','PY','PZ','X2','XZ','Z2','YZ','XY'/
       IF(NUMAT.NE.0.AND.NUMAT.EQ.NUMB) THEN
 C
@@ -59,7 +59,7 @@ C
                JTEXT(I) = '  '
    40       NATOM(I)=I
          ENDIF
-      END IF
+      ENDIF
       NUMB=ABS(NUMB)
       DO 50 I=1,21
    50 LINE(I)='------'
@@ -94,9 +94,9 @@ C
       GO TO 60
    90 RETURN
 C
-  100 FORMAT (1H0/9X,10(2X,A2,1X,A2,I3,1X))
+  100 FORMAT (1H0/13X,10(1X,A2,1X,A2,I3,2X))
   110 FORMAT (1H ,21A6)
   120 FORMAT (1H1)
-  130 FORMAT (1H ,A2,1X,A2,I3,10F11.6)
+  130 FORMAT (1H ,A2,1X,A2,I5,10F11.6)
 C
       END

@@ -15,7 +15,7 @@
       COMMON /DENSTY/ P(MPACK),PA(MPACK),PB(MPACK)
       COMMON /GEOSYM/ NDEP, LOCPAR(MAXPAR), IDEPFN(MAXPAR),
      1                    LOCDEP(MAXPAR)
-      COMMON /PATH  / LATOM,LPARAM,REACT(100)
+      COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /NUMSCF/ NSCF
       COMMON /WMATRX/ WJ(N2ELEC), WK(N2ELEC)
       COMMON /ATHEAT/ ATHEAT
@@ -41,7 +41,7 @@
 ************************************************************************
       DIMENSION Q(MAXORB), Q2(MAXORB), COORD(3,NUMATM)
      1,IEL1(107), NELEMT(107), IEL2(107)
-      DIMENSION W(N2ELEC)
+      DIMENSION W(N2ELEC), DUMY(3)
       LOGICAL UHF, CI, SINGLT, TRIPLT, EXCITD, PRTGRA, XYZ, FIRST
       CHARACTER TYPE(3)*11, IDATE*24, CALCN(2)*5, GTYPE*13, GRTYPE*14,
      1          FLEPO(13)*58, ITER(2)*58, NUMBRS(11)*1
@@ -52,20 +52,24 @@
       DATA CALCN /'     ','ALPHA'/
       DATA NUMBRS /'0','1','2','3','4','5','6','7','8','9',' '/
       DATA FIRST /.TRUE./
-      DATA FLEPO/
-     1' 1SCF WAS SPECIFIED, SO FLETCHER-POWELL WAS NOT USED      ',
+      DATA FLEPO(1),FLEPO(2),FLEPO(3)/
+     1' 1SCF WAS SPECIFIED, SO BFGS WAS NOT USED                 ',
      2' GRADIENTS WERE INITIALLY ACCEPTABLY SMALL                ',
-     3' HERBERTS TEST WAS SATISFIED IN FLETCHER-POWELL           ',
-     4' THE LINE MINIMISATION FAILED TWICE IN A ROW.   TAKE CARE!',
-     5' FLETCHER POWELL FAILED DUE TO COUNTS EXCEEDED. TAKE CARE!',
-     6' PETERS TEST WAS SATISFIED IN FLETCHER-POWELL OPTIMISATION',
-     7' THIS MESSAGE SHOULD NEVER APPEAR, CONSULT A PROGRAMMER!! ',
-     8' GRADIENT TEST NOT PASSED, BUT FURTHER WORK NOT JUSTIFIED ',
-     9' A FAILURE HAS OCCURRED, TREAT RESULTS WITH CAUTION!!     ',
-     1' GEOMETRY OPTIMISED USING NLLSQ. GRADIENT NORM MINIMISED  ',
-     2' GEOMETRY OPTIMISED USING POWSQ. GRADIENT NORM MINIMISED  ',
-     3' CYCLES EXCEEDED, GRADIENT NOT FULLY MINIMIZED IN NLLSQ   ',
-     4'                                                          '/
+     3' HERBERTS TEST WAS SATISFIED IN BFGS                      '/
+      DATA FLEPO(4),FLEPO(5),FLEPO(6)/
+     1' THE LINE MINIMIZATION FAILED TWICE IN A ROW.   TAKE CARE!',
+     2' BFGS FAILED DUE TO COUNTS EXCEEDED. TAKE CARE!           ',
+     3' PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION'/
+      DATA FLEPO(7),FLEPO(8),FLEPO(9)/
+     1' THIS MESSAGE SHOULD NEVER APPEAR, CONSULT A PROGRAMMER!! ',
+     2' GRADIENT TEST NOT PASSED, BUT FURTHER WORK NOT JUSTIFIED ',
+     3' A FAILURE HAS OCCURRED, TREAT RESULTS WITH CAUTION!!     '/
+      DATA FLEPO(10),FLEPO(11),FLEPO(12)/
+     1' GEOMETRY OPTIMIZED USING NLLSQ. GRADIENT NORM MINIMIZED  ',
+     2' GEOMETRY OPTIMIZED USING POWSQ. GRADIENT NORM MINIMIZED  ',
+     3' CYCLES EXCEEDED, GRADIENT NOT FULLY MINIMIZED IN NLLSQ   '/
+      DATA FLEPO(13)/
+     1'                                                          '/
       DATA ITER/
      1' SCF FIELD WAS ACHIEVED                                   ',
      2'  ++++----**** FAILED TO ACHIEVE SCF. ****----++++        '/
@@ -105,8 +109,9 @@ C          CAN BE USED BY THE PATH OPTION)
       ENDIF
       GNORM=0.D0
       IF(NVAR.NE.0)GNORM=SQRT(DOT(GRAD,GRAD,NVAR))
-      WRITE(6,'(1X,A)')KEYWRD,KOMENT,TITLE
+      WRITE(6,'(A)')KEYWRD,KOMENT,TITLE
       WRITE(6,'(//4X,A58)')FLEPO(IFLEPO)
+      IITER=MAX(1,IITER)
       WRITE(6,'(4X,A58)')ITER(IITER)
       WRITE(6,'(//30X,A7,''  CALCULATION'')')CALTYP
       WRITE(6,'(60X,''VERSION '',F5.2)')VERSON
@@ -115,23 +120,24 @@ C
 C   RESULTS ARE MEANINGLESS. DON'T PRINT ANYTHING!
 C
          WRITE(6,'(//,'' FOR SOME REASON THE SCF CALCULATION FAILED.'',/
-     1,'' THE RESULTS WOULD BE MEANINGLESS, SO WILL NOT BE PRINTED.'',/,
-     2'' TRY TO FIND THE REASON FOR THE FAILURE BY USING "PL".'',/,
-     3'' CHECK YOUR GEOMETRY AND ALSO TRY USING SHIFT OR PULAY. '')')
+     1,'' THE RESULTS WOULD BE MEANINGLESS, SO WILL NOT BE PRINTED.'')')
+         WRITE(6,'('' TRY TO FIND THE REASON FOR THE FAILURE BY USING ''
+     1,''"PL".'',/,
+     2'' CHECK YOUR GEOMETRY AND ALSO TRY USING SHIFT OR PULAY. '')')
          CALL GEOUT
          STOP
       ENDIF
-      WRITE(6,'(////10X,''FINAL HEAT OF FORMATION ='',F13.6,'' KCAL''
+      WRITE(6,'(////10X,''FINAL HEAT OF FORMATION ='',F17.5,'' KCAL''
      1)')FUNCT
       IF(LATOM.EQ.0) WRITE(6,'(/)')
-      WRITE(6,'(    10X,''ELECTRONIC ENERGY       ='',F13.6,'' EV''
+      WRITE(6,'(    10X,''ELECTRONIC ENERGY       ='',F17.5,'' EV''
      1)')ELECT
-      WRITE(6,'(    10X,''CORE-CORE REPULSION     ='',F13.6,'' EV''
+      WRITE(6,'(    10X,''CORE-CORE REPULSION     ='',F17.5,'' EV''
      1)')ENUCLR
       IF(LATOM.EQ.0) WRITE(6,'(1X)')
       PRTGRA=(PRTGRA .OR. GNORM .GT. 2.D0)
       IF(PRTGRA)
-     1WRITE(6,'(    10X,''GRADIENT NORM           ='',F13.6)')GNORM
+     1WRITE(6,'(    10X,''GRADIENT NORM           ='',F17.5)')GNORM
       IF(LATOM.NE.0) THEN
 C
 C   WE NEED TO CALCULATE THE REACTION COORDINATE GRADIENT.
@@ -149,14 +155,14 @@ C
          LOC(2,1)=LOC21
          GRTYPE=' KCAL/ANGSTROM'
          IF(LPARAM.EQ.1)THEN
-            WRITE(6,'(    10X,''FOR REACTION COORDINATE ='',F13.6
+            WRITE(6,'(    10X,''FOR REACTION COORDINATE ='',F17.5
      1        ,'' ANGSTROMS'')')XREACT
          ELSE
             IF(NA(1).NE.99)GRTYPE=' KCAL/RADIAN  '
-            WRITE(6,'(    10X,''FOR REACTION COORDINATE ='',F13.6
+            WRITE(6,'(    10X,''FOR REACTION COORDINATE ='',F17.5
      1        ,'' DEGREES'')')XREACT*DEGREE
          ENDIF
-         WRITE(6,'(    10X,''REACTION GRADIENT       ='',F13.6,A14
+         WRITE(6,'(    10X,''REACTION GRADIENT       ='',F17.5,A14
      1    )')GCOORD,GRTYPE
       ENDIF
       IF(NALPHA.GT.0)THEN
@@ -171,33 +177,32 @@ C
       NOPN=NOPEN-NCLOSE
 C   CORRECTION TO I.P. OF DOUBLETS
       IF(NOPN.EQ.1)THEN
-      I=NCLOSE*NORBS+1
+         I=NCLOSE*NORBS+1
          XIIII= SPCG(C(I),C(I),C(I),C(I),W,WJ)
-      EIONIS=EIONIS+0.5D0*XIIII
+         EIONIS=EIONIS+0.5D0*XIIII
       ENDIF
-      WRITE(6,'(       10X,''IONISATION POTENTIAL    ='',F13.6)')EIONIS
+      WRITE(6,'(       10X,''IONIZATION POTENTIAL    ='',F17.5)')EIONIS
       WRITE(6,'(55X,A24)')IDATE
       IF( UHF ) THEN
-         WRITE(6,'(        10X,''NO. OF ALPHA ELECTRONS  ='',I6)')NALPHA
-         WRITE(6,'(        10X,''NO. OF BETA  ELECTRONS  ='',I6)')NBETA
+         WRITE(6,'(      10X,''NO. OF ALPHA ELECTRONS  ='',I11)')NALPHA
+         WRITE(6,'(      10X,''NO. OF BETA  ELECTRONS  ='',I11)')NBETA
       ELSE
-         WRITE(6,'(        10X,''NO. OF FILLED LEVELS    ='',I6)')NCLOSE
+         WRITE(6,'(      10X,''NO. OF FILLED LEVELS    ='',I11)')NCLOSE
          IF(NOPN.NE.0) THEN
-            WRITE(6,'(        10X,''AND NO. OF OPEN LEVELS  ='',I6)')NOP
-     1N
+            WRITE(6,'(   10X,''AND NO. OF OPEN LEVELS  ='',I11)')NOPN
          ENDIF
       ENDIF
       SUMW=0
       DO 10 I=1,NUMAT
    10 SUMW=SUMW+ATMASS(I)
       IF(SUMW.GT.0.1D0)
-     +WRITE(6,'(    10X,''MOLECULAR WEIGHT        ='',F10.3)')SUMW
+     1WRITE(6,'(    10X,''MOLECULAR WEIGHT        ='',F11.3)')SUMW
       IF(LATOM.EQ.0) WRITE(6,'(/)')
-      WRITE(6,'(10X,''SCF CALCULATIONS  =   '',I5 )') NSCF
+      WRITE(6,'(10X,''SCF CALCULATIONS  =   '',I14 )') NSCF
       TIM=SECOND()-TIME0
       I=TIM*0.000001D0
       TIM=TIM-I*1000000
-      WRITE(6,'(10X,''COMPUTATION TIME  ='',F11.2,'' SECONDS'')') TIM
+      WRITE(6,'(10X,''COMPUTATION TIME  ='',F20.2,'' SECONDS'')') TIM
       IF( NDEP .NE. 0 )CALL SYMTRY
       IF(NA(1).NE.99) THEN
          DO 50 J=1,NATOMS
@@ -267,116 +272,136 @@ C
          WRITE(6,'(//10X,''  INTERATOMIC DISTANCES'')')
          CALL VECPRT(RXYZ,NUMAT)
       ENDIF
-      IF (INDEX(KEYWRD,'VECT') .NE. 0) THEN
-         WRITE(6,'(//10X,A5,'' EIGENVECTORS  '')')CALCN(IUHF)
-         CALL MATOUT (C,EIGS,NORBS,NORBS,NORBS)
-         IF(UHF) THEN
-            WRITE(6,'(//10X,'' BETA EIGENVECTORS  '')')
-            CALL MATOUT (CBETA,EIGB,NORBS,NORBS,NORBS)
+      DO 100 I=1,NORBS
+  100 IF(EIGS(I).LT.-999.D0.OR.EIGS(I).GT.1000.D0)EIGS(I)=0.D0
+      DO 110 I=1,NORBS
+  110 IF(EIGB(I).LT.-999.D0.OR.EIGB(I).GT.1000.D0)EIGS(I)=0.D0
+      IF(NORBS.GT.0)THEN
+         IF (INDEX(KEYWRD,'VECT') .NE. 0) THEN
+            WRITE(6,'(//10X,A5,'' EIGENVECTORS  '')')CALCN(IUHF)
+            CALL MATOUT (C,EIGS,NORBS,NORBS,NORBS)
+            IF(UHF) THEN
+               WRITE(6,'(//10X,'' BETA EIGENVECTORS  '')')
+               CALL MATOUT (CBETA,EIGB,NORBS,NORBS,NORBS)
+            ENDIF
+         ELSE
+            WRITE(6,'(//10X,A5,''   EIGENVALUES'',/)')CALCN(IUHF)
+            WRITE(6,'(8F10.5)')(EIGS(I),I=1,NORBS)
+            IF(UHF) THEN
+               WRITE(6,'(//10X,'' BETA EIGENVALUES '')')
+               WRITE(6,'(8F10.5)')(EIGB(I),I=1,NORBS)
+            ENDIF
          ENDIF
-      ELSE
-         WRITE(6,'(//10X,A5,''   EIGENVALUES'',/)')CALCN(IUHF)
-         WRITE(6,'(8F10.5)')(EIGS(I),I=1,NORBS)
-         IF(UHF) THEN
-            WRITE(6,'(//10X,'' BETA EIGENVALUES '')')
-            WRITE(6,'(8F10.5)')(EIGB(I),I=1,NORBS)
-         ENDIF
-      END IF
+      ENDIF
       WRITE(6,'(//13X,'' NET ATOMIC CHARGES AND DIPOLE '',
      1''CONTRIBUTIONS'',/)')
       WRITE(6,'(8X,'' ATOM NO.   TYPE          CHARGE        ATOM''
      1,''  ELECTRON DENSITY'')')
       CALL CHRGE(P,Q)
-      DO 100 I=1,NUMAT
+      DO 120 I=1,NUMAT
          L=NAT(I)
          Q2(I)=CORE(L) - Q(I)
-  100 WRITE(6,'(I12,9X,A2,4X,F13.4,F16.4)')
+  120 WRITE(6,'(I12,9X,A2,4X,F13.4,F16.4)')
      1I,ELEMNT(L),Q2(I),Q(I)
-      IF(KCHRGE.EQ.0) DIP= DIPOLE(P,Q2,COORD,DUMY)
+      DIP= DIPOLE(P,Q2,COORD,DUMY)
       IF (INDEX(KEYWRD,'NOXYZ') .EQ. 0) THEN
          WRITE(6,'(//10X,''CARTESIAN COORDINATES '',/)')
          WRITE(6,'(4X,''NO.'',7X,''ATOM'',15X,''X'',
      1  9X,''Y'',9X,''Z'',/)')
          WRITE(6,'(I6,8X,A2,14X,3F10.4)')
      1  (I,ELEMNT(NAT(I)),(COORD(J,I),J=1,3),I=1,NUMAT)
-      END IF
-      IF (INDEX(KEYWRD,'FOCK') .NE. 0) THEN
-         WRITE(6,'('' FOCK MATRIX IS '')')
-         CALL VECPRT(F,NORBS)
-      END IF
-      IF (INDEX(KEYWRD,'DENSI') .NE. 0) THEN
-         WRITE(6,'('' DENSITY MATRIX IS '')')
-         CALL VECPRT(P,NORBS)
-      ELSE
-         WRITE(6,'(//10X,''ATOMIC ORBITAL ELECTRON POPULATIONS'',/)')
-         WRITE(6,'(8F10.5)')(P((I*(I+1))/2),I=1,NORBS)
-      END IF
-      IF(INDEX(KEYWRD,' PI') .NE. 0) THEN
-         WRITE(6,'(//10X,''SIGMA-PI BOND-ORDER MATRIX'')')
-         CALL DENROT
       ENDIF
-      IF(UHF) THEN
-         SZ=ABS(NALPHA-NBETA)*0.5D0
-         SS2=SZ*SZ
-         L=0
-         DO 120 I=1,NORBS
-            DO 110 J=1,I
-               L=L+1
-               PA(L)=PA(L)-PB(L)
-  110       SS2=SS2+PA(L)**2
-  120    SS2=SS2-0.5D0*PA(L)**2
-         WRITE(6,'(//20X,''(SZ)    ='',F10.6)')SZ
-         WRITE(6,'(  20X,''(S**2)  ='',F10.6)')SS2
-         IF(INDEX(KEYWRD,'SPIN') .NE. 0) THEN
-            WRITE(6,'(//10X,''SPIN DENSITY MATRIX'')')
-            CALL VECPRT(PA,NORBS)
-         ELSE
-            WRITE(6,'(//10X,''ATOMIC ORBITAL SPIN POPULATIONS'',/)')
-            WRITE(6,'(8F10.5)')(PA((I*(I+1))/2),I=1,NORBS)
+      IF(NORBS.GT.0) THEN
+         IF (INDEX(KEYWRD,'FOCK') .NE. 0) THEN
+            WRITE(6,'('' FOCK MATRIX IS '')')
+            CALL VECPRT(F,NORBS)
          ENDIF
-         IF(INDEX(KEYWRD,'HYPERFINE') .NE. 0) THEN
+         IF (INDEX(KEYWRD,'DENSI') .NE. 0) THEN
+            WRITE(6,'('' DENSITY MATRIX IS '')')
+            CALL VECPRT(P,NORBS)
+         ELSE
+            WRITE(6,'(//10X,''ATOMIC ORBITAL ELECTRON POPULATIONS'',/)')
+            WRITE(6,'(8F10.5)')(P((I*(I+1))/2),I=1,NORBS)
+         ENDIF
+         IF(INDEX(KEYWRD,' PI') .NE. 0) THEN
+            WRITE(6,'(//10X,''SIGMA-PI BOND-ORDER MATRIX'')')
+            CALL DENROT
+         ENDIF
+         IF(UHF) THEN
+            SZ=ABS(NALPHA-NBETA)*0.5D0
+            SS2=SZ*SZ
+            L=0
+            DO 140 I=1,NORBS
+               DO 130 J=1,I
+                  L=L+1
+                  PA(L)=PA(L)-PB(L)
+  130          SS2=SS2+PA(L)**2
+  140       SS2=SS2-0.5D0*PA(L)**2
+            WRITE(6,'(//20X,''(SZ)    ='',F10.6)')SZ
+            WRITE(6,'(  20X,''(S**2)  ='',F10.6)')SS2
+            IF(INDEX(KEYWRD,'SPIN') .NE. 0) THEN
+               WRITE(6,'(//10X,''SPIN DENSITY MATRIX'')')
+               CALL VECPRT(PA,NORBS)
+            ELSE
+               WRITE(6,'(//10X,''ATOMIC ORBITAL SPIN POPULATIONS'',/)')
+               WRITE(6,'(8F10.5)')(PA((I*(I+1))/2),I=1,NORBS)
+            ENDIF
+            IF(INDEX(KEYWRD,'HYPERFINE') .NE. 0) THEN
 C
 C  WORK OUT THE HYPERFINE COUPLING CONSTANTS.
 C
-            WRITE(6,'(//10X,''    HYPERFINE COUPLING COEFFICIENTS'',/)')
-            J=(NALPHA-1)*NORBS
-            DO 130 K=1,NUMAT
-               I=NFIRST(K)
+               WRITE(6,'(//10X,''    HYPERFINE COUPLING COEFFICIENTS'',/
+     1)')
+               J=(NALPHA-1)*NORBS
+               DO 150 K=1,NUMAT
+                  I=NFIRST(K)
 C#          WRITE(6,'('' PA:'',F13.6,'' C('',I2,''+'',I3,''):'',
 C#     +F13.5)')PA((I*(I+1))/2),I,J,C(I+J)
-  130       Q(K)=PA((I*(I+1))/2)*0.3333333D0+C(I+J)**2*0.66666666D0
-            WRITE(6,'(5(2X,A2,I2,F9.5,1X))')
+  150          Q(K)=PA((I*(I+1))/2)*0.3333333D0+C(I+J)**2*0.66666666D0
+               WRITE(6,'(5(2X,A2,I2,F9.5,1X))')
      1    (ELEMNT(NAT(I)),I,Q(I),I=1,NUMAT)
+            ENDIF
+            DO 160 I=1,LINEAR
+  160       PA(I)=P(I)-PB(I)
          ENDIF
-         DO 140 I=1,LINEAR
-  140    PA(I)=P(I)-PB(I)
-      ENDIF
-      IF (INDEX(KEYWRD,'BONDS') .NE. 0) THEN
-         CALL BONDS(P)
-      END IF
-      I=NCLOSE+NALPHA
-      IF (INDEX(KEYWRD,'LOCAL') .NE. 0) THEN
-         CALL LOCAL(C,NORBS,I,EIGS)
-         IF(NBETA.NE.0)THEN
-            WRITE(6,'(//10X,'' LOCALISED BETA MOLECULAR ORBITALS'')')
-            CALL LOCAL(CBETA,NORBS,NBETA,EIGB)
+         IF (INDEX(KEYWRD,'BONDS') .NE. 0) THEN
+            IF(NBETA.EQ.0)THEN
+               WRITE(6,'(/10X,''BONDING CONTRIBUTION OF EACH M.O.'',/)')
+               CALL MOLVAL(C,NORBS,P,NORBS,2.D0)
+            ELSE
+               WRITE(6,'(/10X,''BONDING CONTRIBUTION OF EACH ALPHA M.O.'
+     1',/)')
+               CALL MOLVAL(C,NORBS,P,NORBS,1.D0)
+               WRITE(6,'(/10X,''BONDING CONTRIBUTION OF EACH BETA  M.O.'
+     1',/)')
+               CALL MOLVAL(C,NORBS,P,NORBS,1.D0)
+            ENDIF
+            CALL BONDS(P)
          ENDIF
-      END IF
-      IF (INDEX(KEYWRD,'1ELE') .NE. 0) THEN
-         WRITE(6,'('' FINAL ONE-ELECTRON MATRIX '')')
-         CALL VECPRT(H,NORBS)
-      END IF
-      IF(INDEX(KEYWRD,'ENPART') .NE. 0)
+         I=NCLOSE+NALPHA
+         IF (INDEX(KEYWRD,'LOCAL') .NE. 0) THEN
+            CALL LOCAL(C,NORBS,I,EIGS)
+            IF(NBETA.NE.0)THEN
+               WRITE(6,'(//10X,'' LOCALIZED BETA MOLECULAR ORBITALS'')')
+               CALL LOCAL(CBETA,NORBS,NBETA,EIGB)
+            ENDIF
+         ENDIF
+         IF (INDEX(KEYWRD,'1ELE') .NE. 0) THEN
+            WRITE(6,'('' FINAL ONE-ELECTRON MATRIX '')')
+            CALL VECPRT(H,NORBS)
+         ENDIF
+         IF(INDEX(KEYWRD,'ENPART') .NE. 0)
      1CALL ENPART(UHF,H,PA,PB,P,Q,COORD)
-      DO 150 I=1,107
-  150 NELEMT(I)=0
-      DO 160 I=1,NUMAT
+      ENDIF
+      DO 170 I=1,107
+  170 NELEMT(I)=0
+      DO 180 I=1,NUMAT
          IGO=NAT(I)
-         IF (IGO.GT.107) GO TO 160
+         IF (IGO.GT.107) GO TO 180
          NELEMT(IGO)=NELEMT(IGO)+1
-  160 CONTINUE
+  180 CONTINUE
       ICHFOR=0
-      IF (NELEMT(6).EQ.0) GO TO 170
+      IF (NELEMT(6).EQ.0) GO TO 190
       ICHFOR=1
       IELEMT(1)=ELEMNT(6)
       NZS=NELEMT(6)
@@ -393,9 +418,9 @@ C#     +F13.5)')PA((I*(I+1))/2),I,J,C(I+J)
          IEL1(1)=KFRST+1
          IEL2(1)=KSEC+1
       ENDIF
-  170 NELEMT(6)=0
-      DO 180 I=1,107
-         IF (NELEMT(I).EQ.0) GO TO 180
+  190 NELEMT(6)=0
+      DO 200 I=1,107
+         IF (NELEMT(I).EQ.0) GO TO 200
          ICHFOR=ICHFOR+1
          IELEMT(ICHFOR)=ELEMNT(I)
          NZS=NELEMT(I)
@@ -412,8 +437,10 @@ C#     +F13.5)')PA((I*(I+1))/2),I,J,C(I+J)
             IEL1(ICHFOR)=KFRST+1
             IEL2(ICHFOR)=KSEC+1
          ENDIF
-  180 CONTINUE
+  200 CONTINUE
       IF(INDEX(KEYWRD,'DENOUT') .NE. 0) THEN
+         OPEN(UNIT=10,FILE='FOR010',STATUS='UNKNOWN',FORM='UNFORMATTED')
+         REWIND 10
          WRITE(10)(PA(I),I=1,LINEAR)
          IF(UHF)WRITE(10)(PB(I),I=1,LINEAR)
          CLOSE (10)
@@ -447,7 +474,7 @@ C
          CALL MULLIK(C,CBETA,UHF,H,NORBS,P,RXYZ)
 C
 C  NOTE THAT THE DENSITY MATRICES ARE CORRUPTED BY A CALL TO MULLIK.
-      END IF
+      ENDIF
       IF(FIRST)THEN
          OPEN(UNIT=12,FILE='FOR012',STATUS='NEW')
          REWIND 12
@@ -457,79 +484,62 @@ C  NOTE THAT THE DENSITY MATRICES ARE CORRUPTED BY A CALL TO MULLIK.
       WRITE(IWRITE,'(//20X,'' SUMMARY OF '',A7,
      1'' CALCULATION'',/)')CALTYP
       WRITE(IWRITE,'(60X,''VERSION '',F5.2)')VERSON
-      WRITE (IWRITE,190) (IELEMT(I),NUMBRS(IEL1(I)),NUMBRS(IEL2(I))
+      WRITE (IWRITE,210) (IELEMT(I),NUMBRS(IEL1(I)),NUMBRS(IEL2(I))
      1,I=1,ICHFOR)
-  190 FORMAT (//,1X,17(A2,A1,A1))
+  210 FORMAT (//,1X,17(A2,A1,A1))
       WRITE(IWRITE,'(55X,A24)')IDATE
       WRITE(IWRITE,'(1X,A)')KOMENT,TITLE
       WRITE(IWRITE,'(//4X,A58)')FLEPO(IFLEPO)
       WRITE(IWRITE,'(4X,A58)')ITER(IITER)
       WRITE(IWRITE,'(//10X,''HEAT OF FORMATION       =''
-     1,F13.6,'' KCAL'')')FUNCT
+     1,F17.6,'' KCAL'')')FUNCT
       WRITE(IWRITE,'(  10X,''ELECTRONIC ENERGY       =''
-     1,F13.6,'' EV'')')ELECT
+     1,F17.6,'' EV'')')ELECT
       WRITE(IWRITE,'(  10X,''CORE-CORE REPULSION     =''
-     1,F13.6,'' EV'')')ENUCLR
+     1,F17.6,'' EV'')')ENUCLR
       IF(PRTGRA)
      1WRITE(IWRITE,'(  10X,''GRADIENT NORM           =''
-     2,F13.6)')GNORM
+     2,F17.6)')GNORM
       IF(LATOM.NE.0) THEN
-C
-C   WE NEED TO CALCULATE THE REACTION COORDINATE GRADIENT.
-C
-         MVAR=NVAR
-         LOC11=LOC(1,1)
-         LOC21=LOC(2,1)
-         NVAR=1
-         LOC(1,1)=LATOM
-         LOC(2,1)=LPARAM
-         XREACT=GEO(LPARAM,LATOM)
-         CALL DERIV(GEO,GCOORD)
-         NVAR=MVAR
-         LOC(1,1)=LOC11
-         LOC(2,1)=LOC21
          GRTYPE=' KCAL/ANGSTROM'
          IF(LPARAM.EQ.1)THEN
-            WRITE(IWRITE,'(    10X,''FOR REACTION COORDINATE ='',F13.4
+            WRITE(IWRITE,'(    10X,''FOR REACTION COORDINATE ='',F17.4
      1        ,'' ANGSTROMS'')')XREACT
          ELSE
             IF(NA(1).NE.99)GRTYPE=' KCAL/RADIAN  '
-            WRITE(IWRITE,'(    10X,''FOR REACTION COORDINATE ='',F13.4
+            WRITE(IWRITE,'(    10X,''FOR REACTION COORDINATE ='',F17.4
      1        ,'' DEGREES'')')XREACT*DEGREE
          ENDIF
-         WRITE(IWRITE,'(    10X,''REACTION GRADIENT       ='',F13.6,A14
+         WRITE(IWRITE,'(    10X,''REACTION GRADIENT       ='',F17.6,A14
      1    )')GCOORD,GRTYPE
       ENDIF
-      IF(KCHRGE .EQ. 0)
-     1WRITE(IWRITE,'(  10X,''DIPOLE                  =''
-     2,F12.5, '' DEBYE'')')DIP
+      WRITE(IWRITE,'(  10X,''DIPOLE                  =''
+     1,F16.5, '' DEBYE'')')DIP
       IF(UHF) THEN
-         WRITE(IWRITE,'(  10X,''(SZ)                    ='',F13.6)')SZ
-         WRITE(IWRITE,'(  10X,''(S**2)                  ='',F13.6)')SS2
-         WRITE(IWRITE,'(  10X,''NO. OF ALPHA ELECTRONS  ='',I6)')NALPHA
-         WRITE(IWRITE,'(  10X,''NO. OF BETA  ELECTRONS  ='',I6)')NBETA
+         WRITE(IWRITE,'(  10X,''(SZ)                    ='',F17.6)')SZ
+         WRITE(IWRITE,'(  10X,''(S**2)                  ='',F17.6)')SS2
+         WRITE(IWRITE,'(  10X,''NO. OF ALPHA ELECTRONS  ='',I10)')NALPHA
+         WRITE(IWRITE,'(  10X,''NO. OF BETA  ELECTRONS  ='',I10)')NBETA
       ELSE
-         WRITE(IWRITE,'(  10X,''NO. OF FILLED LEVELS    ='',I6)')NCLOSE
+         WRITE(IWRITE,'(  10X,''NO. OF FILLED LEVELS    ='',I10)')NCLOSE
          NOPN=NOPEN-NCLOSE
          IF(NOPN.NE.0)
-     1WRITE(IWRITE,'(  10X,''AND NO. OF OPEN LEVELS  ='',I6)')NOPN
+     1WRITE(IWRITE,'(  10X,''AND NO. OF OPEN LEVELS  ='',I10)')NOPN
       ENDIF
       IF(CI)
      1WRITE(IWRITE,'(  10X,''CONFIGURATION INTERACTION WAS USED'')')
       IF(KCHRGE.NE.0)
-     1WRITE(IWRITE,'(  10X,''CHARGE ON SYSTEM        ='',I6)')KCHRGE
-      WRITE(IWRITE,'(  10X,''IONISATION POTENTIAL    =''
-     1,F13.6,'' EV'')')EIONIS
-      WRITE(IWRITE,'(  10X,''MOLECULAR WEIGHT        ='',F10.3)')SUMW
+     1WRITE(IWRITE,'(  10X,''CHARGE ON SYSTEM        ='',I10)')KCHRGE
+      WRITE(IWRITE,'(  10X,''IONIZATION POTENTIAL    =''
+     1,F17.6,'' EV'')')EIONIS
+      WRITE(IWRITE,'(  10X,''MOLECULAR WEIGHT        ='',F14.3)')SUMW
       WRITE(IWRITE,'(  10X,''SCF CALCULATIONS        =''
-     1,I6 )') NSCF
+     1,I10)') NSCF
       TIM=SECOND()-TIME0
-      I=TIM
-      TIM=TIM-I/1000000
       WRITE(IWRITE,'(  10X,''COMPUTATION TIME        =''
-     1,F9.2,'' SECONDS'')') TIM
-      WRITE(IWRITE,'(//10X,''FINAL GEOMETRY OBTAINED'',33X,''CHARGE'')')
-      WRITE(IWRITE,'(1X,A)')KEYWRD,KOMENT,TITLE
+     1,F13.2,'' SECONDS'')') TIM
+      WRITE(IWRITE,'(//10X,''FINAL GEOMETRY OBTAINED'',36X,''CHARGE'')')
+      WRITE(IWRITE,'(A)')KEYWRD,KOMENT,TITLE
       NA1=NA(1)
       IF(XYZ) CALL XYZINT(GEO,NATOMS,NA,NB,NC,1.D0,COORD)
       DEGREE=57.29577951D0
@@ -542,15 +552,15 @@ C
       IVAR=1
       NA(1)=0
       L=0
-      DO 220 I=1,NATOMS
-         DO 200 J=1,3
+      DO 240 I=1,NATOMS
+         DO 220 J=1,3
             IF(.NOT.XYZ)COORD(J,I)=GEO(J,I)
-  200    IEL1(J)=0
-  210    CONTINUE
+  220    IEL1(J)=0
+  230    CONTINUE
          IF(LOC(1,IVAR).EQ.I) THEN
             IEL1(LOC(2,IVAR))=1
             IVAR=IVAR+1
-            GOTO 210
+            GOTO 230
          ENDIF
          IF(I.LT.4) THEN
             IEL1(3)=0
@@ -565,22 +575,22 @@ C
          Q(1)=COORD(1,I)
          Q(2)=COORD(2,I)*DEGREE
          Q(3)=COORD(3,I)*DEGREE
-         IF(LABELS(I).LT.99)THEN
+         IF(LABELS(I).NE.107.AND.LABELS(I).NE.99)THEN
             L=L+1
-            WRITE(IWRITE,'(2X,A2,3(F12.6,I3),I4,2I3,F13.4)')
+            WRITE(IWRITE,'(1X,A2,3(F12.6,I3),I5,2I5,F13.4)')
      1    ELEMNT(LABELS(I)),(Q(K),IEL1(K),K=1,3),NA(I),NB(I),NC(I),Q2(L)
          ELSE
-            WRITE(IWRITE,'(2X,A2,3(F12.6,I3),I4,2I3,F13.4)')
+            WRITE(IWRITE,'(1X,A2,3(F12.6,I3),I5,2I5,F13.4)')
      1    ELEMNT(LABELS(I)),(Q(K),IEL1(K),K=1,3),NA(I),NB(I),NC(I)
          ENDIF
-  220 CONTINUE
+  240 CONTINUE
       NA(1)=NA1
       I=0
       X=0.D0
-      WRITE(IWRITE,'(I4,3(F12.6,I3),I4,2I3)')
+      WRITE(IWRITE,'(I3,3(F12.6,I3),I5,2I5)')
      1    I,X,I,X,I,X,I,I,I,I
-      DO 230 I=1,NDEP
-  230 WRITE(IWRITE,'(3(I4,'',''))')LOCPAR(I),IDEPFN(I),LOCDEP(I)
+      DO 250 I=1,NDEP
+  250 WRITE(IWRITE,'(3(I4,'',''))')LOCPAR(I),IDEPFN(I),LOCDEP(I)
       WRITE(IWRITE,'(///)')
       NSCF=0
       RETURN

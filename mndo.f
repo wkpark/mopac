@@ -11,7 +11,7 @@ C
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /NUMCAL/ NUMCAL
       COMMON /TIME  / TIME0
-      COMMON /PATH  / LATOM,LPARAM,REACT(100)
+      COMMON /PATH  / LATOM,LPARAM,REACT(200)
       CHARACTER*80 KEYWRD
       NUMCAL=1
 C
@@ -21,12 +21,13 @@ C READ AND CHECK INPUT FILE, EXIT IF NECESSARY.
 C     WRITE INPUT FILE TO UNIT 6 AS FEEDBACK TO USER
 C
    10 CALL READ
-      IF(INDEX(KEYWRD,'AUTHOR') .NE. 0)
-     1WRITE(6,'(30X,'' MOPAC - A GENERAL MOLECULAR ORBITAL PACKAGE'',/
-     2         ,10X,''   ORIGINAL VERSION WRITTEN IN 1983'',/
-     3         ,10X,''     BY JAMES J. P. STEWART AT THE'',/
-     4         ,10X,''     UNIVERSITY OF TEXAS AT AUSTIN'',/
-     5         ,10X,''          AUSTIN, TEXAS, 78712'')')
+      IF(INDEX(KEYWRD,'AUTHOR') .NE. 0) THEN
+         WRITE(6,'(10X,'' MOPAC - A GENERAL MOLECULAR ORBITAL PACKAGE'',
+     1/         ,10X,''   ORIGINAL VERSION WRITTEN IN 1983'')')
+         WRITE(6,'(10X,''     BY JAMES J. P. STEWART AT THE'',/
+     1         ,10X,''     UNIVERSITY OF TEXAS AT AUSTIN'',/
+     2         ,10X,''          AUSTIN, TEXAS, 78712'')')
+      ENDIF
 C
 C INITIALIZE CALCULATION AND WRITE CALCULATION INDEPENDENT INFO
 C
@@ -36,17 +37,58 @@ C
       ELSE
          CALL MOLDAT
       ENDIF
+      IF (INDEX(KEYWRD,'RESTART').EQ.0)THEN
+         IF (INDEX(KEYWRD,' XYZ') .NE. 0.AND.NVAR.NE.0) THEN
 C
-C CALCULATE
+C   SET ALL OPTIMIZATION FLAGS TO 1.  IT IS POSSIBLE TO SPECIFY " XYZ"
+C   AND HAVE 3N-6 FLAGS SET AND STILL NOT HAVE EVERY ATOM MARKED FOR
+C   OPTIMIZATION.  THIS CAN HAPPEN IF DUMMY ATOMS ARE PRESENT
+C   TO PREVENT THIS, WE EXPLICITELY SET ALL FLAGS.
 C
+            NVAR=0
+            DO 30 I=1,NATOMS
 C
-      IF(INDEX(KEYWRD,' DRC') .NE. 0) THEN
-         CALL DRC
+C  I DON'T THINK THE FOLLOWING LOGICAL WILL EVER BE TRUE, BUT I'M NOT
+C  TAKING IT OUT IN THIS VERSION, JUST IN CASE.
+C
+               IF(LABELS(I).EQ.99) GOTO 30
+               DO 20 J=1,3
+                  NVAR=NVAR+1
+                  LOC(1,NVAR)=I
+                  LOC(2,NVAR)=J
+   20          XPARAM(NVAR)=GEO(J,I)
+   30       CONTINUE
+         ENDIF
+         IF (INDEX(KEYWRD,'1SCF') .NE. 0) THEN
+         IF(LATOM.NE.0)THEN
+         WRITE(6,'(//,10X,A)')'1SCF SPECIFIED WITH PATH.  THIS PAIR OF'
+         WRITE(6,'(   10X,A)')'OPTIONS IS NOT ALLOWED'
          STOP
+         ENDIF
+            NVAR=0
+            IF(INDEX(KEYWRD,'GRAD').NE.0) THEN
+               NVAR=0
+               DO 50 I=2,NATOMS
+                  IF(LABELS(I).EQ.99) GOTO 50
+                  IF(I.EQ.2)ILIM=1
+                  IF(I.EQ.3)ILIM=2
+                  IF(I.GT.3)ILIM=3
+                  DO 40 J=1,ILIM
+                     NVAR=NVAR+1
+                     LOC(1,NVAR)=I
+                     LOC(2,NVAR)=J
+   40             XPARAM(NVAR)=GEO(J,I)
+   50          CONTINUE
+            ENDIF
+         ENDIF
       ENDIF
+C
+C CALCULATE DYNAMIC REACTION COORDINATE.
+C
+C
       IF(INDEX(KEYWRD,'SADDLE') .NE. 0) THEN
          CALL REACT1(ESCF)
-         GOTO 40
+         GOTO 60
       ENDIF
       CLOSE (5)
       IF(INDEX(KEYWRD,'STEP1') .NE. 0) THEN
@@ -59,48 +101,37 @@ C       DO PATH
 C
          CALL PATHS
          STOP
-      END IF
-      IF (INDEX(KEYWRD,'FORCE') .NE. 0 ) THEN
+      ENDIF
+      IF (INDEX(KEYWRD,'FORCE') + INDEX(KEYWRD,'IRC=') .NE. 0 ) THEN
 C
 C FORCE CALCULATION IF DESIRED
 C
          CALL FORCE
          STOP
       ENDIF
+      IF(INDEX(KEYWRD,' DRC') + INDEX(KEYWRD,' IRC') .NE. 0) THEN
+C
+C   REACT IS USED AS A DUMMY ARGUMENT - NOT USED BY DRC.
+C
+         CALL DRC(REACT,REACT)
+         STOP
+      ENDIF
 C
       IF(INDEX(KEYWRD,'NLLSQ') .NE. 0) THEN
          CALL NLLSQ(XPARAM, NVAR )
          CALL COMPFG(XPARAM,.TRUE.,ESCF,.TRUE.,GRAD,.TRUE.)
-         GOTO 40
+         GOTO 60
       ENDIF
 C
-      IF (INDEX(KEYWRD,'RESTART').EQ.0.AND.
-     1        INDEX(KEYWRD,'1SCF') .NE. 0) THEN
-         NVAR=0
-         IF(INDEX(KEYWRD,'GRAD').NE.0) THEN
-            NVAR=0
-            DO 30 I=2,NATOMS
-               IF(LABELS(I).EQ.99) GOTO 30
-               IF(I.EQ.2)ILIM=1
-               IF(I.EQ.3)ILIM=2
-               IF(I.GT.3)ILIM=3
-               DO 20 J=1,ILIM
-                  NVAR=NVAR+1
-                  LOC(1,NVAR)=I
-                  LOC(2,NVAR)=J
-   20          XPARAM(NVAR)=GEO(J,I)
-   30       CONTINUE
-         ENDIF
-      ENDIF
       IF(INDEX(KEYWRD,'SIGMA') .NE. 0) THEN
          CALL POWSQ(XPARAM, NVAR, ESCF)
-         GOTO 40
+         GOTO 60
       ENDIF
 C
 C ORDINARY GEOMETRY OPTIMISATION
 C
       CALL FLEPO(XPARAM, NVAR, ESCF)
-   40 CALL WRITE(TIME0, ESCF)
+   60 CALL WRITE(TIME0, ESCF)
       IF(INDEX(KEYWRD,'POLAR') .NE. 0) THEN
          CALL POLAR
       ENDIF

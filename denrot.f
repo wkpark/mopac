@@ -38,11 +38,12 @@
       DATA ISP /1,2,3,3,4,5,5,6,6/
       CALL GMETRY(GEO,XYZ)
       IPRT=0
-      DO 110 I=1,NUMAT
+      DO 120 I=1,NUMAT
          IF=NFIRST(I)
          IL=NLAST(I)
          IPQ=IL-IF-1
          II=IPQ+2
+         IF(II.EQ.0)GOTO 120
          DO 10 I1=1,II
             J1=IPRT+ISP(I1)
             ITEXT(J1)=ATORBS(I1)
@@ -56,6 +57,7 @@
             JL=NLAST(J)
             JPQ=JL-JF-1
             JJ=JPQ+2
+            IF(JJ.EQ.0)GOTO 110
             IF(JPQ.NE.2)JPQ=MIN(MAX(JPQ,1),3)
             DO 20 I1=1,9
                DO 20 J1=1,9
@@ -101,62 +103,63 @@
                DO 100 J1=JF,JL
                   L=L+1
   100       IF(J1.LE.I1) B(J1+(I1*(I1-1))/2)=VECT(K,L)
-  110 CONTINUE
+  110    CONTINUE
+  120 CONTINUE
 C
-C NOW TO REMOVE ALL THE DEAD SPACE IN P, CHARACTERISED BY -1.0
+C NOW TO REMOVE ALL THE DEAD SPACE IN P, CHARACTERIZED BY -1.0
 C
       LINEAR=(NORBS*(NORBS+1))/2
       L=0
-      DO 120 I=1,LINEAR
+      DO 130 I=1,LINEAR
          IF(B(I).GT.-0.1) THEN
             L=L+1
             B(L)=B(I)
          ENDIF
-  120 CONTINUE
+  130 CONTINUE
 C
 C   PUT ATOMIC ORBITAL VALENCIES ONTO THE DIAGONAL
 C
-      DO 150 I=1,IPRT
+      DO 160 I=1,IPRT
          SUM=0.D0
          II=(I*(I-1))/2
-         DO 130 J=1,I
-  130    SUM=SUM+B(J+II)
-         DO 140 J=I+1,IPRT
-  140    SUM=SUM+B((J*(J-1))/2+I)
-  150 B((I*(I+1))/2)=SUM
-      DO 160 I=1,21
-  160 LINE(I)='------'
+         DO 140 J=1,I
+  140    SUM=SUM+B(J+II)
+         DO 150 J=I+1,IPRT
+  150    SUM=SUM+B((J*(J-1))/2+I)
+  160 B((I*(I+1))/2)=SUM
+      DO 170 I=1,21
+  170 LINE(I)='------'
       LIMIT=(IPRT*(IPRT+1))/2
       KK=8
       NA=1
-  170 LL=0
+  180 LL=0
       M=MIN0((IPRT+1-NA),6)
       MA=2*M+1
       M=NA+M-1
       WRITE(6,'(/16X,10(1X,A7,3X))')(ITEXT(I),I=NA,M)
       WRITE(6,'(15X,10(2X,A2,I3,4X))')(JTEXT(I),NATOM(I),I=NA,M)
       WRITE (6,'(20A6)') (LINE(K),K=1,MA)
-      DO 190 I=NA,IPRT
+      DO 200 I=NA,IPRT
          LL=LL+1
          K=(I*(I-1))/2
          L=MIN0((K+M),(K+I))
          K=K+NA
-         IF ((KK+LL).LE.50) GO TO 180
+         IF ((KK+LL).LE.50) GO TO 190
          WRITE (6,'(''1'')')
          WRITE(6,'(/17X,10(1X,A7,3X))')(ITEXT(N),N=NA,M)
          WRITE(6,'( 17X,10(2X,A2,I3,4X))')(JTEXT(N),NATOM(N),N=NA,M)
          WRITE (6,'(20A6)') (LINE(N),N=1,MA)
          KK=4
          LL=0
-  180    WRITE (6,'(1X,A7,1X,A2,I3,10F11.6)')
+  190    WRITE (6,'(1X,A7,1X,A2,I3,10F11.6)')
      1   ITEXT(I),JTEXT(I),NATOM(I),(B(N),N=K,L)
-  190 CONTINUE
-      IF (L.GE.LIMIT) GO TO 200
+  200 CONTINUE
+      IF (L.GE.LIMIT) GO TO 210
       KK=KK+LL+4
       NA=M+1
-      IF ((KK+IPRT+1-NA).LE.50) GO TO 170
+      IF ((KK+IPRT+1-NA).LE.50) GO TO 180
       KK=4
       WRITE (6,'(''1'')')
-      GO TO 170
-  200 RETURN
+      GO TO 180
+  210 RETURN
       END

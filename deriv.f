@@ -11,9 +11,10 @@
      1NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GRAVEC/ COSINE
       COMMON /GEOSYM/ NDEP, IDUMYS(MAXPAR,3)
-      COMMON /PATH  / LATOM,LPARAM,REACT(100)
+      COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /UCELL / L1L,L2L,L3L,L1U,L2U,L3U
       COMMON /XYZGRA/ DXYZ(3,NUMATM*27)
+      COMMON /ENUCLR/ ENUCLR
       COMMON /NUMCAL/ NUMCAL
       COMMON /DENSTY/ P(MPACK), PA(MPACK), PB(MPACK)
       COMMON /WMATRX/ WJ(N2ELEC), WK(N2ELEC)
@@ -33,12 +34,12 @@ C        GRAD   ON EXIT, CONTAINS THE DERIVATIVES
 C
 C***********************************************************************
       COMMON /KEYWRD / KEYWRD
+      COMMON /ERRFN  / ERRFN(MAXPAR)
       CHARACTER*80 KEYWRD
       DIMENSION CHANGE(3), COORD(3,NUMATM), COLD(3,NUMATM*27)
-     1,         XDERIV(3), XPARAM(MAXPAR), XJUC(3), ERRFN(MAXPAR)
-     2,         W(N2ELEC)
+     1,         XDERIV(3), XPARAM(MAXPAR), XJUC(3), W(N2ELEC)
       REAL WJ, WK
-      LOGICAL DEBUG, TIMES, HALFE, FAST, SCF1, CI
+      LOGICAL DEBUG, TIMES, HALFE, FAST, SCF1, CI, PRECIS
       EQUIVALENCE (W,WJ)
       DATA ICALCN /0/
       IF(ICALCN.NE.NUMCAL) THEN
@@ -57,20 +58,25 @@ C***********************************************************************
          ENDIF
          GRLIM=0.01D0
          DEBUG = (INDEX(KEYWRD,'DERIV') .NE. 0)
+         PRECIS= (INDEX(KEYWRD,'PRECIS') .NE. 0)
          TIMES = (INDEX(KEYWRD,'TIME') .NE. 0)
          CI    = (INDEX(KEYWRD,'C.I.') .NE. 0)
          SCF1  = (INDEX(KEYWRD,'1SCF') .NE. 0)
          ICALCN=NUMCAL
-         DO 10 I=1,NVAR
-   10    ERRFN(I)=0.D0
+         IF(INDEX(KEYWRD,'RESTART') .EQ. 0) THEN
+            DO 10 I=1,NVAR
+   10       ERRFN(I)=0.D0
+         ENDIF
          GRLIM=0.01D0
+         IF(PRECIS)GRLIM=0.0001D0
          IF(INDEX(KEYWRD,'FULSCF') .GT.0) GRLIM=1.D9
-         HALFE = (NOPEN.GT.NCLOSE)
+         HALFE = (NOPEN.GT.NCLOSE .OR. CI)
          IDELTA=-7
 *
 *   IDELTA IS A MACHINE-PRECISION DEPENDANT INTEGER
 *
-         IF(HALFE .OR. CI) IDELTA=-3
+         IF(HALFE.AND.PRECIS) IDELTA=-3
+         IF(HALFE.AND..NOT.PRECIS) IDELTA=-3
          FAST=.TRUE.
          CHANGE(1)= 10.D0**IDELTA
          CHANGE(2)= 10.D0**IDELTA
@@ -101,14 +107,17 @@ C
    20 GNORM=GNORM+GRAD(I)**2
       GNORM=SQRT(GNORM)
       FAST=(GNORM .GT. GRLIM .AND. .NOT. SCF1 .OR. .NOT. HALFE)
-      IF(   CI   ) FAST=.FALSE.
       TIME1=SECOND()
       IF(NDEP.NE.0) CALL SYMTRY
       CALL GMETRY(GEO,COORD)
       IF( .NOT. FAST ) THEN
          IF(DEBUG)WRITE(6,'('' DOING FULL SCF''''S IN DERIV'')')
          CALL HCORE(COORD,H,W, WJ, WK, ENUCLR)
-         CALL ITER(H, W, WJ, WK, AA,.TRUE.)
+         IF(NORBS*NELECS.GT.0)THEN
+            CALL ITER(H, W, WJ, WK, AA,.TRUE.,.FALSE.)
+         ELSE
+            AA=0.D0
+         ENDIF
          LINEAR=(NORBS*(NORBS+1))/2
          DO 30 I=1,LINEAR
    30    P(I)=PA(I)*2.D0
@@ -116,7 +125,6 @@ C
       ENDIF
       CALL DCART(COORD,DXYZ)
       IF(NDEP.NE.0) CALL SYMTRY
-C#      WRITE(6,*)' COORDINATES OF STARTING GEOMETRY'
       CALL GMETRY(GEO,COORD)
       IJ=0
       DO 70 II=1,NUMAT
@@ -126,7 +134,6 @@ C#      WRITE(6,*)' COORDINATES OF STARTING GEOMETRY'
                   DO 40 LL=1,3
    40             XJUC(LL)=COORD(LL,II)+TVEC(LL,1)*IL+TVEC(LL,2)*JL+TVEC
      1(LL,3)*KL
-C#      WRITE(6,'(''  COORDS'',3F12.5)')(XJUC(LL),LL=1,3)
                   IJ=IJ+1
                   DO 50 KK=1,3
                      COLD(KK,IJ)=XJUC(KK)
@@ -136,7 +143,6 @@ C#      WRITE(6,'(''  COORDS'',3F12.5)')(XJUC(LL),LL=1,3)
       SUM11=1.D-9
       SUM22=1.D-9
       SUM12=1.D-9
-C#      PRESS1=PRESS*VOLUME(TVEC,ID)
       DO 150 I=1,NVAR
          K=LOC(1,I)
          L=LOC(2,I)
@@ -146,6 +152,7 @@ C#      PRESS1=PRESS*VOLUME(TVEC,ID)
          GEO(L,K)=XSTORE-CHANGE(L)
          IF(NDEP.NE.0) CALL SYMTRY
          CALL GMETRY(GEO,COORD)
+C#         CALL GEOUT
 C
 C    USE LOOKUP TABLE OF CARTESIAN DERIVATIVES TO WORK OUT INTERNAL
 C    COORDINATE DERIVATIVE.
@@ -167,25 +174,25 @@ C
                         DO 110 KK=1,3
                            TOTL=TOTL+DXYZ(KK,IJ)*(XJUC(KK)-COLD(KK,IJ))
   110                   CONTINUE
-C#             WRITE(6,*)TOTL, DXYZ(1,IJ),XJUC(1),COLD(1,IJ)
   120          CONTINUE
             ENDIF
   130    CONTINUE
-C#          SUM=-(PRESS*VOLUME(TVEC,ID)-PRESS1)*2.D0
-         TOTL=TOTL+SUM
-C#         IF(DEBUG)
-C#     1WRITE(6,'('' DERIV. DUE TO PRESSURE:'',F16.5)')SUM*XDERIV(L)*0.5
          TOTL=TOTL*XDERIV(L)
 C
 C   IF NEEDED, CALCULATE "EXACT" DERIVITIVES.
 C
          IF( .NOT. FAST ) THEN
             CALL HCORE(COORD,H,W, WJ, WK,ENUCLR)
-            CALL ITER(H,W, WJ, WK,EE,.TRUE.)
+            IF(NORBS*NELECS.GT.0)THEN
+               CALL ITER(H,W, WJ, WK,EE,.TRUE.,.FALSE.)
+            ELSE
+               EE=0.D0
+            ENDIF
             DO 140 II=1,LINEAR
   140       P(II)=PA(II)*2.D0
             EE=(EE+ENUCLR)
             TOTL1=(AA-EE)*23.061D0*XDERIV(L)*2.D0
+C#            WRITE(6,*)AA-EE
             ERRFN(I)=TOTL1-TOTL
          ENDIF
          GEO(L,K)=XSTORE

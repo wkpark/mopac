@@ -30,7 +30,7 @@
          IF (LEADSP.AND.LINE(I:I).NE.SPACE) THEN
             NVALUE=NVALUE+1
             ISTART(NVALUE)=I
-         END IF
+         ENDIF
          LEADSP=(LINE(I:I).EQ.SPACE)
    20 CONTINUE
 *

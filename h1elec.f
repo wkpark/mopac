@@ -25,43 +25,53 @@ C***********************************************************************
       LOGICAL FIRST
       EQUIVALENCE (L1L,LIMS(1,1))
       DATA ITYPE /1/,FIRST/.TRUE./
+      IF(NI.EQ.102.OR.NJ.EQ.102)THEN
+         IF(SQRT((XI(1)-XJ(1))**2+
+     1        (XI(2)-XJ(2))**2+
+     2        (XI(3)-XJ(3))**2) .GT.1.8)THEN
+            DO 10 I=1,9
+               DO 10 J=1,9
+   10       SMAT(I,J)=0.D0
+            RETURN
+         ENDIF
+      ENDIF
       IF(ID.EQ.0) THEN
          CALL DIAT(NI,NJ,XI,XJ,SMAT)
       ELSE
          IF(FIRST)THEN
             FIRST=.FALSE.
-            DO 10 I=1,ID
+            DO 20 I=1,ID
                LIMS(I,1)=-1
-   10       LIMS(I,2)= 1
-            DO 20 I=ID+1,3
+   20       LIMS(I,2)= 1
+            DO 30 I=ID+1,3
                LIMS(I,1)=0
-   20       LIMS(I,2)=0
+   30       LIMS(I,2)=0
          ENDIF
-         DO 30 I=1,9
-            DO 30 J=1,9
-   30    SMAT(I,J)=0
-         DO 60 I=L1L,L1U
-            DO 60 J=L2L,L2U
-               DO 60 K=L3L,L3U
-                  DO 40 L=1,3
-   40             XJUC(L)=XJ(L)+TVEC(L,1)*I+TVEC(L,2)*J+TVEC(L,3)*K
+         DO 40 I=1,9
+            DO 40 J=1,9
+   40    SMAT(I,J)=0
+         DO 70 I=L1L,L1U
+            DO 70 J=L2L,L2U
+               DO 70 K=L3L,L3U
+                  DO 50 L=1,3
+   50             XJUC(L)=XJ(L)+TVEC(L,1)*I+TVEC(L,2)*J+TVEC(L,3)*K
                   CALL DIAT(NI,NJ,XI,XJUC,SBITS)
-                  DO 50 L=1,9
-                     DO 50 M=1,9
-   50             SMAT(L,M)=SMAT(L,M)+SBITS(L,M)
-   60    CONTINUE
+                  DO 60 L=1,9
+                     DO 60 M=1,9
+   60             SMAT(L,M)=SMAT(L,M)+SBITS(L,M)
+   70    CONTINUE
       ENDIF
-   70 GOTO (80,90,100) ITYPE
-   80 IF(INDEX(KEYWRD,'MINDO') .NE. 0) THEN
+   80 GOTO (90,100,110) ITYPE
+   90 IF(INDEX(KEYWRD,'MINDO') .NE. 0) THEN
          ITYPE=2
       ELSE
          ITYPE=3
       ENDIF
-      GOTO 70
-   90 CONTINUE
+      GOTO 80
+  100 CONTINUE
       II=MAX(NI,NJ)
       NBOND=(II*(II-1))/2+NI+NJ-II
-      IF(NBOND.GT.153)GOTO 110
+      IF(NBOND.GT.153)GOTO 120
       BI(1)=BETA3(NBOND)*VS(NI)
       BI(2)=BETA3(NBOND)*VP(NI)
       BI(3)=BI(2)
@@ -70,31 +80,41 @@ C***********************************************************************
       BJ(2)=BETA3(NBOND)*VP(NJ)
       BJ(3)=BJ(2)
       BJ(4)=BJ(2)
-      GOTO 110
-  100 CONTINUE
+      GOTO 120
+  110 CONTINUE
       BI(1)=BETAS(NI)*0.5D0
       BI(2)=BETAP(NI)*0.5D0
       BI(3)=BI(2)
       BI(4)=BI(2)
       BI(5)=BETAD(NI)*0.5D0
-C#      BI(6)=BI(5)
-C#      BI(7)=BI(5)
-C#      BI(8)=BI(5)
-C#      BI(9)=BI(5)
+      BI(6)=BI(5)
+      BI(7)=BI(5)
+      BI(8)=BI(5)
+      BI(9)=BI(5)
       BJ(1)=BETAS(NJ)*0.5D0
       BJ(2)=BETAP(NJ)*0.5D0
       BJ(3)=BJ(2)
       BJ(4)=BJ(2)
       BJ(5)=BETAD(NJ)*0.5D0
-C#      BJ(6)=BJ(5)
-C#      BJ(7)=BJ(5)
-C#      BJ(8)=BJ(5)
-C#      BJ(9)=BJ(5)
-  110 CONTINUE
+      BJ(6)=BJ(5)
+      BJ(7)=BJ(5)
+      BJ(8)=BJ(5)
+      BJ(9)=BJ(5)
+  120 CONTINUE
       NORBI=NATORB(NI)
       NORBJ=NATORB(NJ)
-      DO 120 J=1,NORBJ
-         DO 120 I=1,NORBI
-  120 SMAT(I,J)=SMAT(I,J)*(BI(I)+BJ(J))
+      IF(NORBI.EQ.9.OR.NORBJ.EQ.9) THEN
+C
+C    IN THE CALCULATION OF THE ONE-ELECTRON TERMS THE GEOMETRIC MEAN
+C    OF THE TWO BETA VALUES IS BEING USED IF ONE OF THE ATOMS
+C    CONTAINS D-ORBITALS.
+         DO 130 J=1,NORBJ
+            DO 130 I=1,NORBI
+  130    SMAT(I,J)=-2.0D0*SMAT(I,J)*SQRT(BI(I)*BJ(J))
+      ELSE
+         DO 140 J=1,NORBJ
+            DO 140 I=1,NORBI
+  140    SMAT(I,J)=SMAT(I,J)*(BI(I)+BJ(J))
+      ENDIF
       RETURN
       END

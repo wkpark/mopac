@@ -15,7 +15,7 @@ C  ON OUTPUT F   = PARTIAL FOCK MATRIX
 C***********************************************************************
       COMMON /EULER / TVEC(3,3), ID
       COMMON /KEYWRD/ KEYWRD
-      DIMENSION SPPOP(200), DPOP(200), IFACT(300), I1FACT(300)
+      DIMENSION SPPOP(2), DPOP(2), IFACT(11), I1FACT(11)
       LOGICAL LID
       CHARACTER*80 KEYWRD
       DATA ITYPE /1/
@@ -25,7 +25,7 @@ C***********************************************************************
 C
 C   SET UP ARRAY OF (I*(I-1))/2
 C
-      DO 30 I=1,300
+      DO 30 I=1,11
          IFACT(I)=(I*(I-1))/2
    30 I1FACT(I)=IFACT(I)+I
       LID=(ID.EQ.0)
@@ -59,7 +59,7 @@ C
             JC=NMIDLE(JJ)
             DREP=WJ(KK+1)
             IF(LID) THEN
-               DREP=WJ(KK+1)
+               DREP=W(KK+1)
                DO 70 I=IA,IC
                   KA=IFACT(I)
                   DO 70 J=IA,I

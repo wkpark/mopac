@@ -23,7 +23,7 @@ C             ENUCLR = NUCLEAR ENERGY
 ************************************************************************
       CHARACTER*80 KEYWRD
       LOGICAL FIRST,DEBUG
-      DIMENSION E1B(NUMATM),E2A(10),DI(9,9), WJD(100), WKD(100)
+      DIMENSION E1B(10),E2A(10),DI(9,9), WJD(100), WKD(100)
       DATA FIRST/.TRUE./
       IF (FIRST) THEN
          IONE=1
@@ -38,7 +38,6 @@ C             ENUCLR = NUCLEAR ENERGY
       ENUCLR=0.D0
       KR=1
       DO 110 I=1,NUMAT
-         E1B(I)=0.D0
          IA=NFIRST(I)
          IB=NLAST(I)
          IC=NMIDLE(I)

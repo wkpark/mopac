@@ -1,46 +1,36 @@
       SUBROUTINE RSP(A,N,MATZ,W,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
-C     APPROVED FOR VAX 11/780 ON MAY 6,1980. J.D.NEECE
-C     MODIFIED TO REDUCE ARGUMENT LIST SEPT. 20 1982.
-C               ----- LOCAL VARIABLES -----
-C               ----- GLOBAL VARIABLES -----
+      INCLUDE 'SIZES'
       DIMENSION A(*),  W(N), Z(N,N)
-C               ===== TRANSLATED PROGRAM =====
-C
-C
-C     THIS SUBROUTINE CALLS THE RECOMMENDED SEQUENCE OF
-C     SUBROUTINES FROM THE EIGENSYSTEM SUBROUTINE PACKAGE (EISPACK)
-C     TO FIND THE EIGENVALUES AND EIGENVECTORS (IF DESIRED)
-C     OF A REAL SYMMETRIC PACKED MATRIX.
-C
-C     ON INPUT-
-C
-C        N  IS THE ORDER OF THE MATRIX  A,
-C
-C        A  CONTAINS THE LOWER TRIANGLE OF THE REAL SYMMETRIC
-C        PACKED MATRIX STORED ROW-WISE,
-C
-C        MATZ  IS AN INTEGER VARIABLE SET EQUAL TO ZERO IF
-C        ONLY EIGENVALUES ARE DESIRED,  OTHERWISE IT IS SET TO
-C        ANY NON-ZERO INTEGER FOR BOTH EIGENVALUES AND EIGENVECTORS.
-C
-C     ON OUTPUT-
-C
-C        W  CONTAINS THE EIGENVALUES IN ASCENDING ORDER,
-C
-C        Z  CONTAINS THE EIGENVECTORS IF MATZ IS NOT ZERO,
-C
+*******************************************************************
+*
+*   EISPACK DIAGONALIZATION ROUTINES: TO FIND THE EIGENVALUES AND
+*           EIGENVECTORS (IF DESIRED) OF A REAL SYMMETRIC PACKED MATRIX.
+* ON INPUT-      N  IS THE ORDER OF THE MATRIX  A,
+*                A  CONTAINS THE LOWER TRIANGLE OF THE REAL SYMMETRIC
+*                   PACKED MATRIX STORED ROW-WISE,
+*             MATZ  IS AN INTEGER VARIABLE SET EQUAL TO ZERO IF ONLY
+*                   EIGENVALUES ARE DESIRED,  OTHERWISE IT IS SET TO
+*                   ANY NON-ZERO INTEGER FOR BOTH EIGENVALUES AND
+*                   EIGENVECTORS.
+* ON OUTPUT-     W  CONTAINS THE EIGENVALUES IN ASCENDING ORDER,
+*                Z  CONTAINS THE EIGENVECTORS IF MATZ IS NOT ZERO,
+*
+*******************************************************************
+* THIS SUBROUTINE WAS CHOSEN AS BEING THE MOST RELIABLE. (JJPS)
 C     QUESTIONS AND COMMENTS SHOULD BE DIRECTED TO B. S. GARBOW,
 C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
 C
 C     ------------------------------------------------------------------
 C
-      DIMENSION FV1(200),FV2(200)
-C
-C   MAX. SIZE OF MATRICES = 200, NV= (200*(200+1))/2
-C
-      NV=20100
+      DIMENSION FV1(MAXORB),FV2(MAXORB)
+      LOGICAL FIRST
+      DATA FIRST /.TRUE./
+      IF (FIRST) THEN
+         FIRST=.FALSE.
+         CALL EPSETA(EPS,ETA)
+         NV=(MAXORB*(MAXORB+1))/2
+      ENDIF
       NM=N
       IF (N .LE. NM) GO TO 10
       IERR = 10 * N
@@ -49,10 +39,10 @@ C
       IERR = 20 * N
       GO TO 60
 C
-   20 CALL  TRED3(N,NV,A,W,FV1,FV2)
+   20 CALL  TRED3(N,NV,A,W,FV1,FV2,EPS,EPS)
       IF (MATZ .NE. 0) GO TO 30
 C     ********** FIND EIGENVALUES ONLY **********
-      CALL  TQLRAT(N,W,FV2,IERR)
+      CALL  TQLRAT(N,W,FV2,IERR,EPS)
       GO TO 60
 C     ********** FIND BOTH EIGENVALUES AND EIGENVECTORS **********
    30 DO 50    I = 1, N
@@ -64,21 +54,36 @@ C
          Z(I,I)=1.0D0
    50 CONTINUE
 C
-      CALL  TQL2(NM,N,W,FV1,Z,IERR)
+      CALL  TQL2(NM,N,W,FV1,Z,IERR,EPS)
       IF (IERR .NE. 0) GO TO 60
-      CALL  TRBAK3(NM,N,NV,A,N,Z)
+      CALL  TRBAK3(NM,N,NV,A,N,Z,EPS)
 C     ********** LAST CARD OF RSP **********
    60 RETURN
       END
+      SUBROUTINE EPSETA(EPS,ETA)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
-C     ------------------------------------------------------------------
+C     COMPUTE AND RETURN ETA, THE SMALLEST REPRESENTABLE NUMBER,
+C     AND EPS IS THE SMALLEST NUMBER FOR WHICH 1+EPS.NE.1.
 C
-      SUBROUTINE TQL2(NM,N,D,E,Z,IERR)
+C
+      ETA = 1.D0
+   10 IF((ETA/2.D0).EQ.0.D0) GOTO 20
+      IF(ETA.LT.1.D-38) GOTO 20
+      ETA = ETA / 2.D0
+      GOTO 10
+   20 EPS = 1.D0
+   30 IF((1.D0+(EPS/2.D0)).EQ.1.D0) GOTO 40
+      IF(EPS.LT.1.D-17) GOTO 20
+      EPS = EPS / 2.D0
+      GOTO 30
+   40 RETURN
+      END
+      SUBROUTINE TQL2(NM,N,D,E,Z,IERR,EPS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
 C     APPROVED FOR VAX 11/780 ON MAY 6,1980.  J.D.NEECE
 C               ----- LOCAL VARIABLES -----
-      DOUBLE PRECISION MACHEP
 C               ----- GLOBAL VARIABLES -----
       DIMENSION D(N), E(N), Z(NM,N)
 C               ----- SUPPORTING PACKAGE FUNCTIONS -----
@@ -137,11 +142,6 @@ C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
 C
 C     ------------------------------------------------------------------
 C
-C     ********** MACHEP IS A MACHINE DEPENDENT PARAMETER SPECIFYING
-C                THE RELATIVE PRECISION OF FLOATING POINT ARITHMETIC.
-C
-C                **********
-      MACHEP = 2.D0**(-51)
 C
       IERR = 0
       IF (N .EQ. 1) GO TO 160
@@ -155,7 +155,7 @@ C
 C
       DO 110   L = 1, N
          J = 0
-         H=MACHEP*(ABS (D(L))+ABS (E(L)))
+         H=EPS*(ABS (D(L))+ABS (E(L)))
          IF (B .LT. H) B=H
 C     ********** LOOK FOR SMALL SUB-DIAGONAL ELEMENT **********
          DO 20   M = L, N
@@ -248,15 +248,11 @@ C                EIGENVALUE AFTER 30 ITERATIONS **********
   160 RETURN
 C     ********** LAST CARD OF TQL2 **********
       END
-C
-C     ------------------------------------------------------------------
-C
-      SUBROUTINE TQLRAT(N,D,E2,IERR)
+      SUBROUTINE TQLRAT(N,D,E2,IERR,EPS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
 C     APPROVED FOR VAX 11/780 ON MAY 6,1980.  J.D.NEECE
 C               ----- LOCAL VARIABLES -----
-      DOUBLE PRECISION MACHEP
 C               ----- GLOBAL VARIABLES -----
       DIMENSION D(N), E2(N)
 C               ----- SUPPORTING PACKAGE FUNCTIONS -----
@@ -297,11 +293,6 @@ C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
 C
 C     ------------------------------------------------------------------
 C
-C     ********** MACHEP IS A MACHINE DEPENDENT PARAMETER SPECIFYING
-C                THE RELATIVE PRECISION OF FLOATING POINT ARITHMETIC.
-C
-C                **********
-      MACHEP = 2.D0 **(-47)
 C
       IERR = 0
       IF (N .EQ. 1) GO TO 140
@@ -315,7 +306,7 @@ C
 C
       DO 120   L = 1, N
          J = 0
-         H=MACHEP*(ABS (D(L))+SQRT (E2(L)))
+         H=EPS*(ABS (D(L))+SQRT (E2(L)))
          IF (B .GT. H) GO TO 20
          B = H
          C = B * B
@@ -389,10 +380,7 @@ C                EIGENVALUE AFTER 30 ITERATIONS **********
   140 RETURN
 C     ********** LAST CARD OF TQLRAT **********
       END
-C
-C     ------------------------------------------------------------------
-C
-      SUBROUTINE TRBAK3(NM,N,NV,A,M,Z)
+      SUBROUTINE TRBAK3(NM,N,NV,A,M,Z,EPS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
 C     APPROVED FOR VAX 11/780 ON MAY 6,1980.  J.D.NEECE
@@ -476,10 +464,7 @@ C
    50 RETURN
 C     ********** LAST CARD OF TRBAK3 **********
       END
-C
-C     ------------------------------------------------------------------
-C
-      SUBROUTINE TRED3(N,NV,A,D,E,E2)
+      SUBROUTINE TRED3(N,NV,A,D,E,E2,EPS,ETA)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
 C     APPROVED FOR VAX 11/780 ON MAY 6,1980.  J.D.NEECE
@@ -528,29 +513,28 @@ C
 C     ------------------------------------------------------------------
 C
 C     ********** FOR I=N STEP -1 UNTIL 1 DO -- **********
-      DO 110   II = 1, N
+      TOL=ETA/EPS
+      DO 100   II = 1, N
          I = N + 1 - II
          L = I - 1
          IZ = ( I * L ) / 2
          H=0.0D0
          SCALE=0.0D0
-         IF (L .LT. 1) GO TO 20
-C     ********** SCALE ROW (ALGOL TOL THEN NOT NEEDED) **********
          DO 10   K = 1, L
             IZ = IZ + 1
             D(K) = A(IZ)
             SCALE=SCALE+ABS( D(K) )
    10    CONTINUE
 C
-         IF ( SCALE.NE.0.0D0 ) GO TO 30
-   20    E(I)=0.0D0
+         IF ( SCALE.NE.0.D0 ) GO TO 20
+         E(I)=0.0D0
          E2(I)=0.0D0
-         GO TO 100
+         GO TO 90
 C
-   30    DO 40   K = 1, L
+   20    DO 30   K = 1, L
             D(K) = D(K) / SCALE
             H = H + D(K) * D(K)
-   40    CONTINUE
+   30    CONTINUE
 C
          E2(I) = SCALE * SCALE * H
          F = D(L)
@@ -559,45 +543,45 @@ C
          H = H - F * G
          D(L) = F - G
          A(IZ) = SCALE * D(L)
-         IF (L .EQ. 1) GO TO 100
+         IF (L .EQ. 1) GO TO 90
          F=0.0D0
 C
-         DO 80   J = 1, L
+         DO 70   J = 1, L
             G=0.0D0
             JK = (J * (J-1)) / 2
 C     ********** FORM ELEMENT OF A*U **********
             K = 0
-   50       K = K + 1
+   40       K = K + 1
             JK = JK + 1
             G = G + A(JK) * D(K)
-            IF ( K .LT. J ) GO TO 50
-            IF ( K .EQ. L ) GO TO 70
-   60       JK = JK + K
+            IF ( K .LT. J ) GO TO 40
+            IF ( K .EQ. L ) GO TO 60
+   50       JK = JK + K
             K = K + 1
             G = G + A(JK) * D(K)
-            IF ( K .LT. L ) GO TO 60
+            IF ( K .LT. L ) GO TO 50
 C     ********** FORM ELEMENT OF P **********
-   70       CONTINUE
+   60       CONTINUE
             E(J) = G / H
             F = F + E(J) * D(J)
-   80    CONTINUE
+   70    CONTINUE
 C
          HH = F / (H + H)
          JK = 0
 C     ********** FORM REDUCED A **********
-         DO 90   J = 1, L
+         DO 80   J = 1, L
             F = D(J)
             G = E(J) - HH * F
             E(J) = G
 C
-            DO 90   K = 1, J
+            DO 80   K = 1, J
                JK = JK + 1
                A(JK) = A(JK) - F * E(K) - G * D(K)
-   90    CONTINUE
+   80    CONTINUE
 C
-  100    D(I) = A(IZ+1)
+   90    D(I) = A(IZ+1)
          A(IZ+1)=SCALE*SQRT (H)
-  110 CONTINUE
+  100 CONTINUE
 C
       RETURN
 C     ********** LAST CARD OF TRED3 **********

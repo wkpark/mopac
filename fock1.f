@@ -11,9 +11,17 @@ C *********************************************************************
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /GAUSS / FN1(107),FN2(107)
+     1       /MOLORB/ USPD(MAXORB),DUMY(MAXORB)
       COMMON /TWOELE/ GSS(107),GSP(107),GPP(107),GP2(107),HSP(107)
      1                ,GSD(107),GPD(107),GDD(107)
       DIMENSION QTOT(NUMATM), QA(NUMATM), QB(NUMATM)
+      COMMON /KEYWRD/ KEYWRD
+      CHARACTER*80 KEYWRD
+      LOGICAL FIRST
+      DATA FIRST /.TRUE./
+      IF(FIRST)THEN
+         FIRST=.FALSE.
+      ENDIF
       CALL CHRGE(PTOT,QTOT)
       CALL CHRGE(PA,QA)
       DO 10 I=1,NUMAT
@@ -91,7 +99,7 @@ C
             M=(J*(J+1))/2
    90    F(M)=F(M)+PTOT(KA)*GSD(NI)
      1         +PTPOP*GPD(NI)
-     2         +DTPOP*GDD(NI)
+     2         +(DTPOP-PA(M))*GDD(NI)
   100 CONTINUE
       RETURN
       END

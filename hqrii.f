@@ -8,8 +8,8 @@
 *       NAGOYA UNIVERSITY, JAPAN.
 *       FOR DETAILS SEE 'COMPUTERS & CHEMISTRY' VOL.6 1982. PAGE 000.
 *
-* ON INPUT    A       = MATRIX TO BE DIAGONALISED
-*             N       = SIZE OF MATRIX TO BE DIAGONALISED.
+* ON INPUT    A       = MATRIX TO BE DIAGONALIZED
+*             N       = SIZE OF MATRIX TO BE DIAGONALIZED.
 *             M       = NUMBER OF EIGENVECTORS NEEDED.
 *             E       = ARRAY OF SIZE AT LEAST N
 *             V       = ARRAY OF SIZE AT LEAST NMAX*M
@@ -104,7 +104,8 @@ C     QR-METHOD WITH ORIGIN SHIFT
       W(3,J-1)=S*R
       EE=E(J)*C
       FF=W(3,J)*C
-  150 C=E(J)/R
+  150 R=R+1.D-15
+      C=E(J)/R
       S=W(3,J)/R
       WW=E(J+1)-Z
       E(J)=(FF*C+WW*S)*S+EE+Z

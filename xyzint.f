@@ -10,7 +10,11 @@
 *        ATOM I MAKES AN ANGLE WITH ATOM J AND THE ATOM K, WHICH HAS
 *        ALREADY BEEN DEFINED, AND IS THE NEAREST ATOM TO J
 *        ATOM I MAKES A DIHEDRAL ANGLE WITH ATOMS J, K, AND L. L HAVING
-*        BEEN DEFINED AND IS THE NEAREST ATOM TO K
+*        BEEN DEFINED AND IS THE NEAREST ATOM TO K, AND J, K AND L
+*        HAVE A CONTAINED ANGLE IN THE RANGE 15 TO 165 DEGREES,
+*        IF POSSIBLE.
+*
+*        IF(NA(2).EQ.1 THEN THE ORIGINAL CONNECTIVITY IS USED.
 *
 *        NOTE THAT GEO AND XYZ MUST NOT BE THE SAME IN THE CALL.
 *
@@ -19,34 +23,51 @@
 *            DEGREE = 57.29578 IF ANGLES ARE TO BE IN RADIANS
 *
 ***********************************************************************
+      COMMON /GEOOK/ IGEOOK
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+      IGEOOK=99
       NAI1=0
       NAI2=0
-      DO 20 I=1,NUMAT
-         NA(I)=2
-         NB(I)=3
-         NC(I)=4
-         IM1=I-1
-         IF(IM1.EQ.0)GOTO 20
-         SUM=100.D0
-         DO 10 J=1,IM1
-            R=(XYZ(1,I)-XYZ(1,J))**2+
+      IF(.NOT.FIRST.AND.NA(2).EQ.-1)THEN
+         NA(2)=1
+         DO 10 I=2,NUMAT
+            J=NA(I)
+            IF(I.GT.3)CALL DIHED(XYZ,I,J,NB(I),NC(I),GEO(3,I))
+            IF(I.GT.2)CALL BANGLE(XYZ,I,J,NB(I),GEO(2,I))
+            GEO(1,I)=SQRT((XYZ(1,I)-XYZ(1,J))**2+
+     1          (XYZ(2,I)-XYZ(2,J))**2+
+     2          (XYZ(3,I)-XYZ(3,J))**2)
+   10    CONTINUE
+      ELSE
+         IF(NA(2).EQ.-1)FIRST=.FALSE.
+         DO 30 I=1,NUMAT
+            NA(I)=2
+            NB(I)=3
+            NC(I)=4
+            IM1=I-1
+            IF(IM1.EQ.0)GOTO 30
+            SUM=1.D30
+            DO 20 J=1,IM1
+               R=(XYZ(1,I)-XYZ(1,J))**2+
      1          (XYZ(2,I)-XYZ(2,J))**2+
      2          (XYZ(3,I)-XYZ(3,J))**2
-            IF(R.LT.SUM.AND.NA(J).NE.J.AND.NB(J).NE.J) THEN
-               SUM=R
-               K=J
-            ENDIF
-   10    CONTINUE
+               IF(R.LT.SUM.AND.NA(J).NE.J.AND.NB(J).NE.J) THEN
+                  SUM=R
+                  K=J
+               ENDIF
+   20       CONTINUE
 C
 C   ATOM I IS NEAREST TO ATOM K
 C
-         NA(I)=K
-         IF(I.GT.2)NB(I)=NA(K)
-         IF(I.GT.3)NC(I)=NB(K)
+            NA(I)=K
+            IF(I.GT.2)NB(I)=NA(K)
+            IF(I.GT.3)NC(I)=NB(K)
 C
 C   FIND ANY ATOM TO RELATE TO NA(I)
 C
-   20 CONTINUE
+   30    CONTINUE
+      ENDIF
       NA(1)=0
       NB(1)=0
       NC(1)=0
@@ -76,18 +97,49 @@ C
 *                     AND RADIANS
 *
 ***********************************************************************
-      DO 10 I=2,NUMAT
+      DO 30 I=2,NUMAT
          J=NA(I)
          K=NB(I)
          L=NC(I)
-         IF(I.LT.3) GOTO 10
+         IF(I.LT.3) GOTO 30
          II=I
          CALL BANGLE(XYZ,II,J,K,GEO(2,I))
          GEO(2,I)=GEO(2,I)*DEGREE
-         IF(I.LT.4) GOTO 10
+         IF(I.LT.4) GOTO 30
+C
+C   MAKE SURE DIHEDRAL IS MEANINGLFUL
+C
+         CALL BANGLE(XYZ,J,K,L,ANGL)
+         TOL=0.2617994D0
+         IF(ANGL.GT.3.1415926D0-TOL.OR.ANGL.LT.TOL)THEN
+C
+C  ANGLE IS UNSATISFACTORY, LET'S SEARCH FOR ANOTHER ATOM FOR
+C  DEFINING THE DIHEDRAL.
+   10       SUM=100.D0
+            DO 20 I1=1,II-1
+               R=(XYZ(1,I1)-XYZ(1,K))**2+
+     1          (XYZ(2,I1)-XYZ(2,K))**2+
+     2          (XYZ(3,I1)-XYZ(3,K))**2
+               IF(R.LT.SUM.AND.I1.NE.J.AND.I1.NE.K) THEN
+                  CALL BANGLE(XYZ,J,K,I1,ANGL)
+                  IF(ANGL.LT.3.1415926D0-TOL.AND.ANGL.GT.TOL)THEN
+                     SUM=R
+                     L=I1
+                     NC(II)=L
+                  ENDIF
+               ENDIF
+   20       CONTINUE
+            IF(SUM.GT.99.D0.AND.TOL.GT.0.1D0)THEN
+C
+C ANYTHING WITHIN 5 DEGREES?
+C
+               TOL=0.087266D0
+               GOTO 10
+            ENDIF
+         ENDIF
          CALL DIHED(XYZ,II,J,K,L,GEO(3,I))
          GEO(3,I)=GEO(3,I)*DEGREE
-   10 GEO(1,I)= SQRT((XYZ(1,I)-XYZ(1,J))**2+
+   30 GEO(1,I)= SQRT((XYZ(1,I)-XYZ(1,J))**2+
      1                   (XYZ(2,I)-XYZ(2,J))**2+
      2                   (XYZ(3,I)-XYZ(3,J))**2)
       GEO(1,1)=0.D0
@@ -177,7 +229,7 @@ C      ROTATE KJ AROUND THE X AXIS SO KJ LIES ALONG THE Z AXIS
       YI3=YI2*COSTH-ZI1*SINTH
       YL3=YL2*COSTH-ZL1*SINTH
       CALL DANG(XL2,YL3,XI2,YI3,ANGLE)
-      IF (ANGLE .LT. 0.) ANGLE=6.2831853D0+ANGLE
+      IF (ANGLE .LT. 0.) ANGLE=4.0D0* ASIN(1.0D00)+ANGLE
       IF (ANGLE .GE. 6.2831853D0 ) ANGLE=0.D0
       RETURN
       END
@@ -205,7 +257,7 @@ C      ROTATE KJ AROUND THE X AXIS SO KJ LIES ALONG THE Z AXIS
       IF(COSTH.LT.-1.0D0) COSTH=-1.0D0
       RCOS= ACOS(COSTH)
       IF( ABS(RCOS).LT.4.0D-4) GO TO 10
-      IF(SINTH.GT.0.D0) RCOS=6.2831853D0-RCOS
+      IF(SINTH.GT.0.D0) RCOS=4.0D0* ASIN(1.0D00)-RCOS
       RCOS=-RCOS
       RETURN
    10 RCOS=0.0D0

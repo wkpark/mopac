@@ -25,7 +25,7 @@ C***********************************************************************
       DATA FIRST/.TRUE./
       IF (FIRST) THEN
          FIRST=.FALSE.
-         FACT=READA(KEYWRD,INDEX(KEYWRD,'DEPVAR='))
+         FACT=READA(KEYWRD,INDEX(KEYWRD,'DEPVAR'))
          WRITE(6,'(''  UNIT CELL LENGTH ='',F14.7,
      1'' TIMES BOND LENGTH'')')FACT
       ENDIF

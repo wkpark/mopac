@@ -112,7 +112,7 @@ C  PUT IN ANY CONSTRAINTS AT THIS POINT
 **********************************************************************
          HPP=0.5D0*(GPP(I)-GP2(I))
          HPP=MAX(0.1D0,HPP)
-         HSP(I)=MAX(0.1D0,HSP(I))
+         HSP(I)=MAX(1.D-7,HSP(I))
          EISOL(I)=USS(I)*USSC(I)+UPP(I)*UPPC(I)+UDD(I)*UDDC(I)+
      1         GSS(I)*GSSC(I)+GPP(I)*GPPC(I)+GSP(I)*GSPC(I)+
      2         GP2(I)*GP2C(I)+HSP(I)*HSPC(I)+GSD(I)*GSDC(I)+

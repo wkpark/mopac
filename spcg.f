@@ -122,49 +122,37 @@ C
          IZ=IS1
          SPCG=SPCG+GPP(IZN)*
      1                       (
-C
-C      (PP/PP) FOR P=X,Y,Z
-C
      2           C1(IX)*C2(IX)*C3(IX)*C4(IX)+
-     2           C1(IY)*C2(IY)*C3(IY)*C4(IY)+
-     3           C1(IZ)*C2(IZ)*C3(IZ)*C4(IZ)
-     4                       )
+     3           C1(IY)*C2(IY)*C3(IY)*C4(IY)+
+     4           C1(IZ)*C2(IZ)*C3(IZ)*C4(IZ)
+     5                       )
          SPCG=SPCG+GSP(IZN)*
      1                       (
-C
-C      (SS/PP)+(PP/SS) FOR P=X,Y,Z
-C
-     1           C1(IS)*C2(IS)*C3(IX)*C4(IX)+
-     2           C1(IS)*C2(IS)*C3(IY)*C4(IY)+
-     3           C1(IS)*C2(IS)*C3(IZ)*C4(IZ)+
-     4           C1(IX)*C2(IX)*C3(IS)*C4(IS)+
-     5           C1(IY)*C2(IY)*C3(IS)*C4(IS)+
-     6           C1(IZ)*C2(IZ)*C3(IS)*C4(IS)
-     7                       )
+     2           C1(IS)*C2(IS)*C3(IX)*C4(IX)+
+     3           C1(IS)*C2(IS)*C3(IY)*C4(IY)+
+     4           C1(IS)*C2(IS)*C3(IZ)*C4(IZ)+
+     5           C1(IX)*C2(IX)*C3(IS)*C4(IS)+
+     6           C1(IY)*C2(IY)*C3(IS)*C4(IS)+
+     7           C1(IZ)*C2(IZ)*C3(IS)*C4(IS)
+     8                       )
          SPCG=SPCG+GP2(IZN)*
      1                       (
-C
-C      (PP/P,P,)+(P,P,/PP) FOR P.NE.P,=X,Y,Z
-C
-     1           C1(IX)*C2(IX)*C3(IY)*C4(IY)+
-     2           C1(IX)*C2(IX)*C3(IZ)*C4(IZ)+
-     3           C1(IY)*C2(IY)*C3(IZ)*C4(IZ)+
-     4           C1(IY)*C2(IY)*C3(IX)*C4(IX)+
-     5           C1(IZ)*C2(IZ)*C3(IX)*C4(IX)+
-     6           C1(IZ)*C2(IZ)*C3(IY)*C4(IY)
-     7                       )
+     2           C1(IX)*C2(IX)*C3(IY)*C4(IY)+
+     3           C1(IX)*C2(IX)*C3(IZ)*C4(IZ)+
+     4           C1(IY)*C2(IY)*C3(IZ)*C4(IZ)+
+     5           C1(IY)*C2(IY)*C3(IX)*C4(IX)+
+     6           C1(IZ)*C2(IZ)*C3(IX)*C4(IX)+
+     7           C1(IZ)*C2(IZ)*C3(IY)*C4(IY)
+     8                       )
          TEMP1=HSP(IZN)
          DO 120 J1=IX,IZ
             SPCG=SPCG+TEMP1*
      1                       (
-C
-C      (SP/SP)+(SP/PS)+(PS/SP)+(PS/PS) FOR P=X,Y,Z
-C
      2           C1(IS)*C2(J1)*C3(J1)*C4(IS)+
-     2           C1(IS)*C2(J1)*C3(IS)*C4(J1)+
-     3           C1(J1)*C2(IS)*C3(IS)*C4(J1)+
-     4           C1(J1)*C2(IS)*C3(J1)*C4(IS)
-     5                       )
+     3           C1(IS)*C2(J1)*C3(IS)*C4(J1)+
+     4           C1(J1)*C2(IS)*C3(IS)*C4(J1)+
+     5           C1(J1)*C2(IS)*C3(J1)*C4(IS)
+     6                       )
   120    CONTINUE
          TEMP1=0.5D0*(GPP(IZN)-GP2(IZN))
          DO 140 J1=IX,IZ
@@ -172,9 +160,6 @@ C
                IF(J1.EQ.K1) GO TO 130
                SPCG=SPCG+TEMP1*
      1                       (
-C
-C      (PP,/PP,)+(PP,/P,P)+(P,P/PP,)+(P,P/P,P) FOR P.NE.P,=X,Y,Z
-C
      2           C1(J1)*C2(K1)*C3(J1)*C4(K1)+
      3           C1(J1)*C2(K1)*C3(K1)*C4(J1)
      4                       )

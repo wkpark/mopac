@@ -5,9 +5,10 @@
      1NA(NUMATM),NB(NUMATM),NC(NUMATM)
      2       /EULER / TVEC(3,3), ID
       COMMON /REACTN/ STEP, GEOA(3,NUMATM), GEOVEC(3,NUMATM),COLCST
+      COMMON /GEOOK/ IGEOOK
       DIMENSION GEO(3,*),COORD(3,*)
       CHARACTER *15 NDIMEN(4)
-      LOGICAL FIRST
+      LOGICAL FIRST, GEOOK
       DATA FIRST/.TRUE./, NDIMEN/' MOLECULE     ',' POLYMER       ',
      1'LAYER STRUCTURE',' SOLID         '/
 C***********************************************************************
@@ -33,28 +34,29 @@ C  ON OUTPUT:
 C         COORD  = ARRAY OF CARTESIAN COORDINATES
 C
 C***********************************************************************
-C                                     OPTION (A)
-      IF(NA(1).EQ.99) THEN
-         DO 10 I=1,3
-            DO 10 J=1,NATOMS
-   10    COORD(I,J)=GEO(I,J)
-         GOTO 110
-      ENDIF
 C                                     OPTION (B)
+      GEOOK=(IGEOOK.EQ.99)
       IF(ABS(STEP) .GT. 1.D-4) THEN
          SUM=0.D0
-         DO 20 I=1,NATOMS
-            DO 20 J=1,3
+         DO 10 I=1,NATOMS
+            DO 10 J=1,3
                GEOVEC(J,I)=GEO(J,I)-GEOA(J,I)
-   20    SUM=SUM+GEOVEC(J,I)**2
+   10    SUM=SUM+GEOVEC(J,I)**2
          SUM=SQRT(SUM)
          ERROR=(SUM-STEP)/SUM
       ELSE
          ERROR=0.D0
       ENDIF
-      DO 30 I=1,NATOMS
-         DO 30 J=1,3
-   30 GEO(J,I)=GEO(J,I)-ERROR*GEOVEC(J,I)
+      DO 20 I=1,NATOMS
+         DO 20 J=1,3
+   20 GEO(J,I)=GEO(J,I)-ERROR*GEOVEC(J,I)
+C                                     OPTION (A)
+      IF(NA(1).EQ.99) THEN
+         DO 30 I=1,3
+            DO 30 J=1,NATOMS
+   30    COORD(I,J)=GEO(I,J)
+         GOTO 110
+      ENDIF
 C                                     OPTION (C)
       COORD(1,1)=0.0D00
       COORD(2,1)=0.0D00
@@ -79,7 +81,7 @@ C                                     OPTION (C)
          YB=COORD(2,MB)-COORD(2,MC)
          ZB=COORD(3,MB)-COORD(3,MC)
          RBC=1.0D00/SQRT(XB*XB+YB*YB+ZB*ZB)
-         IF (ABS(COSA).LT.0.99999999991D00) GO TO 40
+         IF (ABS(COSA).LT.1.D0-1.D-12) GO TO 40
 C
 C     ATOMS MC, MB, AND (I) ARE COLLINEAR
 C
@@ -125,15 +127,15 @@ C
 C     ROTATE ABOUT THE X-AXIS TO MAKE ZA=0, AND YA POSITIVE.
 C
          YZA=SQRT(YPA**2+ZQA**2)
-         IF(YZA.LT.2.D-2 )THEN
+         IF(YZA.LT.2.D-2 .AND. .NOT.GEOOK)THEN
             IF(YZA.LT.1.D-4)GOTO 70
             WRITE(6,'(//20X,'' CALCULATION ABANDONED AT THIS POINT'')')
             WRITE(6,'(//10X,'' THREE ATOMS BEING USED TO DEFINE THE'',/
      110X,'' COORDINATES OF A FOURTH ATOM, WHOSE BOND-ANGLE IS'')')
             WRITE(6,'(10X,'' NOT ZERO OR 180 DEGREEES, ARE '',
-     1''IN AN ALMOST STRAIGHT'',/
-     210X,'' LINE.  THERE IS A HIGH PROBABILITY THAT THE'',/
-     310X,'' COORDINATES OF THE ATOM WILL BE INCORRECT.'')')
+     1''IN AN ALMOST STRAIGHT'')')
+            WRITE(6,'(10X,'' LINE.  THERE IS A HIGH PROBABILITY THAT THE
+     1'',/10X,'' COORDINATES OF THE ATOM WILL BE INCORRECT.'')')
             WRITE(6,'(//20X,''THE FAULTY ATOM IS ATOM NUMBER'',I4)')I
             CALL GEOUT
             WRITE(6,'(//20X,''CARTESIAN COORDINATES UP TO FAULTY ATOM'')

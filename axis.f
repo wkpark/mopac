@@ -2,6 +2,7 @@
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION COORD(3,NUMAT)
+      COMMON /KEYWRD/ KEYWRD
 ************************************************************************
 *
 *  AXIS CALCULATES THE THREE MOMENTS OF INERTIA AND THE MOLECULAR
@@ -14,6 +15,7 @@
       DIMENSION T(6), X(NUMATM), Y(NUMATM),
      1          Z(NUMATM), ROT(3), XYZMOM(3), EIG(3), EVEC(3,3)
       LOGICAL FIRST
+      CHARACTER*80 KEYWRD
       DATA T /6*0.D0/, FIRST/.TRUE./
 ************************************************************************
 *     CONST1 =  10**40/(N*A*A)
@@ -26,14 +28,17 @@
 ************************************************************************
 *
 *     CONST2 = CONVERSION FACTOR FROM ANGSTROM-AMU TO CM**(-1)
-*            = (PLANCK'S CONSTANT)/(4*PI*PI)
+*
+*            = (PLANCK'S CONSTANT*N*10**16)/(8*PI*PI*C)
+*            = 6.62618*10**(-27)[ERG-SEC]*6.02205*10**23*10**16/
+*              (8*(3.1415926535)**2*2.997925*10**10[CM/SEC])
 *
 ************************************************************************
-      CONST2=16.85803902
+      CONST2=16.8576522D0
 C    FIRST WE CENTRE THE MOLECULE ABOUT THE CENTRE OF GRAVITY,
 C    THIS DEPENDS ON THE ISOTOPIC MASSES, AND THE CARTESIAN GEOMETRY.
 C
-      SUMW=0.D0
+      SUMW=1.D-20
       SUMWX=0.D0
       SUMWY=0.D0
       SUMWZ=0.D0
@@ -45,7 +50,8 @@ C
          SUMWY=SUMWY+WEIGHT*COORD(2,I)
    10 SUMWZ=SUMWZ+WEIGHT*COORD(3,I)
       IF(MASS.GT.0.AND.FIRST)
-     1 WRITE(6,'(/10X,''MOLECULAR WEIGHT ='',F8.2,/)')SUMW
+     1 WRITE(6,'(/10X,''MOLECULAR WEIGHT ='',F8.2,/)')
+     +MIN(99999.99D0,SUMW)
       SUMWX=SUMWX/SUMW
       SUMWY=SUMWY/SUMW
       SUMWZ=SUMWZ/SUMW
@@ -72,8 +78,8 @@ C
          T(4)=T(4)-WEIGHT*Z(I)*X(I)
          T(5)=T(5)-WEIGHT*Y(I)*Z(I)
    40 T(6)=T(6)+WEIGHT*(X(I)**2+Y(I)**2)
-      CALL HQRII(T,3,3,EIG,EVEC)
-      IF(MASS.GT.0.AND. FIRST) THEN
+      CALL RSP(T,3,3,EIG,EVEC)
+      IF(MASS.GT.0.AND. FIRST.AND.INDEX(KEYWRD,'RC=').EQ.0) THEN
          WRITE(6,'(//10X,'' PRINCIPAL MOMENTS OF INERTIA IN CM(-1)'',/)'
      1)
          DO 50 I=1,3
@@ -86,8 +92,9 @@ C
    50    XYZMOM(I)=EIG(I)*CONST1
          WRITE(6,'(10X,''A ='',F12.6,''   B ='',F12.6,
      1''   C ='',F12.6,/)')(ROT(I),I=1,3)
-         WRITE(6,'(//10X,'' PRINCIPAL MOMENTS OF INERTIA IN '',
-     1''UNITS OF 10**(-40)*GRAM-CM**2'',/)')
+         IF(INDEX(KEYWRD,'RC=').EQ.0)
+     1WRITE(6,'(//10X,'' PRINCIPAL MOMENTS OF INERTIA IN '',
+     2''UNITS OF 10**(-40)*GRAM-CM**2'',/)')
          WRITE(6,'(10X,''A ='',F12.6,''   B ='',F12.6,
      1''   C ='',F12.6,/)')(XYZMOM(I),I=1,3)
          C=ROT(1)
