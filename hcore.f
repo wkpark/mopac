@@ -13,6 +13,10 @@
       COMMON /CORE  / CORE(107)
       COMMON /FIELD / EFIELD(3)
       COMMON /NUMCAL/ NUMCAL
+C COSMO change
+      LOGICAL ISEPS, USEPS, UPDA
+      COMMON /ISEPS/  ISEPS, USEPS, UPDA
+C end of COSMO change
 ************************************************************************
 C
 C   HCORE GENERATES THE ONE-ELECTRON MATRIX AND TWO ELECTRON INTEGRALS
@@ -186,6 +190,17 @@ C
    90       H(II)=H(II)+E2A(1)*HALF
   100    CONTINUE
   110 CONTINUE
+C COSMO change
+C A. KLAMT 16.7.91
+      IF (USEPS) THEN
+C The following routine adds the dielectric correction for the electron-core
+C interaction to the diagonal elements of H
+         CALL ADDHCR (H)
+C In the following routine the dielectric correction to the core-core-
+C interaction is added to ENUCLR
+         CALL ADDNUC (ENUCLR)
+      ENDIF
+C end of COSMO change
       IF( .NOT. DEBUG) RETURN
       WRITE(6,'(//10X,''ONE-ELECTRON MATRIX FROM HCORE'')')
       CALL VECPRT(H,NORBS)

@@ -24,6 +24,8 @@
       COMMON /NUMSCF/ NSCF
       COMMON /WMATRX/ WJ(N2ELEC), WK(N2ELEC)
       COMMON /ATHEAT/ ATHEAT
+      PARAMETER (MXDIM=MAXORB+NUMATM)
+      COMMON /SYMRES/ TRANS,RTR,SIG,NAME,NAMO(MXDIM),INDX(MXDIM),ISTA(2)
       COMMON /CORE  / CORE(107)
       COMMON /LAST  / LAST
       COMMON /SCRACH/ RXYZ(MPACK), XDUMY(MAXPAR**2-MPACK)
@@ -38,6 +40,10 @@
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
+C COSMO change
+      LOGICAL ISEPS, USEPS, UPDA
+      COMMON /ISEPS/ ISEPS, USEPS, UPDA
+C end of COSMO change
 ************************************************************************
 *
 *   WRITE PRINTS OUT MOST OF THE RESULTS.
@@ -51,7 +57,7 @@
       LOGICAL UHF, CI, SINGLT, TRIPLT, EXCITD, PRTGRA, STILL
       CHARACTER TYPE(3)*11, IDATE*24, CALCN(2)*5, GTYPE*13, GRTYPE*14,
      1          FLEPO(16)*58, ITER(2)*58, NUMBRS(11)*1, GETNAM*80
-      CHARACTER*2 ELEMNT, IELEMT(20), CALTYP*7, NAMFIL*80
+      CHARACTER*2 ELEMNT, IELEMT(20), CALTYP*7, NAMFIL*80, NAME*4
       SAVE ICALCN, NUMBRS, CALCN, TYPE, FLEPO, ITER
       EQUIVALENCE (W,WJ)
       DOUBLE PRECISION WJ, WK
@@ -146,6 +152,13 @@ C
      1)')ELECT
       WRITE(6,'(    10X,''CORE-CORE REPULSION     ='',F17.5,'' EV''
      1)')ENUCLR
+C COSMO change
+      IF (ISEPS) THEN
+        CALL DIELEN(EDIE)
+        WRITE(IW,'(    10X,''DIELECTRIC ENERGY       ='',F17.5,'' EV''
+     1  )')EDIE
+      ENDIF
+C end of COSMO change
       IF(LATOM.EQ.0) WRITE(6,'(1X)')
       PRTGRA=(PRTGRA .OR. GNORM .GT. 2.D0)
       IF(PRTGRA)
@@ -301,12 +314,14 @@ C#      WRITE(6,'(A)') 'Error opening SYBYL MOPAC output'
 C#  32  CONTINUE
       ENDIF
       IF(NORBS.GT.0)THEN
-         IF (INDEX(KEYWRD,' VECT') .NE. 0) THEN
+      CALL SYMTRZ(COORD,C,NORBS,NORBS,.FALSE.,.TRUE.)
+      WRITE(6,'(//''      MOLECULAR POINT GROUP   :   '',A4)')NAME
+         IF (INDEX(KEYWRD,'VECT') .NE. 0) THEN
             WRITE(6,'(//10X,A5,'' EIGENVECTORS  '')')CALCN(IUHF)
-            CALL MATOUT (C,EIGS,NORBS,NORBS,NORBS)
+            CALL MATOU1 (C,EIGS,NORBS,NORBS,MAXORB,2)
             IF(UHF) THEN
                WRITE(6,'(//10X,'' BETA EIGENVECTORS  '')')
-               CALL MATOUT (CBETA,EIGB,NORBS,NORBS,NORBS)
+               CALL MATOU1 (CBETA,EIGB,NORBS,NORBS,MAXORB,2)
             ENDIF
          ELSE
             WRITE(6,'(//10X,A5,''   EIGENVALUES'',/)')CALCN(IUHF)
@@ -500,7 +515,11 @@ C#     +F13.5)')PA((I*(I+1))/2),I,J,C(I+J)
       IF (INDEX(KEYWRD,' MULLIK') +INDEX(KEYWRD,' GRAPH') .NE. 0) THEN
          IF (INDEX(KEYWRD,' MULLIK') .NE. 0)
      1   WRITE(6,'(/10X,'' MULLIKEN POPULATION ANALYSIS'')')
+      DO 172 I=1,NORBS
+  172 Q(I) = P((I*(I+1))/2)
          CALL MULLIK(C,H,F,NORBS,P,RXYZ)
+      DO 174 I=1,NORBS
+  174 P((I*(I+1))/2) = Q(I)
          IF (INDEX(KEYWRD,' GRAPH') .NE. 0)
      1   WRITE(6,'(/10X,'' DATA FOR GRAPH WRITTEN TO DISK'')')
       ENDIF
@@ -537,6 +556,7 @@ C  CALL TO MULLIK.
   164    REWIND 12
          ICALCN=NUMCAL
       ENDIF
+      IF(INDEX(KEYWRD,'GREENF') .NE. 0) CALL GREENF
       IWRITE=12
   170 WRITE(IWRITE,'(//20X,'' SUMMARY OF '',A7,
      1'' CALCULATION'',/)')CALTYP
@@ -609,135 +629,5 @@ C  CALL TO MULLIK.
          GOTO 170
       ENDIF
       NSCF=0
-      RETURN
-      END
-      SUBROUTINE TIMOUT(NOUT,TIM)
-C
-C     CONVERT THE TIME FROM SECONDS TO DAYS, HOURS, MINUTES, AND SECONDS
-C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-      DOUBLE PRECISION MINS, MINPHR
-C
-C
-      DATA HRSPD /24.0D0/,    MINPHR /60.0D0/
-      DATA SECPD /86400.0D0/, SECPMI /60.0D0/
-C
-      DAYS = TIM / SECPD
-      IDAYS = INT(DAYS)
-      HOURS = (DAYS - FLOAT(IDAYS)) * HRSPD
-      IHOURS = INT(HOURS)
-      MINS = (HOURS - FLOAT(IHOURS)) * MINPHR
-      IMINS = INT(MINS)
-      SECS = (MINS - FLOAT(IMINS)) * SECPMI
-C
-      IF (IDAYS .GT. 1) THEN
-         WRITE (NOUT,10) IDAYS,IHOURS,IMINS,SECS
-      ELSE IF (IDAYS .EQ. 1) THEN
-         WRITE (NOUT,20) IDAYS,IHOURS,IMINS,SECS
-      ELSE IF (IHOURS .GT. 0) THEN
-         WRITE (NOUT,30) IHOURS,IMINS,SECS
-      ELSE IF (IMINS .GT. 0) THEN
-         WRITE (NOUT,40) IMINS,SECS
-      ELSE
-         WRITE (NOUT,50) SECS
-      END IF
-C
-   10 FORMAT (10X,'COMPUTATION TIME = ',I2,1X,'DAYS',2X,I2,1X,'HOURS',
-     1        1X,I2,1X,'MINUTES AND',1X,F7.3,1X,'SECONDS')
-   20 FORMAT (10X,'COMPUTATION TIME = ',I2,1X,'DAY',2X,I2,1X,'HOURS',
-     1        1X,I2,1X,'MINUTES AND',1X,F7.3,1X,'SECONDS')
-   30 FORMAT (10X,'COMPUTATION TIME = 'I2,1X,'HOURS',
-     1        1X,I2,1X,'MINUTES AND',1X,F7.3,1X,'SECONDS')
-   40 FORMAT (10X,'COMPUTATION TIME = ',I2,1X,'MINUTES AND',
-     1        1X,F7.3,1X,'SECONDS')
-   50 FORMAT (10X,'COMPUTATION TIME = ',F7.3,1X,'SECONDS')
-      END
-      SUBROUTINE MPCPOP(C,ICOK)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES'
-C
-C This subroutine calculates the total Mulliken populations on the
-C   atoms by summing the diagonal elements from the  Mulliken
-C   population analysis.
-C
-      COMMON / MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
-     1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
-     2                NCLOSE,NOPEN,NDUMY,FRACT
-      COMMON /CORE/ CORE(107)
-      DIMENSION C(MORB2),POP(NUMATM),CHRG(NUMATM)
-      WRITE(16,'(I4,5X'' MULLIKEN POPULATION AND CHARGE'')',ERR=40)ICOK
-C
-C ICOK = 1 ==> PRINT POPULATIONS
-C ICOK = 0 ==> KEYWORD mulliken = .f.
-C         NO POPULATION ANALYSIS PERFORMED
-C
-      IF (ICOK.NE.0) THEN
-         DO 20 I = 1,NUMAT
-            IF = NFIRST(I)
-            IL = NLAST(I)
-            SUM = 0.0
-            POP(I) = 0.0
-            CHRG(I) = 0.0
-            DO 10 J = IF,IL
-C
-C    Diagonal element of mulliken matrix
-C
-               SUM = SUM + C((J*(J+1))/2)
-   10       CONTINUE
-            K = NAT(I)
-C
-C    Mulliken population for i'th atom
-C
-            POP(I) = SUM
-            CHRG(I) = CORE(K) - POP(I)
-   20    CONTINUE
-         WRITE(6,'(///10X,''MULLIKEN POPULATIONS AND CHARGES'')')
-         DO 30 J = 1,NUMAT
-            WRITE(6,60) J, POP(J), CHRG(J)
-            WRITE(16,70,ERR=40) POP(J), CHRG(J)
-   30    CONTINUE
-      ENDIF
-      RETURN
-   40 WRITE(6,'(A)') 'Error writing SYBYL Mulliken population output'
-      RETURN
-   50 FORMAT(//,5X,'ATOM',8X,'POPULATION',6X,'CHARGE')
-   60 FORMAT(5X,I4,4X,F11.6,6X,F11.6)
-   70 FORMAT(2F12.6)
-      END
-C
-C This subroutine writes out the optimized geometry and atomic charges
-C   for a MOPAC run.
-C
-      SUBROUTINE MPCSYB(NUMAT,COORD,CHR,ICOK,EIGS,NCLOSE,FUNCT
-     1                       ,EIONIS,KCHRGE,DIP)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES'
-      DIMENSION COORD(3, NUMAT), CHR(NUMAT),EIGS(MAXORB)
-C  Write out the charge flag and number of atoms
-      WRITE(16,'(2I4)', ERR=30) ICOK,NUMAT
-C  Write out the coordinates and charges
-      DO 10 I=1, NUMAT
-         WRITE(16,'(4F12.6)', ERR=30) (COORD(J, I), J=1, 3), CHR(I)
-   10 CONTINUE
-      I1 = MAX(1,NCLOSE - 1)
-      I2 = MIN(MAXORB,NCLOSE + 2)
-C
-C  Write out the 2 highest and 2 lowest orbital energies
-C
-      WRITE(16,20,ERR=30)(EIGS(J),J=I1,I2),NCLOSE
-   20 FORMAT(4F12.6,2X,I4,2X,'HOMOs,LUMOs,# of occupied MOs')
-C
-C  Write out the Heat of Formation and Ionisation Potential
-C
-      WRITE(16,'(2F12.6,4X,''HF and IP'')',ERR=30) FUNCT,EIONIS
-C
-C  Write out the Dipole Moment
-C
-      IF(KCHRGE.NE.0) DIP = 0.0
-      WRITE(16, '(I4,F10.3,''  Charge,Dipole Moment'')', ERR=30)
-     1KCHRGE, DIP
-      RETURN
-   30 WRITE(6,'(A)') 'Error writing SYBYL MOPAC output'
       RETURN
       END

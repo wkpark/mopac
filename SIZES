@@ -30,22 +30,24 @@
 *     MPACK          AREA OF LOWER HALF TRIANGLE OF DENSITY MATRIX.
 *     MORB2          SQUARE OF THE MAXIMUM NUMBER OF ORBITALS ALLOWED.
 *     MAXHES         AREA OF HESSIAN MATRIX
+*     MAXALL         LARGER THAN MAXORB OR MAXPAR.
 ************************************************************************
-      PARAMETER (VERSON=6.00D0)
+      PARAMETER (VERSON=7.00D0)
       PARAMETER (NUMATM=MAXHEV+MAXLIT)
       PARAMETER (MAXORB=4*MAXHEV+MAXLIT)
       PARAMETER (MAXPAR=3*NUMATM)
       PARAMETER (MAXBIG=MAXORB*MAXORB*2)
-      PARAMETER (N2ELEC=2*(50*MAXHEV*(MAXHEV-1)+10*MAXHEV*MAXLIT
+      PARAMETER (N2ELEC=(50*MAXHEV*(MAXHEV-1)+10*MAXHEV*MAXLIT
      +                     +(MAXLIT*(MAXLIT-1))/2))
       PARAMETER (MAXHES=(MAXPAR*(MAXPAR+1))/2,MORB2=MAXORB**2)
       PARAMETER (MPACK=(MAXORB*(MAXORB+1))/2)
       PARAMETER (MAXPR=6*MAXORB)
+      PARAMETER (MAXALL=4*MAXHEV+3*MAXLIT)
 ************************************************************************
 *   FOR SHORT VERSION USE LINE WITH NMECI=1, FOR LONG VERSION USE LINE
 *   WITH NMECI=10
 ************************************************************************
-      PARAMETER (NMECI=10,  NPULAY=MPACK, MMCI=60)
+      PARAMETER (NMECI=11,  NPULAY=MPACK, MMCI=60)
 C      PARAMETER (NMECI=1,   NPULAY=1, MMCI=1)
 ************************************************************************
 *   FOR SHORT VERSION USE LINE WITH MESP=1, FOR LONG VERSION USE LINE
@@ -53,5 +55,9 @@ C      PARAMETER (NMECI=1,   NPULAY=1, MMCI=1)
 ************************************************************************
 C       PARAMETER (MESP=1)
       PARAMETER (MESP=50000)
+      PARAMETER (LENABC=400)
+      PARAMETER (LENAB2=LENABC*(LENABC+5))
+      PARAMETER (NPPA = 1082, MAXNSS = 500)
+      PARAMETER (MAXDEN=10*MAXHEV+MAXLIT)
 ************************************************************************
 *DECK MOPAC

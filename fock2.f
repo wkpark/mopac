@@ -1,9 +1,9 @@
-      SUBROUTINE FOCK2(F, PTOT, P, W, WJ, WK, NUMAT, NFIRST,
+      SUBROUTINE FOCK2(F, PTOT, P, W, WJ, WK, NUMAT, NAT, NFIRST,
      1NMIDLE, NLAST)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION F(1000), PTOT(1000), WJ(1000), WK(1000), NFIRST(10000), 
-     1 NMIDLE(10000), NLAST(*), P(1000), W(1000)
+      DIMENSION F(*), PTOT(*), WJ(*), WK(*), NFIRST(*), NMIDLE(*),
+     1          NLAST(*), P(*), W(*)
       DOUBLE PRECISION WJ,WK
 C***********************************************************************
 C
@@ -20,6 +20,10 @@ C***********************************************************************
       COMMON /NUMCAL/ NUMCAL
       COMMON /KEYWRD/ KEYWRD
       COMMON /WORK4 / PTOT2
+C COSMO change
+      LOGICAL ISEPS, USEPS, UPDA
+      COMMON /ISEPS/  ISEPS, USEPS, UPDA
+C end of COSMO change
       SAVE IFACT,I1FACT, IONE, LID
       DIMENSION IFACT(MAXORB),
      1I1FACT(MAXORB), JINDEX(256), KINDEX(256), IJPERM(10), LLPERM(10),
@@ -303,6 +307,11 @@ C BUT IT WORKS,
             ENDIF
   180    CONTINUE
   190 CONTINUE
+C COSMO change
+C The following routine adds the dielectric corretion to F
+      IF (USEPS) CALL ADDFCK (F,P,NUMAT,NAT,NFIRST,NLAST)
+C A. Klamt 18.7.91
+C end of COSMO change
       RETURN
 C
 C                    START OF MINDO/3 OPTION

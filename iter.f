@@ -442,7 +442,7 @@ C
          WRITE(6,'(A,F7.2)')' LOAD FOCK MAT. INTEGRAL',T0-TITER0
       ENDIF
 C#      CALL TIMER('BEFORE FOCK2')
-      CALL FOCK2(F,P,PA,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
+      CALL FOCK2(F,P,PA,W, WJ, WK,NUMAT,NAT,NFIRST,NMIDLE,NLAST)
 C#      CALL TIMER('AFTER FOCK2')
 C#      CALL TIMER('BEFORE FOCK1')
       CALL FOCK1(F,P,PA,PB)
@@ -474,7 +474,7 @@ C#      CALL TIMER('AFTER FOCK1')
             DO 200 I=1,LINEAR
   200       FB(I)=H(I)
          ENDIF
-         CALL FOCK2(FB,P,PB,W, WJ, WK,NUMAT,NFIRST,NMIDLE,NLAST)
+         CALL FOCK2(FB,P,PB,W, WJ, WK,NUMAT,NAT,NFIRST,NMIDLE,NLAST)
          CALL FOCK1(FB,P,PB,PA)
       ENDIF
       IF( .NOT. FULSCF) GOTO 380
@@ -631,6 +631,8 @@ C
          IF(INCITR)
      1    WRITE(6,'('' ITERATION'',I3,'' PLS='',2E10.3,'' ENERGY  '',
      2F14.7,'' DELTAE'',F13.7)')NITER,PL,PLB,ESCF,DIFF
+      close (6)
+      OPEN(UNIT=6,FILE=GETNAM('FOR006'),ACCESS='APPEND')
       ENDIF
       IF(INCITR)EOLD=ESCF
 ************************************************************************

@@ -21,6 +21,10 @@ C***********************************************************************
       COMMON /UCELL / L1L,L2L,L3L,L1U,L2U,L3U
       COMMON /DCARTC/ K1L,K2L,K3L,K1U,K2U,K3U
       COMMON /NUMCAL/ NUMCAL
+C COSMO change
+      LOGICAL ISEPS, USEPS , UPDA
+      COMMON /ISEPS/  ISEPS, USEPS, UPDA
+C end of COSMO change
       CHARACTER*241 KEYWRD
       DIMENSION PDI(171),PADI(171),PBDI(171),
      1CDI(3,2),NDI(2),LSTOR1(6), LSTOR2(6), ENG(3)
@@ -163,8 +167,27 @@ C
   150       CONTINUE
   160    CONTINUE
       ENDIF
-      DO 170 I=1,6
-  170 LSTOR1(I)=LSTOR2(I)
+C COSMO change A. Klamt
+C analytic calculation of the gradient of the dielectric energy A.Klamt
+      IF (USEPS) CALL DIEGRD(COORD,DXYZ)
+C     DO 170 I=1,6
+C 170 LSTOR1(I)=LSTOR2(I)
+      IF (  .NOT. DEBUG) RETURN
+      WRITE(IW,'(//10X,''CARTESIAN COORDINATE DERIVATIVES'',//3X,
+     1''NUMBER  ATOM '',5X,''X'',12X,''Y'',12X,''Z'',/)')
+      IF(NCELLS.EQ.1)THEN
+         WRITE(IW,'(2I6,F13.6,2F13.6)')
+     1 (I,NAT(I),(DXYZ(J,I),J=1,3),I=1,NUMTOT)
+      ELSEIF(LARGE)THEN
+         WRITE(IW,'(2I6,F13.6,2F13.6)')
+     1 (I,NAT((I-1)/NCELLS+1),(DXYZ(J,I),J=1,3),I=1,NUMTOT)
+      ELSE
+         WRITE(IW,'(2I6,F13.6,2F13.6)')
+     1 (I,NAT((I-1)/NCELLS+1),(DXYZ(J,I)+DXYZ(J,I+1)+DXYZ(J,I+2)
+     2,J=1,3),I=1,NUMTOT,3)
+      ENDIF
+      IF (ANADER) REWIND IROT
+C end of COSMO (A. Klamt) changes
       IF (  .NOT. DEBUG) RETURN
       WRITE(6,'(//10X,''CARTESIAN COORDINATE DERIVATIVES'',//3X,
      1''NUMBER  ATOM '',5X,''X'',12X,''Y'',12X,''Z'',/)')
@@ -294,12 +317,12 @@ C
          II=(I1*(I1+1))/2
          F(II)=F(II)+E2A(1)
   100 H(II)=H(II)+E2A(1)
-      CALL FOCK2(F,P,PA,W, WJS, WKS,2,NFIRST,NMIDLE,NLAST)
+      CALL FOCK2(F,P,PA,W, WJS, WKS,2,NAT,NFIRST,NMIDLE,NLAST)
       EE=HELECT(NLAST(2),PA,H,F)
       IF( UHF ) THEN
          DO 110 I=1,LINEAR
   110    F(I)=H(I)
-         CALL FOCK2(F,P,PB,W, WJS, WKS,2,NFIRST,NMIDLE,NLAST)
+         CALL FOCK2(F,P,PB,W, WJS, WKS,2,NAT,NFIRST,NMIDLE,NLAST)
          EE=EE+HELECT(NLAST(2),PB,H,F)
       ELSE
          EE=EE*2.D0

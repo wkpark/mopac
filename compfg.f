@@ -25,6 +25,10 @@
      1       /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      2                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      3                NCLOSE,NOPEN,NDUMY,FRACT
+C COSMO change A. Klamt
+      LOGICAL ISEPS, USEPS , UPDA
+      COMMON /ISEPS/  ISEPS, USEPS, UPDA
+C end of COSMO change
 C***********************************************************************
 C
 C   COMPFG CALCULATES (A) THE HEAT OF FORMATION OF THE SYSTEM, AND
@@ -123,6 +127,9 @@ C      NOW COMPUTE THE ATOMIC COORDINATES.
      1            ((COORD(J,I),J=1,3),I=1,K)
       ENDIF
       IF(INT.AND.ANALYT)REWIND 2
+C COSMO change A. Klamt
+      IF (.NOT. USEPS) THEN
+C end of COSMO change
       IF(TIMES)CALL TIMER('BEFORE HCORE')
       IF(INT)CALL HCORE(COORD, H, W, WJ, WK, ENUCLR)
       IF(TIMES)CALL TIMER('AFTER HCORE')
@@ -142,6 +149,36 @@ C
          CALL DIHED(COORD,NHCO(1,I),NHCO(2,I),NHCO(3,I),NHCO(4,I),ANGLE)
          ESCF=ESCF+HTYPE(ITYPE)*SIN(ANGLE)**2
    60 CONTINUE
+C COSMO change A. Klamt 18.7.91
+      ENDIF
+      IF (ISEPS) THEN
+C The following routine constructs the dielectric screening surface
+           CALL CONSTS (COORD,.TRUE.)
+C The following routine constructs dielectric response matrix CCMAT
+        CALL BTOC (COORD)
+C A. Klamt 18.7.91
+        USEPS = .TRUE.
+        IF(TIMES) CALL TIMER('BEFORE HCORE')
+        IF(INT) CALL HCORE(COORD, H, W, WJ, WK, ENUCLR)
+        IF(TIMES) CALL TIMER('AFTER HCORE')
+C
+C COMPUTE THE HEAT OF FORMATION.
+C
+        IF(NORBS.GT.0.AND.NELECS.GT.0) THEN
+          IF(TIMES) CALL TIMER('BEFORE ITER')
+          IF(INT) CALL ITER(H, W, WJ, WK, ELECT, FULSCF,.TRUE.)
+          IF(TIMES) CALL TIMER('AFTER ITER')
+        ELSE
+          ELECT=0.D0
+        ENDIF
+        ESCF=(ELECT+ENUCLR)*23.060542301389D0+ATHEAT
+        IF(ESCF.LT.EMIN.OR.EMIN.EQ.0.D0) EMIN=ESCF
+        DO 61 I=1,NNHCO
+         CALL DIHED(COORD,NHCO(1,I),NHCO(2,I),NHCO(3,I),NHCO(4,I),ANGLE)
+         ESCF=ESCF+HTYPE(ITYPE)*SIN(ANGLE)**2
+   61   CONTINUE
+      ENDIF
+C end of COSMO change
 C
 C FIND DERIVATIVES IF DESIRED
 C
