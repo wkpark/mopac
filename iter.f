@@ -19,6 +19,11 @@ C ***** Modified by Jiro Toyoda at 1994-05-25 *****
 C     COMMON /TIME  / TIME0
       COMMON /TIMEC / TIME0
 C ***************************** at 1994-05-25 *****
+C     PATAS
+      COMMON /XXXXXX/ ICOMPF
+      COMMON /MSTPO/ HQ(MPACK),EZQ,EEQ
+      COMMON /MSTQ/ QS(1500),MFLAG
+C
       LOGICAL FULSCF, RAND, LIMSCF
       DOUBLE PRECISION WJ, WK
 C***********************************************************************
@@ -82,6 +87,9 @@ C***********************************************************************
       DIMENSION  BR1(2*NPULAY), BR2(2*NPULAY), BR3(2*NPULAY),
      1 BR4(7*NPULAY)
       DIMENSION ESCF0(10)
+C     PATAS
+      DIMENSION PGASA(MPACK),PGASB(MPACK),PSONA(MPACK),PSONB(MPACK)
+C     PATAS
       COMMON /PRECI / SELCON
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,
@@ -186,8 +194,8 @@ C
          TRANS=0.1D0
          IF(INDEX(KEYWRD,'RESTART')+INDEX(KEYWRD,'OLDENS')
      1      .NE. 0) THEN
-            IF(INDEX(KEYWRD,'OLDENS').NE.0)
-     1   OPEN(UNIT=10,FILE=GETNAM('FOR010'),
+            IF(INDEX(KEYWRD,'OLDENS').NE.0) THEN
+         OPEN(UNIT=10,FILE=GETNAM('FOR010'),
      +        STATUS='UNKNOWN',FORM='UNFORMATTED')
             REWIND 10
             READ(10)(PA(I),I=1,LINEAR)
@@ -203,6 +211,7 @@ C
                   PBOLD(I)=PA(I)
                   POLD(I)=PA(I)
    30          P(I)=PA(I)*2.D0
+            ENDIF
             ENDIF
          ELSE
             NSCF=0
@@ -316,6 +325,56 @@ C
          MODEB=0
       ENDIF
       BFRST=.TRUE.
+C     PATAS
+C
+C     READ DENSITY MATRIX FOR PSI IN VACUO
+C     TO BE USED WHEN MFLAG=6
+C
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.MFLAG.EQ.6) THEN
+      DO 502 I=1,LINEAR
+      PA(I)=PSONA(I)
+  502 CONTINUE
+      IF (UHF) THEN
+         DO 503 I=1,LINEAR
+         PB(I)=PSONB(I)
+         POLD(I)=PA(I)
+         PBOLD(I)=PB(I)
+         P(I)=PA(I)+PB(I)
+  503    CONTINUE
+      ELSE
+         DO 504 I=1,LINEAR
+         PB(I)=PA(I)
+         PBOLD(I)=PA(I)
+         POLD(I)=PA(I)
+         P(I)=PA(I)*2.0
+  504 CONTINUE
+      ENDIF
+      ENDIF
+C
+C     READ DENSITY MATRIX FOR PSI IN SOLUTION
+C     TO BE USED WHEN MFLAG=4
+C
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.MFLAG.EQ.4) THEN
+      DO 512 I=1,LINEAR
+      PA(I)=PGASA(I)
+  512 CONTINUE
+      IF (UHF) THEN
+         DO 513 I=1,LINEAR
+         PB(I)=PGASB(I)
+         PBOLD(I)=PB(I)
+         POLD(I)=PA(I)
+         P(I)=PA(I)+PB(I)
+  513    CONTINUE
+      ELSE
+         DO 514 I=1,LINEAR
+         PB(I)=PA(I)
+         PBOLD(I)=PA(I)
+         POLD(I)=PA(I)
+         P(I)=PA(I)*2.D0
+  514 CONTINUE
+      ENDIF
+      ENDIF
+C     PATAS
 **********************************************************************
 *                                                                    *
 *                                                                    *
@@ -534,6 +593,46 @@ C
          ELSE
             TEN=TEN*0.975D0+0.05D0
          ENDIF
+C      PATAS
+         IF (MFLAG.EQ.0) GOTO 9999
+         IF (ICOMPF.EQ.2) GOTO 9999
+         IF (INDEX(KEYWRD,'JIALI').NE.0.AND.NITER.EQ.1) THEN
+         WRITE(6,*)
+         WRITE(6,*) ' ITERATION: ',NITER
+         WRITE(6,517) ' ELECTRONIC ENERGY: ',(EE+SCORR)
+         WRITE(6,517) ' NUCLEAR ENERGY:    ',ENUCLR
+         WRITE(6,517) ' _______ SOLUTE:    ',(ENUCLR-EZQ)
+         WRITE(6,517) ' _______ SOLVENT:   ',EZQ
+  517  FORMAT(A20,F16.7)
+         EMOL=EE+SCORR+ENUCLR
+         WRITE(6,517) ' SOLUTE ENERGY:     ',EMOL
+         IF (MFLAG.EQ.6) GOTO 658
+         EED=0.D0
+         EEQ=0.D0
+         K=0
+         NN=NORBS+1
+         DO 656 I=2,NN
+            K=K+1
+            JJ=I-1
+            EED=EED+PA(K)*(HQ(K)+HQ(K))
+            IF (I.EQ.NN) GO TO 656
+            DO 657 J=1,JJ
+               K=K+1
+  657       EEQ=EEQ+PA(K)*(HQ(K)+HQ(K))
+  656   CONTINUE
+        EEQ=EEQ+0.5D0*EED
+        EEQ=EEQ*2.D0
+  658   CONTINUE
+        IF (MFLAG.GE.4) EMOL1=EMOL
+        ESTE=EZQ+EEQ
+        GELE1=EMOL-0.5D0*ESTE
+        WRITE(6,517) ' SOLVENT ENERGY:    ',ESTE
+        WRITE(6,517) ' FREE-ENERGY:       ',GELE1
+        WRITE(6,517) ' DELTA ENERGY:      ',(EMOL-EMOL0)*23.061D0
+        WRITE(6,517) ' DELTA FREE ENERGY: ',(GELE1-EMOL0)*23.061D0
+        ENDIF
+9999    CONTINUE
+C     PATAS
 C
 C MAKE SURE SELF-CONSISTENCY TEST IS NOT MORE STRINGENT THAN THE
 C COMPUTER CAN HANDLE
@@ -810,6 +909,73 @@ C#      CALL TIMER('AFTER CNVG')
      1SHIFT*(NOPEN-NCLOSE)*23.061D0*0.25D0*(FRACT*(2.D0-FRACT))
       ENDIF
       IF(CAPPS)EE=EE+CAPCOR(NAT,NFIRST,NLAST,NUMAT,P,H)
+C      PATAS
+      IF (MFLAG.EQ.0) EMOL0=EE+ENUCLR
+      IF (ICOMPF.EQ.1.OR.MFLAG.EQ.0) GOTO 9998
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.MFLAG.NE.6) THEN
+         EED=0.D0
+         EEQ=0.D0
+         K=0
+         NN=NORBS+1
+         DO 756 I=2,NN
+            K=K+1
+            JJ=I-1
+            EED=EED+PA(K)*(HQ(K)+HQ(K))
+            IF (I.EQ.NN) GO TO 756
+            DO 757 J=1,JJ
+               K=K+1
+  757       EEQ=EEQ+PA(K)*(HQ(K)+HQ(K))
+  756   CONTINUE
+        EEQ=EEQ+0.5D0*EED
+        EEQ=EEQ*2.D0
+      ENDIF
+         IF (INDEX(KEYWRD,'JIALI').NE.0) THEN
+         WRITE(6,*)
+         WRITE(6,*) ' ITERATION: ',NITER
+         WRITE(6,517) ' ELECTRONIC ENERGY: ',EE
+         WRITE(6,517) ' NUCLEAR ENERGY:    ',ENUCLR
+         WRITE(6,517) ' _______ SOLUTE:    ',(ENUCLR-EZQ)
+         WRITE(6,517) ' _______ SOLVENT:   ',EZQ
+         EMOL=EE+ENUCLR
+         WRITE(6,517) ' SOLUTE ENERGY:     ',EMOL
+        ESTE=EZQ+EEQ
+        GELE=EMOL-0.5D0*ESTE
+        WRITE(6,517) ' SOLVENT ENERGY:    ',ESTE
+        WRITE(6,517) ' FREE-ENERGY:       ',GELE
+        WRITE(6,*)
+        WRITE(6,517) ' DELTA ENERGY:      ',
+     1(EMOL-EMOL0)*23.061D0
+        WRITE(6,517) ' DELTA G:           ',
+     1(GELE-EMOL0)*23.061D0
+        IF (MFLAG.EQ.4) WRITE(6,517) ' DELTA E (POL):     ',
+     1(EMOL-EMOL1)*23.061D0
+        IF (MFLAG.EQ.6) WRITE(6,517) ' DELTA E (DIS):     ',
+     1(EMOL-EMOL1)*23.061D0
+        ENDIF
+C
+C     SAVE PSI IN VACUO TO BE USED WHEN MFLAG=4
+C
+      IF (ICOMPF.EQ.2) THEN
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.MFLAG.EQ.0) THEN
+C     MFLAG=0: GAS PHASE COMPUTATION
+      DO 402 I=1,LINEAR
+      PGASA(I)=PA(I)
+       IF (UHF) PGASB(I)=PB(I)
+  402 CONTINUE
+      ENDIF
+C
+C     SAVE PSI IN SOLUTION TO BE USED WHEN MFLAG=6
+C
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.MFLAG.EQ.1) THEN
+C     MFLAG=1:  SOLVATION COMPUTATION
+      DO 405 I=1,LINEAR
+      PSONA(I)=PA(I)
+      IF (UHF) PSONB(I)=PB(I)
+  405 CONTINUE
+      ENDIF
+      ENDIF
+9998  CONTINUE
+C     PATAS
 C
 C   NORMALLY THE EIGENVALUES ARE INCORRECT BECAUSE THE
 C   PSEUDODIAGONALIZATION HAS BEEN USED.  IF THIS

@@ -174,8 +174,78 @@ C     THIS IS FORMATTED FOR DIRECT INSERTION INTO 'PARAM'
 C
       IF(INDEX(KEYWRD,'DEP').EQ.0) RETURN
       WRITE(6,50)
+   50    FORMAT(1H ,1X,'OUTPUT INCLUDES DEBUG INFORMATION',//)
+      IF(INDEX(KEYWRD,' AM1').NE.0) THEN
       DO 60 I=1,107
          IF(ZS(I).EQ.0) GOTO 60
+         WRITE(6,'(''C'',20X,''DATA FOR ELEMENT'',I3)')I
+         WRITE(6,'(6X,''DATA USSAM1('',I3,'')/'',F16.7,''D0/'')')
+     1                    I,USS(I)
+         IF(UPP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA UPPAM1('',I3,'')/'',F16.7,''D0/'')')I,UPP(I)
+         IF(UDD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA UDDAM1('',I3,'')/'',F16.7,''D0/'')')I,UDD(I)
+         IF(BETAS(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETASA('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAS(I)
+         IF(BETAP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETAPA('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAP(I)
+         IF(BETAD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETADA('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAD(I)
+         WRITE(6,'(6X,''DATA ZSAM1 ('',I3,'')/'',F16.7,''D0/'')')
+     1I,ZS(I)
+         IF(ZP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ZPAM1 ('',I3,'')/'',F16.7,''D0/'')')I,ZP(I)
+         IF(ZD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ZDAM1 ('',I3,'')/'',F16.7,''D0/'')')I,ZD(I)
+         WRITE(6,'(6X,''DATA ALPAM1('',I3,'')/'',F16.7,''D0/'')')
+     1I,ALP(I)
+         WRITE(6,'(6X,''DATA EISOLA('',I3,'')/'',F16.7,''D0/'')')
+     1I,EISOL(I)
+         IF(GSS(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GSSAM1('',I3,'')/'',F16.7,''D0/'')')
+     2I,GSS(I)
+         IF(GSP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GSPAM1('',I3,'')/'',F16.7,''D0/'')')
+     2I,GSP(I)
+         IF(GPP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GPPAM1('',I3,'')/'',F16.7,''D0/'')')
+     2I,GPP(I)
+         IF(GP2(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GP2AM1('',I3,'')/'',F16.7,''D0/'')')
+     2I,GP2(I)
+         IF(HSP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA HSPAM1('',I3,'')/'',F16.7,''D0/'')')
+     2I,HSP(I)
+         IF(DD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA DDAM1 ('',I3,'')/'',F16.7,''D0/'')')I,DD(I)
+         IF(QQ(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA QQAM1 ('',I3,'')/'',F16.7,''D0/'')')I,QQ(I)
+         WRITE(6,'(6X,''DATA AMAM1 ('',I3,'')/'',F16.7,''D0/'')')
+     1I,AM(I)
+         IF(AD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ADAM1 ('',I3,'')/'',F16.7,''D0/'')')I,AD(I)
+         IF(AQ(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA AQAM1 ('',I3,'')/'',F16.7,''D0/'')')I,AQ(I)
+         IF(FN1(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA FN1AM1('',I3,'')/'',F16.7,''D0/'')')I,FN1(I)
+         IF(FN2(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA FN2AM1('',I3,'')/'',F16.7,''D0/'')')I,FN2(I)
+         DO 40 J=1,10
+            IF(GUESS1(I,J) .EQ.0.D0) GOTO 40
+            WRITE(6,'(6X,''DATA GUESA1('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS1(I,J)
+            WRITE(6,'(6X,''DATA GUESA2('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS2(I,J)
+            WRITE(6,'(6X,''DATA GUESA3('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS3(I,J)
+   40    CONTINUE
+   60 CONTINUE
+      ELSEIF(INDEX(KEYWRD,' PM3').NE.0)THEN
+      DO 62 I=1,107
+         IF(ZS(I).EQ.0) GOTO 62
          WRITE(6,'(''C'',20X,''DATA FOR ELEMENT'',I3)')I
          WRITE(6,'(6X,''DATA USSPM3('',I3,'')/'',F16.7,''D0/'')')
      1                    I,USS(I)
@@ -231,16 +301,84 @@ C
      1WRITE(6,'(6X,''DATA FN1PM3('',I3,'')/'',F16.7,''D0/'')')I,FN1(I)
          IF(FN2(I) .NE. 0.D0)
      1WRITE(6,'(6X,''DATA FN2PM3('',I3,'')/'',F16.7,''D0/'')')I,FN2(I)
-         DO 40 J=1,10
-            IF(GUESS1(I,J) .EQ.0.D0) GOTO 40
+         DO 42 J=1,10
+            IF(GUESS1(I,J) .EQ.0.D0) GOTO 42
             WRITE(6,'(6X,''DATA GUESP1('',I3,'','',I1,'')/'',
      1F16.7,''D0/'')')I,J,GUESS1(I,J)
             WRITE(6,'(6X,''DATA GUESP2('',I3,'','',I1,'')/'',
      1F16.7,''D0/'')')I,J,GUESS2(I,J)
             WRITE(6,'(6X,''DATA GUESP3('',I3,'','',I1,'')/'',
      1F16.7,''D0/'')')I,J,GUESS3(I,J)
-   40    CONTINUE
-   50    FORMAT(1H ,1X,'OUTPUT INCLUDES DEBUG INFORMATION',//)
-   60 CONTINUE
+   42    CONTINUE
+   62 CONTINUE
+      ELSE
+      DO 64 I=1,107
+         IF(ZS(I).EQ.0) GOTO 64
+         WRITE(6,'(''C'',20X,''DATA FOR ELEMENT'',I3)')I
+         WRITE(6,'(6X,''DATA USSM  ('',I3,'')/'',F16.7,''D0/'')')
+     1                    I,USS(I)
+         IF(UPP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA UPPM  ('',I3,'')/'',F16.7,''D0/'')')I,UPP(I)
+         IF(UDD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA UDDM  ('',I3,'')/'',F16.7,''D0/'')')I,UDD(I)
+         IF(BETAS(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETASM('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAS(I)
+         IF(BETAP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETAPM('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAP(I)
+         IF(BETAD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA BETADM('',I3,'')/'',F16.7,''D0/'')')
+     2I,BETAD(I)
+         WRITE(6,'(6X,''DATA ZSM   ('',I3,'')/'',F16.7,''D0/'')')
+     1I,ZS(I)
+         IF(ZP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ZPM   ('',I3,'')/'',F16.7,''D0/'')')I,ZP(I)
+         IF(ZD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ZDM   ('',I3,'')/'',F16.7,''D0/'')')I,ZD(I)
+         WRITE(6,'(6X,''DATA ALPM  ('',I3,'')/'',F16.7,''D0/'')')
+     1I,ALP(I)
+         WRITE(6,'(6X,''DATA EISOLM('',I3,'')/'',F16.7,''D0/'')')
+     1I,EISOL(I)
+         IF(GSS(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GSSM  ('',I3,'')/'',F16.7,''D0/'')')
+     2I,GSS(I)
+         IF(GSP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GSPM  ('',I3,'')/'',F16.7,''D0/'')')
+     2I,GSP(I)
+         IF(GPP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GPPM  ('',I3,'')/'',F16.7,''D0/'')')
+     2I,GPP(I)
+         IF(GP2(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA GP2M  ('',I3,'')/'',F16.7,''D0/'')')
+     2I,GP2(I)
+         IF(HSP(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA HSPM  ('',I3,'')/'',F16.7,''D0/'')')
+     2I,HSP(I)
+         IF(DD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA DDM   ('',I3,'')/'',F16.7,''D0/'')')I,DD(I)
+         IF(QQ(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA QQM   ('',I3,'')/'',F16.7,''D0/'')')I,QQ(I)
+         WRITE(6,'(6X,''DATA AMM   ('',I3,'')/'',F16.7,''D0/'')')
+     1I,AM(I)
+         IF(AD(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA ADM   ('',I3,'')/'',F16.7,''D0/'')')I,AD(I)
+         IF(AQ(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA AQM   ('',I3,'')/'',F16.7,''D0/'')')I,AQ(I)
+         IF(FN1(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA FN1M  ('',I3,'')/'',F16.7,''D0/'')')I,FN1(I)
+         IF(FN2(I) .NE. 0.D0)
+     1WRITE(6,'(6X,''DATA FN2M  ('',I3,'')/'',F16.7,''D0/'')')I,FN2(I)
+         DO 44 J=1,10
+            IF(GUESS1(I,J) .EQ.0.D0) GOTO 44
+            WRITE(6,'(6X,''DATA GUESP1('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS1(I,J)
+            WRITE(6,'(6X,''DATA GUESP2('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS2(I,J)
+            WRITE(6,'(6X,''DATA GUESP3('',I3,'','',I1,'')/'',
+     1F16.7,''D0/'')')I,J,GUESS3(I,J)
+   44    CONTINUE
+   64 CONTINUE
+      ENDIF
       RETURN
       END

@@ -183,13 +183,16 @@ C        CHARACTER NAME OF THE ELEMENT, AND ISWAP(1,1:NEWELE) CONTAINS
 C        THE ATOMIC NUMBER OF THE ELEMENT. ISWAP(2,1:NEWELE) CONTAINS
 C        THE STORAGE ADDRESS OF THE OLD SET OF PARAMETERS.
 C
-      NEWELE=2
+      NEWELE=3
       OLDE(1)=' S1978'
       ISWAP(1,1)=16
       ISWAP(2,1)=91
       OLDE(2)='SI1978'
       ISWAP(1,2)=14
       ISWAP(2,2)=90
+      OLDE(3)='P1994'
+      ISWAP(1,3)=15
+      ISWAP(2,3)=89
 C$DOIT ASIS
       DO 60 K=1,NEWELE
          IF(INDEX(KEYWRD,OLDE(K)).NE.0)THEN
@@ -197,6 +200,10 @@ C$DOIT ASIS
             J=ISWAP(2,K)
             ALLREF(I,3)=ALLREF(J,1)
             ALLREF(I,1)=ALLREF(J,1)
+            DO 43 KK=1,10
+               GUESS1(I,KK)=GUESS1(J,KK)
+               GUESS2(I,KK)=GUESS2(J,KK)
+   43       GUESS3(I,KK)=GUESS3(J,KK)
             ZS(I)=ZS(J)
             ZP(I)=ZP(J)
             ZD(I)=ZD(J)

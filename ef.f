@@ -156,8 +156,8 @@ C        PRINT RESULTS IN CYCLE
      1' GRAD.:',F10.3,' HEAT:',G13.7)
             IF ( NFLUSH.NE.0 ) THEN
                IF ( MOD(NSTEP+1,NFLUSH).EQ.0) THEN
-                  call flush(6)
-                  call flush(11)
+                  call flushm(6)
+                  call flushm(11)
                ENDIF
             ENDIF
          ELSE
@@ -169,8 +169,8 @@ C        PRINT RESULTS IN CYCLE
      1' GRAD.:',F10.3,' HEAT:',G13.7)
             IF ( NFLUSH.NE.0 ) THEN
                IF ( MOD(NSTEP+1,NFLUSH).EQ.0) THEN
-                  call flush(6)
-                  call flush(11)
+                  call flushm(6)
+                  call flushm(11)
                ENDIF
             ENDIF
          ENDIF

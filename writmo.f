@@ -45,6 +45,11 @@ C COSMO change
       LOGICAL ISEPS, USEPS, UPDA
       COMMON /ISEPS/ ISEPS, USEPS, UPDA
 C end of COSMO change
+C     PATAS
+      COMMON /MSTPO/ HQ(MPACK),EZQ,EEQ
+      COMMON /MSTQ/ QS(1500),MFLAG,ITERQ
+      COMMON /FINAL/ GVW,GVWS,ELC1,EC1
+C     PATAS
 ************************************************************************
 *
 *   WRITE PRINTS OUT MOST OF THE RESULTS.
@@ -57,6 +62,9 @@ C end of COSMO change
       DIMENSION W(N2ELEC), DUMY(3)
       DIMENSION GCOORD(1)
       LOGICAL UHF, CI, SINGLT, TRIPLT, EXCITD, PRTGRA, STILL
+C     PATAS
+      LOGICAL TOM, JIALI
+C     PATAS
       CHARACTER TYPE(3)*11, IDATE*24, CALCN(2)*5, GTYPE*13, GRTYPE*14,
      1          FLEPO(16)*58, ITER(2)*58, NUMBRS(11)*1, GETNAM*80
       CHARACTER*2 ELEMNT, IELEMT(20), CALTYP*7, NAMFIL*80, NAME*4
@@ -93,6 +101,10 @@ C end of COSMO change
       DATA ITER/
      1' SCF FIELD WAS ACHIEVED                                   ',
      2'  ++++----**** FAILED TO ACHIEVE SCF. ****----++++        '/
+C     PATAS
+      DATA ZERO/0.D0/
+      DATA THRES /0.0010D0/
+C     PATAS
 C
 C SUMMARY OF RESULTS (NOTE: THIS IS IN A SUBROUTINE SO IT
 C          CAN BE USED BY THE PATH OPTION)
@@ -115,8 +127,21 @@ C          CAN BE USED BY THE PATH OPTION)
       ELSE
          CALTYP=' MNDO  '
       ENDIF
-      UHF=(IUHF.EQ.2)
-      CALL FDATE(IDATE)
+C     PATAS
+      TOM=(INDEX(KEYWRD,'TOM').NE.0)
+      JIALI=(INDEX(KEYWRD,'JIALI').NE.0)
+      IF (TOM.AND.JIALI) GOTO 9999
+      IF (MFLAG.GE.1.AND.MFLAG.LE.3) THEN
+      E3=ELECT+ENUCLR
+      E3S=E3-(EZQ+EEQ)*0.5D0
+         IF(DABS(E3S-E3SOLD).GT.THRES) THEN
+         E3SOLD=E3S
+         RETURN
+         END IF
+      END IF
+C     PATAS
+ 9999 UHF=(IUHF.EQ.2)
+      CALL fdate(IDATE)
       DEGREE=57.29577951D0
       IF(NA(1).EQ.99)THEN
          DEGREE=1.D0
@@ -245,7 +270,52 @@ C   CORRECTION TO I.P. OF DOUBLETS
       I=TIM*0.000001D0
       TIM=TIM-I*1000000
       CALL TIMOUT(6,TIM)
-      IF( NDEP .NE. 0 )CALL SYMTRY
+C     PATAS
+      IF (MFLAG.EQ.0) EZERO=ELECT+ENUCLR
+      IF (TOM.AND.MFLAG.GE.1) THEN
+      WRITE(6,'(/,10X,''MIERTUS-SCROCCO-TOMASI SOLVATION MODEL'',/)')
+      E3=ZERO
+      E3S=ZERO
+      E3=ELECT+ENUCLR
+      E3S=E3-(EZQ+EEQ)*0.5D0
+      WRITE(6,'(10X,''SCRF ITERATION    = '',I3)') ITERQ
+      WRITE(6,'(10X,''SOLUTE ENERGY     = '',F15.6,'' EV'')') E3
+      WRITE(6,'(10X,''DELTA ENERGY      = '',F15.6,'' Kcal/mol'')')
+     1(E3-EZERO)*23.061D0
+      WRITE(6,'(10X,''FREE ENERGY       = '',F15.6,'' EV'')') E3S
+      WRITE(6,'(10X,''DELTA FREE ENERGY = '',F15.6,'' Kcal/mol'')')
+     1(E3S-EZERO)*23.061D0
+      WRITE(6,'(10X,''SOLUTE-SOLVENT E  = '',F15.6,'' EV'')')
+     1EZQ+EEQ
+      WRITE(6,'(10X,''____NUCLEI-SOLVENT= '',F15.6,'' EV'')') EZQ
+      WRITE(6,'(10X,''__ELECTRON-SOLVENT= '',F15.6,'' EV'')') EEQ
+      IF (ITERQ.EQ.1) THEN
+         E3SOLD=E3S
+         GO TO 300
+      ENDIF
+      IF (DABS(E3S-E3SOLD).LT.THRES) THEN
+         IF (MFLAG.EQ.4) GOTO 302
+         MFLAG=3
+302   WRITE(6,'(/,10X,''*********************'')')
+      WRITE(6,'(10X,''*** FINAL RESULTS ***'')')
+      WRITE(6,'(10X,''*********************'')')
+      WRITE(6,'(10X,''DELTA FREE ENERGY = '',F15.6,'' Kcal/mol'')')
+     1(E3S-EZERO)*23.061D0
+      WRITE(6,'(10X,''FREE E CAVITATION = '',F15.6,'' Kcal/mol'')')
+     1ELC1
+      WRITE(6,'(10X,''V. der W. FREE E  = '',F15.6,'' Kcal/mol'')')
+     1GVW
+      WRITE(6,'(10X,''VdW F E (TOMASI)  = '',F15.6,'' Kcal/mol'')')
+     1GVWS
+      GSOLV=(E3S-EZERO)*23.061D0+ELC1+GVW
+      WRITE(6,'(10X,''SOLVATION FREE E  = '',F15.6,'' Kcal/mol'')')
+     1GSOLV
+      ELSE
+        E3SOLD=E3S
+      ENDIF
+      ENDIF
+C    PATAS
+ 300  IF( NDEP .NE. 0 )CALL SYMTRY
       DO 20 I=1,NVAR
    20 XPARAM(I)=GEO(LOC(2,I),LOC(1,I))
       CALL GMETRY(GEO,COORD)

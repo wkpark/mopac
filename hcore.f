@@ -13,6 +13,12 @@
       COMMON /CORE  / CORE(107)
       COMMON /FIELD / EFIELD(3)
       COMMON /NUMCAL/ NUMCAL
+C     PATAS
+      COMMON /MSTPO/ HQ(MPACK),EZQ,EEQ
+      COMMON /MSTQ/ QS(1500),MFLAG
+      COMMON /MSTXYZ/ XQ(3575),YQ(3575),ZQ(3575),NQS
+      COMMON /JIALI/ MMFLAG
+C     PATAS
 C COSMO change
       LOGICAL ISEPS, USEPS, UPDA
       COMMON /ISEPS/  ISEPS, USEPS, UPDA
@@ -28,11 +34,19 @@ C
 C  ON OUTPUT  H      = ONE-ELECTRON MATRIX.
 C             W      = TWO-ELECTRON INTEGRALS.
 C             ENUCLR = NUCLEAR ENERGY
+C
+C  HCORE ALSO COMPUTES THE PERTURBATION OPERATOR IN MIERTUS-SCROCCO-
+C  TOMASI SOLVATION MODEL, WHICH IS ADDED TO H TO FORM THE FINAL ONE
+C  ELECTRON MATRIX
+C
 ************************************************************************
       CHARACTER*241 KEYWRD, TMPKEY
       LOGICAL FIRST,DEBUG
       SAVE FIRST, IONE, CUTOFF, DEBUG
       DIMENSION E1B(10),E2A(10),DI(9,9), WJD(100), WKD(100)
+C     PATAS
+      DIMENSION CC(3,1500)
+C     PATAS
       DATA ICALCN/0/
       FIRST=(ICALCN.NE.NUMCAL)
       ICALCN=NUMCAL
@@ -82,8 +96,15 @@ C**********************************************************************
          FLDON = .TRUE.
       ENDIF
       DO 10 I=1,(NORBS*(NORBS+1))/2
+C     PATAS
+      HQ(I)=0.D0
+C     PATAS
    10 H(I)=0.D0
       ENUCLR=0.D0
+C     PATAS
+      EZQ=0.D0
+      EEQ=0.D0
+C     PATAS
       KR=1
       DO 110 I=1,NUMAT
          IA=NFIRST(I)
@@ -98,6 +119,9 @@ C
             DO 20 J1=IA,I1
                I2=I2+1
                H(I2)=0.D0
+C     PATAS
+               HQ(I2)=0.D0
+C     PATAS
                IF (FLDON) THEN
                   IO1 = I1 - IA
                   JO1 = J1 - IA
@@ -201,7 +225,7 @@ C interaction is added to ENUCLR
          CALL ADDNUC (ENUCLR)
       ENDIF
 C end of COSMO change
-      IF( .NOT. DEBUG) RETURN
+      IF( .NOT. DEBUG) GO TO 300
       WRITE(6,'(//10X,''ONE-ELECTRON MATRIX FROM HCORE'')')
       CALL VECPRT(H,NORBS)
       J=MIN(400,KR)
@@ -215,5 +239,60 @@ C end of COSMO change
          WRITE(6,120)(WK(I),I=1,J)
       ENDIF
   120 FORMAT(10F8.4)
+C     RETURN
+C     END
+C     PATAS
+C
+C     ADD PERTURBATION OPERATOR IN MST SOLVATION MODEL
+C
+300   CONTINUE
+      IF (MFLAG.GE.6) RETURN
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.(MFLAG.EQ.1.OR.MFLAG.EQ.4)) THEN
+      MFLAG=MFLAG+1
+C
+C     MFLAG=2 OR 5
+C
+      LIMIT=(NORBS*(NORBS+1))/2
+      DO 320 I=1,NUMAT
+      IA=NFIRST(I)
+      IB=NLAST(I)
+      IC=NMIDLE(I)
+      NI=NAT(I)
+      DO 330 J=1,NQS
+        CC(1,J)=XQ(J)/1.8897626D0
+        CC(2,J)=YQ(J)/1.8897626D0
+        CC(3,J)=ZQ(J)/1.8897626D0
+        NJ=J
+        CALL ROTATE(NI,NJ,COORD(1,I),CC(1,J),
+     +              W(KR),KR,E1B,E2A,ENUC,CUTOFF)
+        EZQ=EZQ+ENUC
+        I2=0
+        DO 340 I1=IA,IC
+          II=I1*(I1-1)/2+IA-1
+          DO 340 J1=IA,I1
+            II=II+1
+            I2=I2+1
+            HQ(II)=HQ(II)+E1B(I2)
+            H(II)=H(II)+E1B(I2)
+  340 CONTINUE
+        DO 350 I1=IC+1,IB
+        II=(I1*(I1+1))/2
+        HQ(II)=HQ(II)+E1B(1)
+        H(II)=H(II)+E1B(1)
+  350 CONTINUE
+  330 CONTINUE
+  320 CONTINUE
+      MFLAG=MFLAG-1
+C
+C     MFLAG=1 OR 4
+C
+      ENUCLR=ENUCLR+EZQ
+      IF( .NOT. DEBUG) RETURN
+      WRITE(6,'(//10X,''FINAL ONE-ELECTRON MATRIX FROM HCORE'')')
+      CALL VECPRT(H,NORBS)
+      WRITE(6,'(//10X,''ONE-ELECTRON PERTURBATION MATRIX'')')
+      CALL VECPRT(HQ,NORBS)
+      END IF
+C     PATAS
       RETURN
       END

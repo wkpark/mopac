@@ -39,10 +39,18 @@ C *** NI AND NJ ARE THE ATOMIC NUMBERS OF THE TWO ELEMENTS.
 C
 C***********************************************************************
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     PATAS
+      INCLUDE 'SIZES'
+      CHARACTER*241 KEYWRD
+C     PATAS
       LOGICAL SI,SJ
+      COMMON /KEYWRD/ KEYWRD
       COMMON /MULTIP/ DD(107),QQ(107),ADD(107,3)
       COMMON /CORE/ TORE(107)
       COMMON /NATORB/ NATORB(107)
+C     PATAS
+      COMMON /MSTQ/ QS(1500),MFLAG
+C     PATAS
       DIMENSION RI(22),CORE(4,2)
       DIMENSION ARG(72),SQR(72)
       DATA  TD/2.D00/
@@ -53,7 +61,19 @@ C
 C     ATOMIC UNITS ARE USED IN THE CALCULATION,
 C     FINAL RESULTS ARE CONVERTED TO EV
 C
+C     PATAS
+      DO 999 I=1,22
+      RI(I)=0.D0
+999   CONTINUE
+      DO 998 I=1,4
+      CORE(I,1)=0.D0
+998   CORE(I,2)=0.D0
+C     PATAS
       R=RIJ/A0
+C     PATAS
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.(MFLAG.EQ.2.OR.
+     1MFLAG.EQ.5)) GO TO 700
+C     PATAS
 C
       SI = (NATORB(NI).GE.3)
       SJ = (NATORB(NJ).GE.3)
@@ -65,7 +85,7 @@ C
          AEE = PP/ADD(NI,1) + PP/ADD(NJ,1)
          AEE = AEE * AEE
          RI(1) = EV/SQRT(R*R+AEE)
-         CORE(1,1 )= TORE(NJ)*RI(1)
+         CORE(1,1) = TORE(NJ)*RI(1)
          CORE(1,2) = TORE(NI)*RI(1)
 C
       ELSE IF (SI .AND. (.NOT.SJ)) THEN
@@ -383,5 +403,55 @@ C
       END IF
 C
       RETURN
+C     PATAS
+  700 CONTINUE
+C
+C     COMPUTE ELECTRON-CHARGE INTEGRALS FOR MST MODEL
+C
+      PPP=2.D0
+      P2=4.D0
+      OD=1.D0
+      FD=4.D0
+C     DEFINE CHARGE SEPARATION OF ATOM A
+      DA=DD(NI)
+      QA=QQ(NI)
+C     HYDROGEN-CHARGE
+C     AEE=0.25D0*(OD/ADD(NI,1))**2
+C     MODIFICATION: AUGUST 1992
+      AEE=0.D0
+      EE=OD/SQRT(R**2+AEE)
+      RI(1)=EE*27.21D0
+      CORE(1,1)=QS(NJ)*RI(1)
+      IF (NATORB(NI).LT.3) GO TO 800
+C     HEAVY ATOM-CHARGE
+C     ADE=0.25D0*(OD/ADD(NI,2))**2
+C     AQE=0.25D0*(OD/ADD(NI,3))**2
+C     MODIFICATION: AUGUST 1992
+      ADE=0.D0
+      AQE=0.D0
+      DZE=-OD/SQRT((R+DA)**2+ADE)+
+     1    OD/SQRT((R-DA)**2+ADE)
+      QZZE=OD/SQRT((R-TD*QA)**2+AQE)
+     1     -TD/SQRT(R**2+AQE)
+     2     +OD/SQRT((R+TD*QA)**2+AQE)
+      QXXE=TD/SQRT(R**2+FD*QA**2+AQE)
+     1     -TD/SQRT(R**2+AQE)
+      DZE=DZE/PPP
+      QXXE=QXXE/P2
+      QZZE=QZZE/P2
+      RI(2)=-DZE
+      RI(3)=EE+QZZE
+      RI(4)=EE+QXXE
+C     CONVERT INTO EV
+  800 CONTINUE
+      RI(2)=RI(2)*27.21D0
+      RI(3)=RI(3)*27.21D0
+      RI(4)=RI(4)*27.21D0
+C     CALCULATE ELECTRON-CHARGE INTEGRALS
+      CORE(2,1)=QS(NJ)*RI(2)
+      CORE(3,1)=QS(NJ)*RI(3)
+      CORE(4,1)=QS(NJ)*RI(4)
+      RETURN
+C     PATAS
 C
       END

@@ -1,5 +1,8 @@
       SUBROUTINE ROTATE (NI,NJ,XI,XJ,W,KR,E1B,E2A,ENUC,CUTOFF)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     PATAS
+      INCLUDE 'SIZES'
+C     PATAS
 C***********************************************************************
 C
 C..IMPROVED SCALAR VERSION
@@ -46,6 +49,9 @@ C***********************************************************************
       COMMON /ROTDUM/ CSS1,CSP1,CPPS1,CPPP1,CSS2,CSP2,CPPS2,CPPP2
       COMMON /ROTDU2/ X(3),Y(3),Z(3)
       COMMON /KEYWRD/ KEYWRD
+C     PATAS
+      COMMON /MSTQ/ QS(1500),MFLAG
+C     PATAS
       DIMENSION XI(3),XJ(3),W(100),E1B(10),E2A(10)
       DIMENSION RI(22),CCORE(4,2), BORON1(3,4), BORON2(3,4), BORON3(3,4)
       EQUIVALENCE (CCORE(1,1),CSS1)
@@ -172,6 +178,28 @@ C
             Z(1)=-A*X(1)*X(3)
             Z(2)=-A*X(2)*X(3)
          ENDIF
+C     PATAS
+      IF (INDEX(KEYWRD,'TOM').NE.0.AND.(MFLAG.EQ.2.OR.
+     1MFLAG.EQ.5)) THEN
+         E1B(1)=-CSS1
+         IF(NATORB(NI).EQ.4) THEN
+            E1B(2) = -CSP1 *X(1)
+            E1B(3) = -CPPS1*X(1)*X(1)-CPPP1*(Y(1)*Y(1)+Z(1)*Z(1))
+            E1B(4) = -CSP1 *X(2)
+            E1B(5) = -CPPS1*X(2)*X(1)-CPPP1*(Y(2)*Y(1)+Z(2)*Z(1))
+            E1B(6) = -CPPS1*X(2)*X(2)-CPPP1*(Y(2)*Y(2)+Z(2)*Z(2))
+            E1B(7) = -CSP1 *X(3)
+            E1B(8) = -CPPS1*X(3)*X(1)-CPPP1*Z(3)*Z(1)
+            E1B(9) = -CPPS1*X(3)*X(2)-CPPP1*Z(3)*Z(2)
+            E1B(10)= -CPPS1*X(3)*X(3)-CPPP1*Z(3)*Z(3)
+         ENDIF
+C
+C     COMPUTE NUCLEI-CHARGE REPULSION ENERGY FOR MST MODEL
+C
+      ENUC=14.399D0*TORE(NI)*QS(NJ)/RIJ
+      RETURN
+      END IF
+C     PATAS
          SI = (NATORB(NI).GT.1)
          SJ = (NATORB(NJ).GT.1)
          IF ( SI .OR. SJ) THEN

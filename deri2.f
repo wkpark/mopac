@@ -255,7 +255,7 @@ C     STORED IN /XYIJKL/.
             WRITE(6,'('' C.I-ACTIVE FOCK EIGENVALUES RELAXATION (E.V.)''
      1               )')
             WRITE(6,'(8F10.4)')(BCOEF(I),I=NELEC+1,NELEC+NMOS)
-            WRITE(6,'('' 2-ELECTRON INTEGRALS RELAXATION (E.V.)''/
+            WRITE(6,'('' 2-ELECTRON INTEGRALS RELAXATION (E.V.)''//
      1''    I    J    K    L       d<I(1)J(1)|K(2)L(2)> RELAXATION ONLY'
      2')
      3')
