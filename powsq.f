@@ -25,10 +25,13 @@ C        *****  BY A.K. AT SUNY BUFFALO AND THE UNIVERSITY OF   *****
 C        *****  TEXAS.  DECEMBER 1973                           *****
 C
       COMMON /GEOVAR/ NDUM,LOC(2,MAXPAR), IDUMY, XARAM(MAXPAR)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /LAST  / LAST
       COMMON /KEYWRD/ KEYWRD
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       COMMON /NUMSCF/ NSCF
       COMMON /GEOSYM/ NDEP, LOCPAR(MAXPAR), IDEPFN(MAXPAR),
      1                 LOCDEP(MAXPAR)

@@ -22,7 +22,7 @@ C
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      1NA(NUMATM),NB(NUMATM),NC(NUMATM)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -31,7 +31,10 @@ C
       COMMON /LAST  / LAST
       COMMON /ATOMIC/ EISOL(107),EHEAT(107)
       COMMON /NUMCAL/ NUMCAL
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       COMMON /PATH  / LATOM,LPARAM,REACT(200)
 C COSMO change
       LOGICAL ISEPS, USEPS , UPDA
@@ -91,8 +94,9 @@ C  INITIALIZE SOLVATION
       INDEPS=INDEX(KEYWRD,'EPS=')
       IF (INDEPS .NE. 0) THEN
         ISEPS = .TRUE.
+        USEPS = .TRUE.
         UPDA =.TRUE.
-        CALL INITSV (INDEPS)
+*       CALL INITSV (INDEPS)
       END IF
 C A.KLAMT 18.7.91
 C end of COSMO change
@@ -230,8 +234,8 @@ C  MNDO, AND RELINK.
 *   THE JOB STARTS.
 *
 ************************************************************************
-      DATA I/0/
       SAVE I
+      DATA I/0/
 C#      WRITE(6,*)GETNAM('FOR005')
       OPEN(UNIT=2,FILE=GETNAM('FOR005'),STATUS='UNKNOWN')
 C

@@ -16,8 +16,8 @@ C	FUELLEN DES FELDES DIRVEC
       DIRVEC (2,1) =   0.D0
       DIRVEC (3,1) =   0.D0
       ND=1
-      R=SQRT(.8)
-      H=SQRT(.2)
+      R=SQRT(.8D0)
+      H=SQRT(.2D0)
       DO 10 I= -1,1,2
          DO 10 J= 1,5
             ND=ND+1
@@ -65,7 +65,7 @@ C CREATE POINTS WITHIN EACH TRIANGLE
    90 CONTINUE
       IF (K .EQ. 2*KH) GO TO 140
 C CREATE TO ADDITIONAL SUBGRIDS
-      T=1./3
+      T=1.D0/3.D0
       DO 110 I=1,20
          NA=FSET(1,I)
          NB=FSET(2,I)
@@ -77,7 +77,7 @@ C CREATE TO ADDITIONAL SUBGRIDS
   100          DIRVEC(IX,ND)=DIRVEC(IX,NA)*(M-J1-J2-2*T)
      1                 +DIRVEC(IX,NB)*(J1+T)+DIRVEC(IX,NC)*(J2+T)
   110 CONTINUE
-      T=2./3
+      T=2.D0/3.D0
       DO 130 I=1,20
          NA=FSET(1,I)
          NB=FSET(2,I)
@@ -91,10 +91,10 @@ C CREATE TO ADDITIONAL SUBGRIDS
   130 CONTINUE
 C NORMALIZE ALL VECTORS
   140 DO 170 I=1,NPPA
-         DIST=0.
+         DIST=0.D0
          DO 150 IX=1,3
   150    DIST=DIST+DIRVEC(IX,I)**2
-         DIST=1./SQRT(DIST)
+         DIST=1.D0/SQRT(DIST)
          DO 160 IX=1,3
   160    DIRVEC(IX,I)=DIRVEC(IX,I)*DIST
   170 CONTINUE

@@ -10,14 +10,17 @@
 *	The reaction profile is archived.
 *
 ************************************************************************
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /GRAVEC/ COSINE
       COMMON /PATH  / LATOM, LPARAM, REACT(200)
       COMMON /PPARAM/ CURRT
       COMMON /KLOOP / KLOOP
-      COMMON /PROFIL/ PROFIL
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /PROFIL/ PROFIL
+      COMMON /PROFIC/ PROFIL
+C ***************************** at 1994-05-25 *****
       COMMON /KEYWRD/ KEYWRD
       DIMENSION GD(MAXPAR),XLAST(MAXPAR),MDFP(20),XDFP(20)
       DIMENSION PROFIL(200)
@@ -40,7 +43,7 @@ C
       ENDIF
 C
       KLOOP=1
-      CPUTOT=0.0
+      CPUTOT=0.0D0
       CURRT=GEO(LPARAM,LATOM)
       PROFIL(1)=0.D0
       IF (INDEX(KEYWRD,'RESTART').NE.0) THEN

@@ -14,7 +14,7 @@ C                  MEMPHIS, TN   38152
 C
 C***********************************************************************
       COMMON /CORE  / CORE(107)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM),NORS,NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
@@ -41,7 +41,7 @@ C
      1          DIPE4(3),APOLE4(6),BETAE4(9),GAMME4(6),
      2          DIPDP(3),APOLDP(6),BETADP(9),GAMMDP(6),
      3          DIP1P(3),DIP1M(3),DIP2P(3),DIP2M(3)
-      DIMENSION IPTBD(6)
+      DIMENSION IPTBD(6), GRAD(MAXPAR)
       DATA IPTBD /5,7,4,9,6,8/
 C Energy: a.u. to kcal/mole
       AUTOKC = 23.061D+00*27.2107D+00
@@ -66,7 +66,7 @@ C modification for variable field strength
       WRITE (6,10) EFVAL
    10 FORMAT (//' APPLIED ELECTRIC FIELD MAGNITUDE: ',F15.5)
       SFE = 1.D00/EFVAL
-      WRITE (6,20) 6.74834*ATPOL
+      WRITE (6,20) 6.74834D0*ATPOL
    20 FORMAT (//' ATOMIC CONTRIBUTION TO THE POLARIZABILITY: ',F15.6,/,
      1          '  (IT IS ONLY APPLIED TO THE E4 RESULT)')
 C.......................................................................
@@ -140,7 +140,7 @@ C
          IVL = (ID*(ID+1))/2
          ETERM = 2.5D00*HEAT0 - (4.D00/3.D00)*(HEAT1P + HEAT1M)
      1        + (1.D00/12.0D00)*(HEAT2P + HEAT2M)
-         APOLE4(IVL) = ETERM*SFE*SFE/AUTOKC + ATPOL*6.74834
+         APOLE4(IVL) = ETERM*SFE*SFE/AUTOKC + ATPOL*6.74834D0
 C
 C BETA
 C
@@ -191,9 +191,9 @@ C.......................................................................
          DO 140 JD = 1,IDM1
             HNUCJ = 0.0D00
             DO 90 I = 1,NUMAT
-               HNUCJ = HNUCJ + EFVAL*GEO(JD,I)*CORE(NAT(I))*51.4257
+               HNUCJ = HNUCJ + EFVAL*GEO(JD,I)*CORE(NAT(I))*51.4257D0
    90       CONTINUE
-            HNUCJ = HNUCJ*23.061
+            HNUCJ = HNUCJ*23.061D0
             DO 100 I = 1,3
                EFIELD(I) = 0.0D00
   100       CONTINUE

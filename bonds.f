@@ -26,9 +26,9 @@ C*********************************************************************
       DIMENSION V(NUMATM),FV(NUMATM),SQ(NUMATM),AQ(NUMATM),TQ(NUMATM),
      1PM(NUMATM),SP(NUMATM),SD(NUMATM),AUX(NUMATM,NUMATM),PSPIN(MPACK)
      2,SPSA(NUMATM),SPSQ(NUMATM)
-      DIMENSION DENW(MAXORB,MAXORB)
+C     DIMENSION DENW(MAXORB,MAXORB)
       LOGICAL CI,NCI,KCI
-      CHARACTER*80 KEYWRD
+      CHARACTER*241 KEYWRD
 C
       CI=(INDEX(KEYWRD,'C.I.')+INDEX(KEYWRD,'MECI').NE.0)
       KCI=(INDEX(KEYWRD,'MICROS').EQ.0)
@@ -59,13 +59,13 @@ C****** UHF CASE
            K=MU+NORBS*(M-1)
    27      SUM=SUM+C(L)*CBETA(K)
    23   ZKAPPA=ZKAPPA+SUM**2
-        ZKAPPA=1.D0/(ZKAPPA/DFLOAT(NALPHA+NBETA)+0.5D0)
+        ZKAPPA=1.D0/(ZKAPPA/DBLE(NALPHA+NBETA)+0.5D0)
         ELSE
          IF(.NOT.CI.AND.NOPN.EQ.0.AND.NCI.AND.KCI) THEN
-         ZKAPPA=1.0
+         ZKAPPA=1.0D0
         ELSE
 C****** ROHF CASE
-        ZKAPPA=1.D0/(1.D0-(DFLOAT(NOPN)/DFLOAT(NELECS))/2.D0)
+        ZKAPPA=1.D0/(1.D0-(DBLE(NOPN)/DBLE(NELECS))/2.D0)
         WRITE(6,'(10X,''ROHF ZKAPPA='',F10.5,2I5)') ZKAPPA,nopen,nclose
         ENDIF
         ENDIF
@@ -78,7 +78,7 @@ C****** ROHF CASE
             IJ=IJ+1
             K=NFIRST(J)
             KK=NLAST(J)
-            X=0.0
+            X=0.0D0
             DO 30 IL=L,LL
                DO 30 IH=K,KK
    30       X=X+B(IL,IH)*B(IL,IH)

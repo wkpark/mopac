@@ -79,14 +79,15 @@ C
                   IF((ADB*R).LT.90.D0) THEN
                      ABN=1.0D0
                      GO TO(50,10,20,30),IS
-   10                ABN=2.*TOMB*Z(I,K)*SQRT(Z(J,L))/AMB
+   10                ABN=2.D0*TOMB*Z(I,K)*SQRT(Z(J,L))/AMB
                      GO TO 50
-   20                ABN=-2.*TOMB*Z(J,L)*SQRT(Z(I,K))/AMB
+   20                ABN=-2.D0*TOMB*Z(J,L)*SQRT(Z(I,K))/AMB
                      GO TO 50
    30                ABN=-ADB*TOMB
                      IF(NAT.EQ.NBT) ABN=ABN+0.5D0
    40                ABN=4.0D0*ABN*SQRT(APB)/AMB
-   50                S(K,L)=SQRT((2.*SQRT(APB)/AMB)**3)*EXP(-ADB*R)*ABN
+   50                S(K,L)=SQRT((2.D0*SQRT(APB)/AMB)**3)*EXP(-ADB*R)*
+     .                      ABN
                   ENDIF
    60       CONTINUE
             SG(KA,KB)=0.0D0

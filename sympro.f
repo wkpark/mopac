@@ -2,7 +2,7 @@
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION H(*), DELDIP(3,*)
-      COMMON /SYMOPS/ R( 9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
       COMMON /ATOMS/ COORD, NATOMS, NVAR
@@ -26,7 +26,7 @@ C
       SUBROUTINE SYMR
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      COMMON /SYMOPS/ R(9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
 *****************************************************************
@@ -391,7 +391,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION H(*), DIP(3,*)
-      COMMON /SYMOPS/ R( 9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
 *****************************************************************
@@ -454,19 +454,19 @@ C    H( IPO(I,N), IPO(J,N))
 C
          IF (K .GT. L) THEN
             IEL33 = (3*K*(3*K-1))/2 + 3*L
-            TEMP(9) = 0.5 * H(IEL33)
-            TEMP(8) = 0.5 * H(IEL33-1)
-            TEMP(7) = 0.5 * H(IEL33-2)
-            TEMP(6) = 0.5 * H(IEL33-K*3+1)
-            TEMP(5) = 0.5 * H(IEL33-K*3)
-            TEMP(4) = 0.5 * H(IEL33-K*3-1)
-            TEMP(3) = 0.5 * H(IEL33-6*K+3)
-            TEMP(2) = 0.5 * H(IEL33-6*K+2)
-            TEMP(1) = 0.5 * H(IEL33-6*K+1)
+            TEMP(9) = 0.5D0 * H(IEL33)
+            TEMP(8) = 0.5D0 * H(IEL33-1)
+            TEMP(7) = 0.5D0 * H(IEL33-2)
+            TEMP(6) = 0.5D0 * H(IEL33-K*3+1)
+            TEMP(5) = 0.5D0 * H(IEL33-K*3)
+            TEMP(4) = 0.5D0 * H(IEL33-K*3-1)
+            TEMP(3) = 0.5D0 * H(IEL33-6*K+3)
+            TEMP(2) = 0.5D0 * H(IEL33-6*K+2)
+            TEMP(1) = 0.5D0 * H(IEL33-6*K+1)
          ELSE
             IEL33 = (3*L*(3*L-1))/2 + 3*K
-            FACT = 1.0
-            IF (L .LT. I) FACT = 0.5
+            FACT = 1.0D0
+            IF (L .LT. I) FACT = 0.5D0
             TEMP(9) = FACT * H(IEL33)
             TEMP(6) = FACT * H(IEL33-1)
             TEMP(3) = FACT * H(IEL33-2)
@@ -495,15 +495,15 @@ C
 C  Now, to do the diagonal term
 C
       IEL33 = (3*K*(3*K+1))/2
-      TEMP(9) = 0.5 * H(IEL33)
-      TEMP(8) = 0.5 * H(IEL33-1)
-      TEMP(7) = 0.5 * H(IEL33-2)
+      TEMP(9) = 0.5D0 * H(IEL33)
+      TEMP(8) = 0.5D0 * H(IEL33-1)
+      TEMP(7) = 0.5D0 * H(IEL33-2)
       TEMP(6) = TEMP(8)
-      TEMP(5) = 0.5 * H(IEL33-K*3)
-      TEMP(4) = 0.5 * H(IEL33-K*3-1)
+      TEMP(5) = 0.5D0 * H(IEL33-K*3)
+      TEMP(4) = 0.5D0 * H(IEL33-K*3-1)
       TEMP(3) = TEMP(7)
       TEMP(2) = TEMP(4)
-      TEMP(1) = 0.5 * H(IEL33-6*K+1)
+      TEMP(1) = 0.5D0 * H(IEL33-6*K+1)
 C
       CALL MAT33(R(1,N), TEMP, TEMP2)
 C
@@ -553,7 +553,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION  E(NUMAT*3), V(NUMAT*NUMAT*9)
-      COMMON /SYMOPS/ R( 9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
 *********************************************************************
@@ -598,7 +598,7 @@ C
      1              V(J*3-1+K*NVAR)*R(6,N)+
      2              V(J*3  +K*NVAR)*R(9,N)
    10       CONTINUE
-            T2(K+1,N) = 0.0
+            T2(K+1,N) = 0.0D0
             DO 20 I = 1, NVAR
                T2(K+1,N) = T2(K+1,N) + T1(I)*V(I+K*NVAR)
    20    CONTINUE
@@ -631,7 +631,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION H(*), DELDIP(3,*)
-      COMMON /SYMOPS/ R( 9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
 *****************************************************************
@@ -821,7 +821,7 @@ C
       SUBROUTINE SYMP
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      COMMON /SYMOPS/ R(9,120), NSYM, IPO(NUMATM,120), NENT
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SYMOPC/ ISYMT(6)
       CHARACTER*10 ISYMT
       CHARACTER*5 OPER
@@ -1001,7 +1001,7 @@ C
         GOTO 20
       ENDIF
       ANG = ACOS(TRACE)
-      AFULL = ACOS(-1.0)*2.D0
+      AFULL = ACOS(-1.0D0)*2.D0
       DO 10 I = 3, 18
         ANS = I*ANG/AFULL
         IF (ABS(ANS - NINT(ANS)) .LE. 2.5D-3) THEN

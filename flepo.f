@@ -12,7 +12,10 @@
       COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /MESAGE/ IFLEPO,ISCF
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       COMMON /FMATRX/ HESINV(MAXPAR**2+MAXPAR*3+1), IDUMY(4)
       COMMON /SCFTYP/ EMIN, LIMSCF
       COMMON /TIMDMP/ TLEFT, TDUMP
@@ -141,7 +144,7 @@ C
          IPRT  = 6
          TDEL  = 0.06D0
          NRST  = 30
-         SFACT = 1.5
+         SFACT = 1.5D0
          DELL  = 0.01D0
          EINC  = 0.3D0
          IGG1  = 3

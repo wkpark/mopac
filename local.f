@@ -104,7 +104,7 @@ C$DOIT ASIS
          DO 100 J=1,NUMAT
             IL=NFIRST(J)
             IU=NLAST(J)
-            X=0.0
+            X=0.0D0
 C$DOIT ASIS
             DO 90 K=IL,IU
    90       X=X+C(K,I)**2

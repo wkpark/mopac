@@ -1,4 +1,4 @@
-      SUBROUTINE MATOUT (A,B,NC,NR,NDIM)
+      SUBROUTINE MATOUT (A,B,NC,NNR,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION A(NDIM,NDIM), B(NDIM)
@@ -25,6 +25,7 @@ C***********************************************************************
       DIMENSION NATOM(4*MAXHEV+3*MAXLIT )
       SAVE ATORBS
       DATA ATORBS/' S','PX','PY','PZ','X2','XZ','Z2','YZ','XY'/
+      NR = NNR
       IF(NUMAT.EQ.0)GOTO 30
       IF(NLAST(NUMAT).NE.NR) GOTO 30
       DO 20 I=1,NUMAT

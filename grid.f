@@ -24,7 +24,7 @@
 *       6. Write out UNIMAP irregular data UMP.DAT
 *
 ************************************************************************
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /GRAVEC/ COSINE
@@ -104,8 +104,8 @@ C
 C   THESE PARAMETERS NEED TO BE DUMPED IN '.RES'
       CURRT1=START1
       CURRT2=START2
-      IONE=-1.D0
-      CPUTOT=0.0
+      IONE=-1
+      CPUTOT=0.0D0
       IJLP=0
       ILP=1
       JLP=1
@@ -170,7 +170,7 @@ C  ARCHIVE
       WRITE(12,'(/'' TOTAL CPU TIME IN FLEPO : '',F10.3/)') CPUTOT
 C
 C  WRITE OUT THE GRIDS
-      IONE=1.D0
+      IONE=1
       ILOOP=1
       JLOOP1=1
       DO 50 IJ=1,NPTS1*NPTS2

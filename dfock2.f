@@ -111,7 +111,7 @@ C
          IF(II.EQ.JJ) GOTO 260
          JA=NFIRST(JJ)
          JB=NLAST(JJ)
-         JC=NMIDLE(JJ)
+*        JC=NMIDLE(JJ)
             IF(IB-IA.GE.3.AND.JB-JA.GE.3)THEN
 C
 C                         HEAVY-ATOM  - HEAVY-ATOM

@@ -57,7 +57,7 @@ C
             I1=-2
             DO 70 I=1,J-1
                I1=I1+3
-               VDW=(VANRAD(NAT(I))+VANRAD(NAT(J)))*1.5
+               VDW=(VANRAD(NAT(I))+VANRAD(NAT(J)))*1.5D0
                L=L+1
                F(L)=0.D0
                IF(   RIJ(L)  .LT.  VDW) THEN

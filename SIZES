@@ -59,5 +59,7 @@ C       PARAMETER (MESP=1)
       PARAMETER (LENAB2=LENABC*(LENABC+5))
       PARAMETER (NPPA = 1082, MAXNSS = 500)
       PARAMETER (MAXDEN=10*MAXHEV+MAXLIT)
+*
+      PARAMETER (IGREEN=600000)
 ************************************************************************
 *DECK MOPAC

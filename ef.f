@@ -1,6 +1,6 @@
       SUBROUTINE EF(XPARAM, NVAR, FUNCT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      REAL*8 LAMDA,LAMDA0
+      DOUBLE PRECISION LAMDA,LAMDA0
       INCLUDE 'SIZES'
       DIMENSION XPARAM(MAXPAR)
 **********************************************************************
@@ -27,12 +27,15 @@
 C
       COMMON /MESAGE/ IFLEPO,ISCF
       COMMON /GEOVAR/ NDUM,LOC(2,MAXPAR), IDUMY, XARAM(MAXPAR)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)
       COMMON /ISTOPE/ AMS(107)
       COMMON /LAST  / LAST
       COMMON /KEYWRD/ KEYWRD
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       COMMON /GRADNT/ GRAD(MAXPAR),GNFINA
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -43,14 +46,17 @@ C
 CONVEX      COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR),BMAT(MAXPAR,MAXPAR),
 CONVEX     1PMAT(MAXPAR*MAXPAR)
       COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR),BMAT(MAXPAR,MAXPAR),
-     1PMAT(MAXHES)
+     1PMAT(MAXPAR**2)
 CONVEX      COMMON /SCRACH/ PVEC
       COMMON /SCFTYP/ EMIN, LIMSCF
       COMMON/OPTEF/OLDF(MAXPAR),D(MAXPAR),VMODE(MAXPAR),
      $U(MAXPAR,MAXPAR),DD,rmin,rmax,omin,xlamd,xlamd0,skal,
      $MODE,NSTEP,NEGREQ,IPRNT
       COMMON/THREADS/NUM_THREADS
-      COMMON/FLUSH/NFLUSH
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON/FLUSH/NFLUSH
+      COMMON/FLUSHC/NFLUSH
+C ***************************** at 1994-05-25 *****
 
       DIMENSION IPOW(9), EIGVAL(MAXPAR),TVEC(MAXPAR),SVEC(MAXPAR),
      1FX(MAXPAR),HESSC(MAXHES),UC(MAXPAR**2),oldfx(maxpar),
@@ -458,7 +464,7 @@ C     WE RAN OUT OF TIME or too many iterations. DUMP RESULTS
       COMMON /TITLES/ KOMENT,TITLE
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /LOCVAR/ LOCVAR(2,MAXPAR)
       COMMON /NUMSCF/ NSCF
       COMMON /KEYWRD/ KEYWRD
@@ -556,12 +562,15 @@ C
       COMMON /NUMCAL/ NUMCAL                                                    
       COMMON /SCFTYP/ EMIN, LIMSCF
       COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR),BMAT(MAXPAR,MAXPAR),                  
-     *PMAT(MAXPAR)                                                              
+     *PMAT(MAXPAR**2)                                                              
       COMMON/OPTEF/OLDF(MAXPAR),D(MAXPAR),VMODE(MAXPAR),
      $U(MAXPAR,MAXPAR),DD,rmin,rmax,omin,xlamd,xlamd0,skal,
      $MODE,NSTEP,NEGREQ,IPRNT
       DIMENSION IPOW(9)               
       LOGICAL RESTRT,SCF1,LDUM,LUPD,log,rrscal,donr,gnmin 
+C ***** Added    by Jiro Toyoda at 1994-05-25 *****
+      LOGICAL LIMSCF
+C ***************************** at 1994-05-25 *****
       CHARACTER*241 KEYWRD,LINE                                               
       CHARACTER CHDOT*1,ZERO*1,NINE*1,CH*1
       DATA CHDOT,ZERO,NINE   /'.','0','9'/                     
@@ -712,8 +721,8 @@ C   NOT A RESTART, WE NEED TO GET THE GRADIENTS
      1osmin,ts,lrjk,lorjk,rrscal,donr)
 C     This version forms geometry step by either pure NR, P-RFO or QA
 C     algorithm, under the condition that the steplength is less than dmax
-      IMPLICIT REAL*8(A-H,O-Z)
-      REAL*8 LAMDA,lamda0
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      DOUBLE PRECISION LAMDA,lamda0
       INCLUDE 'SIZES'                                                           
       logical ts,rscal,frodo1,frodo2,lrjk,lorjk,rrscal,donr
       DIMENSION EIGVAL(MAXPAR),FX(MAXPAR)                                       
@@ -1009,7 +1018,7 @@ C      3 : CALCULATE IT BY DOUBLE NUMERICAL DIFFERENTIATION
 C      4 : READ IN FROM FTN009 (DURING RESTART, PARTLY OR WHOLE,                
 C          ALREADY DONE AT THIS POINT)                                          
       COMMON /GEOVAR/ NDUM,LOC(2,MAXPAR), IDUMY, XARAM(MAXPAR)                  
-      COMMON /GEOM  / GEO(3,NUMATM)                                             
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)         
       COMMON /LAST  / LAST                                                      
       COMMON /KEYWRD/ KEYWRD                                                    
@@ -1021,8 +1030,8 @@ C          ALREADY DONE AT THIS POINT)
       COMMON /NUMCAL/ NUMCAL                                                    
       COMMON /SIGMA2/ GNEXT1(MAXPAR), GMIN1(MAXPAR)                             
       COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR),BMAT(MAXPAR,MAXPAR),                  
-     *PMAT(MAXPAR)                                                              
-      COMMON /SCRACH/ PVEC                                                      
+     *PMAT(MAXPAR**2)                                                              
+      COMMON /SCRACH/ PVEC(MAXPAR**2)                                           
       COMMON /TIMDMP/ TLEFT, TDUMP
       COMMON/OPTEF/OLDF(MAXPAR),D(MAXPAR),VMODE(MAXPAR),
      $U(MAXPAR,MAXPAR),DD,rmin,rmax,omin,xlamd,xlamd0,skal,
@@ -1271,7 +1280,7 @@ C
 C
       END
       SUBROUTINE PRJFC(F,xparam,nvar) 
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       INCLUDE 'SIZES'
 C                                                                       
 C  CALCULATES PROJECTED FORCE CONSTANT MATRIX (F).                      
@@ -1295,6 +1304,8 @@ C
      *          P(MAXPAR,MAXPAR),COF(MAXPAR,MAXPAR)                     
       DIMENSION TENS(3,3,3),ROT(3,3),SCR(3,3),ISCR(6),CMASS(3)          
       dimension coord(3,numatm),dx(maxpar),xparam(maxpar)
+      DIMENSION DETX(2)
+      EQUIVALENCE (DET,DETX(1))
       PARAMETER (ZERO=0.0d+00, ONE=1.0d+00, EPS=1.0d-14,                
      *           CUT5=1.0d-05, CUT8=1.0d-08)                            
 C                                                                       
@@ -1439,7 +1450,7 @@ C     IF(JRNK.LT.3) STOP 1
       CALL DGEFA(ROT,3,3,ISCR,INFO)                                     
       IF(INFO.NE.0) STOP                                                
       DET=ZERO                                                          
-      CALL DGEDI(ROT,3,3,ISCR,DET,SCR,1)                                
+      CALL DGEDI(ROT,3,3,ISCR,DETX,SCR,1)                                
 C                                                                       
    22 CONTINUE                                                          
 c     WRITE (6,702)                                                     
@@ -1523,7 +1534,7 @@ c    *        1X,'PROJECTED FORCE CONSTANT MATRIX (HARTREE/BOHR**2)')
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)                                       
       INCLUDE 'SIZES'
       COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR),BMAT(MAXPAR,MAXPAR),                  
-     *PMAT(MAXPAR)                                                              
+     *PMAT(MAXPAR**2)                                                              
       COMMON/OPTEF/OLDF(MAXPAR),D(MAXPAR),VMODE(MAXPAR),                        
      $U(MAXPAR,MAXPAR),DD,rmin,rmax,omin,xlamd,xlamd0,skal,
      $MODE,NSTEP,NEGREQ,IPRNT
@@ -1570,7 +1581,8 @@ c    *        1X,'PROJECTED FORCE CONSTANT MATRIX (HARTREE/BOHR**2)')
      $U(MAXPAR,MAXPAR),DD,rmin,rmax,omin,xlamd,xlamd0,skal,
      $MODE,NSTEP,NEGREQ,IPRNT
 CONVEX      COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR*3)
-      COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR)
+      COMMON /NLLCOM/ HESS(MAXPAR,MAXPAR), BMAT(MAXPAR,MAXPAR),
+     .                PMAT(MAXPAR**2)
       COMMON /GRADNT/ GRAD(MAXPAR),GNFINA
 C
       DATA ZERO/0.0D0/
@@ -1760,7 +1772,7 @@ c     the routines below have been lifted from GAMESS
 C ***********************************************************************
 
       SUBROUTINE DGEDI(A,LDA,N,IPVT,DET,WORK,JOB)                       
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       DIMENSION A(LDA,1),DET(2),WORK(1),IPVT(1)                         
 C                                                                       
 C     DGEDI COMPUTES THE DETERMINANT AND INVERSE OF A MATRIX            
@@ -1881,7 +1893,7 @@ C
       RETURN                                                            
       END                                                               
       SUBROUTINE DGEFA(A,LDA,N,IPVT,INFO)                               
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       DIMENSION A(LDA,1),IPVT(1)                                        
 C                                                                       
 C     DGEFA FACTORS A DOUBLE PRECISION MATRIX BY GAUSSIAN ELIMINATION.  
@@ -1980,7 +1992,7 @@ C
 C*MODULE BLAS1   *DECK DSCAL
       SUBROUTINE  DSCAL(N,DA,DX,INCX)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      DIMENSION DX(1)
+      DIMENSION DX(*)
 C
 C     SCALES A VECTOR BY A CONSTANT.
 C           DX(I) = DA * DX(I)
@@ -2022,7 +2034,7 @@ C
 C*MODULE BLAS1   *DECK DSWAP
       SUBROUTINE  DSWAP (N,DX,INCX,DY,INCY)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      DIMENSION DX(1),DY(1)
+      DIMENSION DX(*),DY(*)
 C
 C     INTERCHANGES TWO VECTORS.
 C           DX(I) <==> DY(I)

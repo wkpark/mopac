@@ -44,7 +44,7 @@ C     HOUSEHOLDER TRANSFORMATION
          KP1=K+1
          KRANK=KRANK+K
          W(2,K)=A(KRANK)
-         SUM=0.
+         SUM=0.D0
          JRANK=KRANK
          DO 10 J=KP1,N
             W(2,J)=A(JRANK+K)

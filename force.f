@@ -14,9 +14,9 @@
       COMMON /ELEMTS/ ELEMNT(107)
       COMMON /LAST  / LAST
       COMMON /MESAGE/ IFLEPO,ISCF
-      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120)
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       COMMON /SIMBOL/ SIMBOL(MAXPAR)
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /COORD / COORD(3,NUMATM)
 ***********************************************************************
 *

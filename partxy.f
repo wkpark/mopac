@@ -12,7 +12,6 @@
       COMMON /NUMCAL/ NUMCAL
       DIMENSION W(N2ELEC*2)
       EQUIVALENCE (W,WJ)
-      REAL WJ, WK
       CHARACTER*241 KEYWRD
 C------------------------------------------------------------------
 C

@@ -14,23 +14,24 @@ C written by A. Klamt, Burscheider Str. 524, 5090 Leverkusen 3, Germany
       DIMENSION XX(3),XA(3),COBAS(3,NPPA,NUMATM)
       DIMENSION XSP(4,MAXNSS),NSET(MAXNSS,MAXNSS)
 C     Added to satisfy the LAPACK call to DGETRI. SJC 1/10/93
-      DIMENSION IPIV(MAXNSS)   
+      DIMENSION IPIV(MAXNSS)
+      DIMENSION DIRTM(3,NPPA)
       LOGICAL DIN(NPPA)
       COMMON / SOLVI / NSPA,NSS,IATSP(MAXNSS),NAR(MAXNSS),NN(2,NUMATM)
       COMMON / SOLVR / DIPL,FEPSI,RDS,DISEX2,TM(3,3,NUMATM),
      &                AAMAT(MAXNSS,MAXNSS),ADMAT(MAXNSS,MAXNSS), 
      &                CCMAT(MAXORB,MAXORB), BBMAT(MAXORB,MAXNSS),
      &                COSURF(3,MAXNSS), SRAD(NUMATM)
-      COMMON /DIRVEC/ DIRVEC(3,NPPA), DIRTM(3,NPPA)
+      COMMON /DIRVEC/ DIRVEC(3,NPPA), NNX(3,NUMATM)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /CHANEL/ IFILES(30)
       EQUIVALENCE (IW,IFILES(6))
       EQUIVALENCE (ADMAT,COBAS),(BBMAT,XSP)
-      FDIAG=1.05D0*SQRT(NPPA+0.)
+      FDIAG=1.05D0*SQRT(NPPA+0.D0)
       AREA=0.0D0
-      DS=SQRT(4./NSPA)
+      DS=SQRT(4.D0/NSPA)
       C2DS=COS(2.0D0*DS)
       NSS1=0
       DO 1000 I=1,NUMAT
@@ -121,7 +122,7 @@ C TRANSFORM COSURF ACCORDING TO TM
 2020      CONTINUE        
           DO 2040 K = 1, NUMAT
             IF (K . EQ. I) GO TO 2040
-            DIST=0.
+            DIST=0.D0
             DO 2030 IX=1,3
               DIST = DIST + (XX(IX) - COORD(IX,K))**2
 2030        CONTINUE
@@ -150,7 +151,7 @@ C TRANSFORM COSURF ACCORDING TO TM
 345       XSP(IX,IPM)=XSP(IX,IPM)+DIRTM(IX,J)
 350     CONTINUE
         DO 400 IPS=NSS0,NSS1
-          DIST=0.
+          DIST=0.D0
           IF (NAR(IPS) .EQ. 0) THEN
             GO TO 400
           END IF
@@ -176,13 +177,13 @@ C filling AAMAT
         AA=0.D0
         DO 140 K=1,NARI
           J1=NSET(IPS,K)
-          AA=AA+.5*FDIAG
+          AA=AA+.5D0*FDIAG
           X1=DIRVEC(1,J1)
           X2=DIRVEC(2,J1)
           X3=DIRVEC(3,J1)
           DO 140 L=1,K-1
             J2=NSET(IPS,L)
-            AA=AA+1./SQRT((X1-DIRVEC(1,J2))**2+
+            AA=AA+1.D0/SQRT((X1-DIRVEC(1,J2))**2+
      &             (X2-DIRVEC(2,J2))**2+(X3-DIRVEC(3,J2))**2)
 140     CONTINUE
         AA=2*AA/RI 
@@ -195,7 +196,7 @@ C filling AAMAT
 141     XA(IX)=XSP(IX,IPS)
         DO 169 JPS=1,IPS-1
           NARJ=NAR(JPS)
-          DIST=0.
+          DIST=0.D0
           DO 143 IX=1,3
 143       DIST=DIST+(XSP(IX,JPS)-XA(IX))**2
           IF (DIST .LT. DISEX2) THEN

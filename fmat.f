@@ -1,7 +1,7 @@
       SUBROUTINE FMAT(FMATRX, NREAL, TSCF, TDER, DELDIP, HEAT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120)
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120), NENT
       DIMENSION FMATRX(*), DELDIP(3,*)
 ***********************************************************************
 *
@@ -27,7 +27,10 @@
       COMMON /DENSTY/ P(MPACK),PDUMY(2,MPACK)
       COMMON /TIMDMP/ TLEFT, TDUMP
       COMMON /ATMASS/ ATMASS(NUMATM)
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       COMMON /CORE  / CORE(107)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,

@@ -15,7 +15,10 @@
       COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /NUMCAL/ NUMCAL
       COMMON /SCFTYP/ EMIN, LIMSCF
-      COMMON /TIME  / TIME0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
       LOGICAL FULSCF, RAND, LIMSCF
       DOUBLE PRECISION WJ, WK
 C***********************************************************************
@@ -466,7 +469,7 @@ C#      CALL TIMER('AFTER FOCK1')
   170          FB(L)=H(L)+SHIFTB*PB(L)
   180       FB(L)=FB(L)-SHIFTB
          ELSEIF (RAND.AND.LAST.EQ.0.AND.NITER.LT.2.AND.FULSCF)THEN
-            RANDOM=0.001
+            RANDOM=0.001D0
             DO 190 I=1,LINEAR
                RANDOM=-RANDOM
   190       FB(I)=H(I)+RANDOM
@@ -834,7 +837,7 @@ C#        CALL TIMER('BEFORE MECI')
 C#        CALL TIMER('AFTER MECI')
             EE=EE+SUM
             IF(PRTPL)THEN
-               ESCF=(EE+ENUCLR)*23.061 +ATHEAT
+               ESCF=(EE+ENUCLR)*23.061D0+ATHEAT
                WRITE(6,'(27X,''AFTER MECI, ENERGY  '',F14.7)')ESCF
             ENDIF
          ENDIF

@@ -5,7 +5,7 @@
      1                COSURF(3,LENABC), SRAD(NUMATM),ABCMAT(LENAB2),
      2                TM(3,3,NUMATM),QDEN(MAXDEN),DIRTM(3,NPPA),
      3                QS(LENABC)
-     4       /SOLVI/  IATSP(LENABC+1),NAR(LENABC)
+     4       /SOLVI/  IATSP(LENABC+1),NAR(LENABC), NNX(2,NUMATM)
       COMMON /DIRVEC/ DIRVEC(3,NPPA), NN(3,NUMATM)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -22,7 +22,7 @@
    20 DB(IX,I)=0.D0
       DB(0,1)=1.D0
       CALL CQDEN()
-      FACT=-2*13.6058*.5292*FEPSI*23.061
+      FACT=-2*13.6058D0*.5292D0*FEPSI*23.061D0
       DO 30 I=1,NPS
    30 QS(I)=0.D0
       I0=NPS2-NDEN
@@ -51,7 +51,10 @@
                XL(IX)=XXX
                DIST2=DIST2+XXX*XXX
    90       CONTINUE
-            FF=QSK*QS(L)*FACT*DIST2**-1.5D0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C           FF=QSK*QS(L)*FACT*DIST2**-1.5D0
+            FF=QSK*QS(L)*FACT*DIST2**(-1.5D0)
+C ***************************** at 1994-05-25 *****
             DO 100 IX=1,3
                DXYZ(IX,IAK)=DXYZ(IX,IAK)-XL(IX)*FF
                DXYZ(IX,IAL)=DXYZ(IX,IAL)+XL(IX)*FF
@@ -74,9 +77,12 @@
                XX(IX)=XXX
                DIST2=DIST2+XXX*XXX
   140       CONTINUE
-            DDI=DD(NATI)*2*.529177
-            QQI2=(.529177*QQ(NATI))**2
-            FF0=-QSK*FACT*DIST2**-1.5D0
+            DDI=DD(NATI)*2*.529177D0
+            QQI2=(.529177D0*QQ(NATI))**2
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C           FF0=-QSK*FACT*DIST2**-1.5D0
+            FF0=-QSK*FACT*DIST2**(-1.5D0)
+C ***************************** at 1994-05-25 *****
             IF(IDEL .EQ. 0) GO TO 150
             RM2=1.D0/DIST2
             RM4=RM2**2

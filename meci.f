@@ -129,7 +129,7 @@ C
          DO 40 J=1,NMOS
    40    X=X+OCCA(J)
          XX=X+X
-         NE=XX+0.5
+         NE=XX+0.5D0
          NELEC=(NELECS-NE+1)/2
       ENDIF
       PRNT=(DEBUG.OR.LAST.EQ.3.AND.PRNT2)
@@ -180,7 +180,7 @@ C
             RJKAA(I,J)=XY(I,I,J,J)-XY(I,J,I,J)
    80 RJKAB(I,J)=XY(I,I,J,J)
       DO 100 I=1,NMOS
-         X=0.0
+         X=0.0D0
          DO 90 J=1,NMOS
             X=X+(RJKAA(I,J)+RJKAB(I,J))*OCCA(J)
    90    CONTINUE
@@ -210,7 +210,7 @@ C#      IF(ABS(OCCA(I)-0.5).LT.1.D-4)EIGA(I)=EIGA(I)+XY(I,I,I,I)*0.25D0
             K=READA(KEYWRD,I)
             LAB=K
             IF(PRNT)WRITE(6,'(''    MICROSTATES READ IN'')')
-            NTOT=XX+0.5
+            NTOT=XX+0.5D0
             REWIND 5
             DO 150 I=1,1000
                READ(5,'(A)')LINE

@@ -3,7 +3,7 @@
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION F(*), PTOT(*), WJ(*), WK(*), NFIRST(*), NMIDLE(*),
-     1          NLAST(*), P(*), W(*)
+     1          NLAST(*), P(*), W(*), NAT(*)
       DOUBLE PRECISION WJ,WK
 C***********************************************************************
 C

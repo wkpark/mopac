@@ -28,7 +28,7 @@
       COMMON /XYIJKL/ XY(NMECI,NMECI,NMECI,NMECI)
       GSE=0.D0
       DO 20 I=1,NMOS
-         X=0.0
+         X=0.0D0
          DO 10 J=1,NMOS
    10    X=X+(2.D0*XY(I,I,J,J)-XY(I,J,I,J))*OCCA(J)
          EIGA(I)=EIGS(I+NELEC)-X

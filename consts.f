@@ -10,7 +10,8 @@ C SURFACE (SAS)
      1                COSURF(3,LENABC), SRAD(NUMATM),ABCMAT(LENAB2),
      2                TM(3,3,NUMATM),QDEN(MAXDEN),DIRTM(3,NPPA),
      3                BH(LENABC)
-     4       /SOLVI/  IATSP(LENABC+1),NAR(LENABC)
+     4       /SOLVI/  IATSP(LENABC+1),NAR(LENABC), NNX(2,NUMATM)
+     x       /SOLVPS/ NPSX, NPS2X
       COMMON /DIRVEC/ DIRVEC(3,NPPA), NN(3,NUMATM)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -20,6 +21,10 @@ C SURFACE (SAS)
       COMMON /CHANEL/ IFILES(30)
       EQUIVALENCE(IW,IFILES(6))
       EQUIVALENCE (ABCMAT(LENABC*LENABC+1),XSP)
+
+      NPS  = NPSX
+      NPS2 = NPS2X
+
       ISUP=(NPS.GT.0)
       N0(1)=NPS2
       N0(2)=-NPS
@@ -45,11 +50,11 @@ C SURFACE (SAS)
       INSET=1
       IATSP(LENABC+1)=0
       NPS = 0
+      AREA=0.D0
       DO 340 I=1,NUMAT
          DS=SQRT(4.D0/NSPA)
          IF (NAT(I) .EQ. 1) DS=2*DS
          C2DS=COS(2.D0*DS)
-         AREA=0.D0
          R=SRAD(I)
          RI=R-RDS
          DO 20 IX=1,3
@@ -58,7 +63,7 @@ C SURFACE (SAS)
          IF(ISUP) THEN
             IF (NPS .GE. NPS3) STOP 'NPS .GT. NPS3'
             NPS2=NPS3
-            IF (IATSP(NPS0) .NE. I) GO TO 340
+*           IF (IATSP(NPS0) .NE. I) GO TO 340
             DO 30 IPS=NPS2,LENABC+1
    30       IF(IATSP(IPS) .NE. I) GO TO 40
    40       NPS3=IPS
@@ -122,20 +127,21 @@ C BUILD NEW TRANSFORMATION MATRIX
             DIST1=0.D0
             DO 80 IX=1,3
    80       DIST1=DIST1+(XA(IX)-COORD(IX,NN1))**2
-            DIST=1./SQRT(DIST1)
+            DIST=1.D0/SQRT(DIST1)
             TM(1,1,I)=(COORD(1,NN1)-XA(1))*DIST
             TM(1,2,I)=(COORD(2,NN1)-XA(2))*DIST
             TM(1,3,I)=(COORD(3,NN1)-XA(3))*DIST
          END IF
    90    IF (NN2 .EQ. 0) THEN
-            TM(2,1,I)=-TM(1,2,I)
-            TM(2,2,I)=TM(1,1,I)
+            DIST=SQRT(TM(1,3,I)**2+TM(1,2,I)**2+TM(1,1,I)**2)
+            TM(2,1,I)=-TM(1,2,I)/DIST
+            TM(2,2,I)=TM(1,1,I)/DIST
             TM(2,3,I)=0.D0
          ELSE
             DIST2=0.D0
             DO 100 IX=1,3
   100       DIST2=DIST2+(XA(IX)-COORD(IX,NN2))**2
-            DIST=1./SQRT(DIST2)
+            DIST=1.D0/SQRT(DIST2)
             XX(1)=(COORD(1,NN2)-XA(1))*DIST
             XX(2)=(COORD(2,NN2)-XA(2))*DIST
             XX(3)=(COORD(3,NN2)-XA(3))*DIST
@@ -163,6 +169,27 @@ C TRANSFORM DIRVEC ACCORDING TO TM
                X=XX(1)*TM(1,IX,I)+XX(2)*TM(2,IX,I)+XX(3)*TM(3,IX,I)
                DIRTM(IX,J)=X
   110    CONTINUE
+C FIND THE POINTS OF THE BASIC GRID ON THE SAS
+         NAREA=0
+         DO 160 J = 1,NPPA
+            DIN(J)=.FALSE.
+            DO 130 IX=1,3
+               XX(IX) = XA(IX) + DIRTM(IX,J)* R
+  130       CONTINUE
+            DO 150 K = 1, NUMAT
+               IF (K . EQ. I) GO TO 150
+               DIST=0.D0
+               DO 140 IX=1,3
+                  DIST = DIST + (XX(IX) - COORD(IX,K))**2
+  140          CONTINUE
+               DIST=SQRT(DIST)-SRAD(K)
+               IF (DIST .LT. 0) GO TO 160
+  150       CONTINUE
+            NAREA=NAREA+1
+            DIN(J)=.TRUE.
+  160    CONTINUE
+         IF( NAREA.EQ.0 ) GOTO 340
+         AREA=AREA+NAREA*RI*RI
          IF (ISUP) THEN
             DO 120 J=NPS2,NPS3-1
                NPS=NPS+1
@@ -192,26 +219,6 @@ C TRANSFORM DIRVEC ACCORDING TO TM
          COSURF(3,NPS)=XX(1)*TM(1,3,I)+XX(2)*TM(2,3,I)+XX(3)*TM(3,3,I)
   45     CONTINUE
          ENDIF
-C FIND THE POINTS OF THE BASIC GRID ON THE SAS
-         NAREA=0
-         DO 160 J = 1,NPPA
-            DIN(J)=.FALSE.
-            DO 130 IX=1,3
-               XX(IX) = XA(IX) + DIRTM(IX,J)* R
-  130       CONTINUE
-            DO 150 K = 1, NUMAT
-               IF (K . EQ. I) GO TO 150
-               DIST=0.
-               DO 140 IX=1,3
-                  DIST = DIST + (XX(IX) - COORD(IX,K))**2
-  140          CONTINUE
-               DIST=SQRT(DIST)-SRAD(K)
-               IF (DIST .LT. 0) GO TO 160
-  150       CONTINUE
-            NAREA=NAREA+1
-            DIN(J)=.TRUE.
-  160    CONTINUE
-         AREA=AREA+NAREA*RI*RI
   200    SDIS0=SDIS
          DO 210 IPS=NPS0,NPS
             NAR(IPS)=0
@@ -325,7 +332,7 @@ C FILLING AAMAT
             NARJ=NAR(JPS)
             NSETFJ=NSETF(JPS)
             J=IATSP(JPS)
-            DIST=0.
+            DIST=0.D0
             DO 370 IX=1,3
                XJ(IX)=COORD(IX,J)-XI(IX)
   370       DIST=DIST+(XSP(IX,JPS)-XA(IX))**2
@@ -360,9 +367,14 @@ C FILLING AAMAT
                         J2=NSET(L)
 C                  AA=((DIRVEC(1,J2)*RJ-XX(1))**2+(DIRVEC(2,J2)*RJ
 C     &                   -XX(2))**2+(DIRVEC(3,J2)*RJ-XX(3))**2)
-                        AIJ=AIJ+((DIRVEC(1,J2)*RJ-XX(1))**2+(DIRVEC(2,J2
-     1)*RJ                   -XX(2))**2+(DIRVEC(3,J2)*RJ-XX(3))**2)**-.5
-     2D0
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C                       AIJ=AIJ+((DIRVEC(1,J2)*RJ-XX(1))**2+(DIRVEC(2,J2
+C    1)*RJ                   -XX(2))**2+(DIRVEC(3,J2)*RJ-XX(3))**2)**-.5
+C    2D0
+                        AIJ=AIJ+((DIRVEC(1,J2)*RJ-XX(1))**2
+     1                          +(DIRVEC(2,J2)*RJ-XX(2))**2
+     2                          +(DIRVEC(3,J2)*RJ-XX(3))**2)**(-.5D0)
+C ***************************** at 1994-05-25 *****
   420                CONTINUE
                   END IF
   430          CONTINUE
@@ -376,7 +388,15 @@ C     &                   -XX(2))**2+(DIRVEC(3,J2)*RJ-XX(3))**2)
   450 CONTINUE
 C INVERT A-MATRIX
       CALL DGETRF(NPS,NPS,ABCMAT,NPS,IPIV,INFO)
+      IF( INFO.NE.0 ) THEN
+          WRITE(*,*) ' DGETRF FAILED WITH ERROR CODE ', INFO
+          STOP 'CONSTS'
+      ENDIF
       CALL DGETRI(NPS,ABCMAT,NPS,IPIV,XSP, 3*LENABC,INFO)
+      IF( INFO.NE.0 ) THEN
+          WRITE(*,*) ' DGETRI FAILED WITH ERROR CODE ', INFO
+          STOP 'CONSTS'
+      ENDIF
 C  STORE INV. A-MATRIX AS LOWER TRIANGLE
       II=0
       DO 460 I=1,NPS

@@ -10,7 +10,7 @@
       COMMON /ELEMTS/ ELEMNT(107)
       COMMON/SYMRES/ TRANS,RTR,SIG,NAME,NAMO(MXDIM),JNDEX(MXDIM),ISTA(2)
       COMMON /KEYWRD/ KEYWRD
-      CHARACTER*80 KEYWRD
+      CHARACTER*241 KEYWRD, NAME*4, NAMO*4, ISTA*4
       LOGICAL ALLPRT
 C**********************************************************************
 C

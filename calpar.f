@@ -126,35 +126,35 @@ C  PUT IN ANY CONSTRAINTS AT THIS POINT
          QQM(I)=QQ(I)
 C     CALCULATE ADDITIVE TERMS, IN ATOMIC UNITS.
          JMAX=5
-         GDD1= (P2*HSP(I)/(27.21* 4.*DD(I)**2))**(1./3.)
-         GQQ= (P4*HPP/(27.21*48.*QQ(I)**4))**0.2
+         GDD1= (P2*HSP(I)/(27.21D0* 4.D0*DD(I)**2))**(1.D0/3.D0)
+         GQQ= (P4*HPP/(27.21D0*48.D0*QQ(I)**4))**0.2D0
          D1=GDD1
-         D2=GDD1+0.04
+         D2=GDD1+0.04D0
          Q1=GQQ
-         Q2=GQQ+0.04
+         Q2=GQQ+0.04D0
          DO 10 J=1,JMAX
             DF=D2-D1
-            HSP1= 2.*D1 - 2./SQRT(4.*DD(I)**2+1./D1**2)
-            HSP2= 2.*D2 - 2./SQRT(4.*DD(I)**2+1./D2**2)
+            HSP1= 2.D0*D1 - 2.D0/SQRT(4.D0*DD(I)**2+1.D0/D1**2)
+            HSP2= 2.D0*D2 - 2.D0/SQRT(4.D0*DD(I)**2+1.D0/D2**2)
             HSP1= HSP1/P2
             HSP2= HSP2/P2
-            D3= D1 + DF*(HSP(I)/27.21-HSP1)/(HSP2-HSP1)
+            D3= D1 + DF*(HSP(I)/27.21D0-HSP1)/(HSP2-HSP1)
             D1= D2
             D2= D3
    10    CONTINUE
          DO 20 J=1,JMAX
             QF=Q2-Q1
-            HPP1= 4.*Q1 - 8./SQRT(4.*QQ(I)**2+1./Q1**2)
-     1            + 4./SQRT(8.*QQ(I)**2+1./Q1**2)
-            HPP2= 4.*Q2 - 8./SQRT(4.*QQ(I)**2+1./Q2**2)
-     1            + 4./SQRT(8.*QQ(I)**2+1./Q2**2)
+            HPP1= 4.D0*Q1 - 8.D0/SQRT(4.D0*QQ(I)**2+1.D0/Q1**2)
+     1            + 4.D0/SQRT(8.D0*QQ(I)**2+1.D0/Q1**2)
+            HPP2= 4.D0*Q2 - 8.D0/SQRT(4.D0*QQ(I)**2+1.D0/Q2**2)
+     1            + 4.D0/SQRT(8.D0*QQ(I)**2+1.D0/Q2**2)
             HPP1= HPP1/P4
             HPP2= HPP2/P4
-            Q3= Q1 + QF*(HPP/27.21-HPP1)/(HPP2-HPP1)
+            Q3= Q1 + QF*(HPP/27.21D0-HPP1)/(HPP2-HPP1)
             Q1= Q2
             Q2= Q3
    20    CONTINUE
-         AM(I)= GSS(I)/27.21
+         AM(I)= GSS(I)/27.21D0
          AD(I)= D2
          AQ(I)= Q2
          AMM(I)=AM(I)

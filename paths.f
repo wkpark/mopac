@@ -4,8 +4,11 @@
       COMMON /PATH  / LATOM,LPARAM,REACT(200)
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
       COMMON /KEYWRD/ KEYWRD
-      COMMON /TIME  / TIME0
-      COMMON /GEOM  / GEO(3,NUMATM)
+C ***** Modified by Jiro Toyoda at 1994-05-25 *****
+C     COMMON /TIME  / TIME0
+      COMMON /TIMEC / TIME0
+C ***************************** at 1994-05-25 *****
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /ALPARM/ ALPARM(3,MAXPAR),X0, X1, X2, ILOOP
 ************************************************************************
 *

@@ -77,7 +77,7 @@ C   GET FIRST ATOM
                DO 120 JK=K2L,K2U
                   DO 120 KL=K3L,K3U
                      JJJ=JJJ+1
-                     KKK=KKK-1
+*                    KKK=KKK-1
                      DO 40 L=1,3
    40                CDI(L,1)=COORD(L,JJ)+TVEC(L,1)*IK+TVEC(L,2)*JK+TVEC
      1(L,3)*KL
@@ -173,6 +173,7 @@ C analytic calculation of the gradient of the dielectric energy A.Klamt
 C     DO 170 I=1,6
 C 170 LSTOR1(I)=LSTOR2(I)
       IF (  .NOT. DEBUG) RETURN
+      IW = 6
       WRITE(IW,'(//10X,''CARTESIAN COORDINATE DERIVATIVES'',//3X,
      1''NUMBER  ATOM '',5X,''X'',12X,''Y'',12X,''Z'',/)')
       IF(NCELLS.EQ.1)THEN
@@ -186,6 +187,7 @@ C 170 LSTOR1(I)=LSTOR2(I)
      1 (I,NAT((I-1)/NCELLS+1),(DXYZ(J,I)+DXYZ(J,I+1)+DXYZ(J,I+2)
      2,J=1,3),I=1,NUMTOT,3)
       ENDIF
+      IROT = 2
       IF (ANADER) REWIND IROT
 C end of COSMO (A. Klamt) changes
       IF (  .NOT. DEBUG) RETURN

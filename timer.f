@@ -14,7 +14,7 @@ C
 C
 C   THE ACT OF CALLING THIS ROUTINE COSTS 0.026 SECONDS
 C
-      T0=T0+0.026
+      T0=T0+0.026D0
       T2=SECOND()
       IF(INDEX(A,'BEF').EQ.0.AND.A.NE.' ')THEN
          WRITE(6,'(2X,A,A,F7.2,A,F8.2)')
@@ -22,6 +22,6 @@ C
       ELSE
          WRITE(6,'(40X,''TIME LOST:'',F7.2)')T2-T1
       ENDIF
-      T1=T2+0.026
+      T1=T2+0.026D0
       RETURN
       END

@@ -1,7 +1,7 @@
       SUBROUTINE LINMIN(XPARAM,ALPHA,PVECT,NVAR,FUNCT,OKF,IC, DOTT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION XPARAM(NVAR),PVECT(NVAR)
+      DIMENSION XPARAM(NVAR),PVECT(NVAR),GRAD(MAXPAR)
       COMMON /GRAVEC/ COSINE
       COMMON /NUMCAL/ NUMCAL
 C*********************************************************************
@@ -57,7 +57,7 @@ C
             ALPHA=1.D0
             DELTA1 = 0.00005D0
             DELTA2 = 0.00001D0
-            IF(INDEX(KEYWRD,'PREC') .NE. 0) DELTA1=0.0000005
+            IF(INDEX(KEYWRD,'PREC') .NE. 0) DELTA1=0.0000005D0
             MAXLIN=30
          ENDIF
          COSINE=99.99D0
@@ -161,13 +161,13 @@ C
          GO TO 80
    70    ALPHA=3.0D00*VT(LEFT)-2.0D00*VT(CENTER)
    80    S=ALPHA-ALPOLD
-         IF (ABS(S).GT.XMAXM) S=SIGN(XMAXM,S)*(1+0.01*(XMAXM/S))
+         IF (ABS(S).GT.XMAXM) S=SIGN(XMAXM,S)*(1+0.01D0*(XMAXM/S))
          ALPHA=S+ALPOLD
          GO TO 100
    90    ALPHA=-BETA/(2.0D00*ALPHA)
          S=ALPHA-ALPOLD
          XXM=2.0D00*XMAXM
-         IF (ABS(S).GT.XXM) S=SIGN(XXM,S)*(1+0.01*(XXM/S))
+         IF (ABS(S).GT.XXM) S=SIGN(XXM,S)*(1+0.01D0*(XXM/S))
          ALPHA=S+ALPOLD
   100    CONTINUE
 C

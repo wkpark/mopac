@@ -63,9 +63,9 @@ C
          DO 20 I = 1,NUMAT
             IF = NFIRST(I)
             IL = NLAST(I)
-            SUM = 0.0
-            POP(I) = 0.0
-            CHRG(I) = 0.0
+            SUM = 0.0D0
+            POP(I) = 0.0D0
+            CHRG(I) = 0.0D0
             DO 10 J = IF,IL
 C
 C    Diagonal element of mulliken matrix
@@ -121,7 +121,7 @@ C
 C
 C  Write out the Dipole Moment
 C
-      IF(KCHRGE.NE.0) DIP = 0.0
+      IF(KCHRGE.NE.0) DIP = 0.0D0
       WRITE(16, '(I4,F10.3,''  Charge,Dipole Moment'')', ERR=30)
      1KCHRGE, DIP
       RETURN

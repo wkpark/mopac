@@ -43,6 +43,12 @@
 *               IN KCAL/MOL/ANGSTROM (3 * NUMAT OF THESE)
 *
 ***********************************************************************
+C
+C    NW2 and NW3 should be set to *something*, probably sizes of WORK2 
+C    and WORK3 arrays? Since the code works with NW2 and NW3 set to zero
+C    by implicit initialization, we can as well do it explicitly.... -P.S.
+C
+      PARAMETER (NW2=0,NW3=0)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM)
      1               ,NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA
      2               ,NCLOSE,NOPEN,NDUMY,FRACT

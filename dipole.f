@@ -68,7 +68,7 @@ C
       ICALCN=NUMCAL
       IF (FIRST) THEN
          DO 10 I=2,107
-   10    HYF(I,1)= 5.0832*DD(I)
+   10    HYF(I,1)= 5.0832D0*DD(I)
          WTMOL=0.D0
          SUM=0.D0
          DO 20 I=1,NUMAT

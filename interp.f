@@ -81,7 +81,7 @@ C
          DO 90 J=1,N
    90 VEC(I,J)=CP(I,J)
       EOLD=E
-      XOLD=1.0
+      XOLD=1.0D0
       MODE=2
       RETURN
 C
@@ -286,7 +286,7 @@ C
       DO 550 K=1,MINPQ
          CK=COS(XNOW*THETA(K))
          SK=SIN(XNOW*THETA(K))
-         IF(DEBUG)WRITE(6,'('' ROTATION ANGLE:'',F12.4)')SK*57.29578
+         IF(DEBUG)WRITE(6,'('' ROTATION ANGLE:'',F12.4)')SK*57.29578D0
          DO 540 I=1,N
             CP(I,K)   =CK*VEC(I,K)-SK*VEC(I,NP+K)
   540    CP(I,NP+K)=SK*VEC(I,K)+CK*VEC(I,NP+K)
@@ -305,7 +305,7 @@ C
   580 ROLD=XOLD*THETA(1)*57.29578D0
       RNOW=XNOW*THETA(1)*57.29578D0
       RMIN=XMIN*THETA(1)*57.29578D0
-      IF(DEBUG)WRITE(6,600) XOLD,EOLD*23.061,DEOLD,ROLD
+      IF(DEBUG)WRITE(6,600) XOLD,EOLD*23.061D0,DEOLD,ROLD
      1,             XNOW,ENOW*23.061D0,DENOW,RNOW
      2,             XMIN,EMIN*23.061D0,DEMIN,RMIN
       EOLD=ENOW
@@ -388,7 +388,7 @@ C
 C     SKIP INTERVAL IF PNTS ARE TOO CLOSE TOGETHER
 C
          IF(DX.LE.CLOSE) GO TO 110
-         X1=0.0
+         X1=0.0D0
          IF(K.EQ.1) X1=XSTART-X(1)
          X2=DX
          IF(K.EQ.N1) X2=XSTOP-X(N1)
@@ -419,7 +419,7 @@ C
 C     CUBIC IS DOMINATED BY QUADRATIC TERM
 C
    60    R=AC3/BB
-         XK=-(((0.039063*R+0.0625)*R+0.125)*R+0.5)*C/B
+         XK=-(((0.039063D0*R+0.0625D0)*R+0.125D0)*R+0.5D0)*C/B
    70    IF(XK.LT.X1.OR.XK.GT.X2) GO TO 90
    80    FM=((A*XK+B)*XK+C)*XK+F(K)
          IF(FM.GT.FMIN) GO TO 90
@@ -717,7 +717,7 @@ C     IF(II.GT.N) STOP
 *
 *
 ************************************************************************
-      D=1.0
+      D=1.0D0
       NK=-N
       DO 180 K=1,N
          NK=NK+N
@@ -756,7 +756,7 @@ C
             A(JK)=A(JI)
    70    A(JI)=HOLO
    80    IF (ABS(BIGA)-TOL) 90,100,100
-   90    D=0.0
+   90    D=0.0D0
          RETURN
   100    DO 120 I=1,N
             IF (I-K) 110,120,110
@@ -780,7 +780,7 @@ C
   160       A(KJ)=A(KJ)/BIGA
   170    CONTINUE
          D=MIN(D*BIGA,1.D10)
-         A(KK)=1.0/BIGA
+         A(KK)=1.0D0/BIGA
   180 CONTINUE
       K=N
   190 K=K-1

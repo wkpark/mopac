@@ -34,11 +34,13 @@
      1GEO(3*NUMATM), VREF(MAXPAR), VREF0(MAXPAR), TSTEPS(100), ETOT3(3),
      2XTOT3(3)
       SAVE  REFSCF, COTYPE
+      SAVE TURN
       LOGICAL  TURN, PARMAX, LDRC, GOTURN
       CHARACTER*241 KEYWRD, TEXT1*3, TEXT2*2,  COTYPE(3)*2
       DATA ICALCN/0/
       DATA REFSCF/0.D0/
       DATA COTYPE/'BL','BA','DI'/
+      DATA TURN/.FALSE./
       IF (ICALCN.NE.NUMCAL) THEN
          ICALCN=NUMCAL
          DO 10 I=1,NVAR
@@ -276,7 +278,7 @@ C
   100          TSTEPS(I)=(-BB+SIGN(SQRT(BB*BB-4.D0*(AA*C1)),BB))/(2.D0*A
      1A)
             ENDIF
-            FRACT=-.1
+            FRACT=-.1D0
             REFSCF=REFSCF+NFRACT*STEPH
          ENDIF
       ELSEIF(STEPT.NE.0.D0) THEN
@@ -319,13 +321,13 @@ C
      1A)
             ENDIF
             REFX=REFX+NFRACT*STEPX
-            FRACT=-.1
+            FRACT=-.1D0
          ENDIF
       ELSE
 C
 C   PRINT EVERY POINT.
 C
-         FRACT=0.0
+         FRACT=0.0D0
       ENDIF
       IF(FRACT.LT.-9.D0)GOTO 170
       TURN=(TURN.OR.ABS(FRACT-1.D0).GT.1.D-6)

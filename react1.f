@@ -2,7 +2,7 @@
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       REAL PASTOR, PBSTOR
       INCLUDE 'SIZES'
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       DIMENSION GEOA(3,NUMATM), GEOVEC(3,NUMATM),
      1          PASTOR(MPACK),
      2          PBSTOR(MPACK), XOLD(MAXPAR), GROLD(MAXPAR)
@@ -254,7 +254,7 @@ C
          STEP=MIN(SWAP,0.5D0, 6.D0/GNORM, DELL,STEPMX*STEP0+0.005D0)
          STEP=MIN(0.2D0,STEP/STEP0)*STEP0
          SWAP=SWAP+1.D0
-         DELL=DELL+0.1
+         DELL=DELL+0.1D0
          WRITE(6,'(''  BAR SHORTENED BY'',F12.7,'' PERCENT'')')
      1STEP/STEP0*100.D0
          STEP0=STEP0-STEP
@@ -330,7 +330,7 @@ C
             EOLD=ESCF
             SUM=GOLD
             GOLD=GNORM
-            I=1.7+ONE*0.5
+            I=1.7D0+ONE*0.5D0
             IF(GNORM.GT.10.D0)GOK(I)=.TRUE.
             GNORM=SUM
             DO 210 I=1,NATOMS

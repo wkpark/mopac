@@ -17,7 +17,7 @@ C**********************************************************************
       COMMON /WORK1/ X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,
      1               XDUMY(21*MPACK-10*MAXORB*MAXORB)
       COMMON /WORK3/ X11,X12,XDUMY1(4*MPACK-2*MAXORB*MAXORB)
-      COMMON /SCRACH/ X13, XDUMY2(MAXALL*MAXALL-MAXORB*MAXORB)
+      COMMON /SCRACH/ X13, XDUMY2(MAXPAR*MAXPAR-MAXORB*MAXORB)
 C..
       COMMON /TITLES/ KOMENT,TITLE
       COMMON /POLVOL/ POLVOL(107)
@@ -41,7 +41,7 @@ C..
       COMMON /CHANEL/ IFILES(30)
       EQUIVALENCE(IW,IFILES(6)), (IR,IFILES(5))
       DIMENSION GRAD(MAXPAR),ROTVEC(3,3), TEMPV(3,3), DATAEV(10)
-     1,VALUE(10)
+     1,VALUE(40)
       CHARACTER  KEYWRD*241, TYPE*7, KOMENT*81, TITLE*81
       CHARACTER  POLKEY*241, LINE*80
       LOGICAL LET, LIMSCF
@@ -60,7 +60,7 @@ C  THIS IS DONE TO ENSURE A UNIQUE, REPRODUCEABLE SET OF DIRECTIONS.
 C  IF LET IS SPECIFIED, THE INPUT ORIENTATION WILL BE USED.
 C
       IF (.NOT.LET) THEN
-         MASS = 1.0D00
+         MASS = 1
          CALL AXIS(COORD,NUMAT,A,B,C,SUMW,MASS,ROTVEC)
          WRITE(6,20)
    20    FORMAT (/' ROTATION MATRIX FOR ORIENTATION OF MOLECULE:'/)
@@ -251,7 +251,7 @@ C
          OMEGA=DATAEV(I)
          OMEGAU = OMEGA/27.2113961D+00
          IF (OMEGA.LT.1.0D-8) THEN
-            WAVLEN = 999999.99
+            WAVLEN = 999999.99D0
 C#           WRITE(6,401) OMEGA
             WRITE(6,260)
   260       FORMAT(//,' ',65(1H*),/,
@@ -259,7 +259,7 @@ C#           WRITE(6,401) OMEGA
      2            ' ',65('*'))
          ELSE
             WRITE(6,270) OMEGA,OMEGAU,1239.8424D0/OMEGA,
-     1 8065.541*OMEGA
+     1 8065.541D0*OMEGA
   270       FORMAT(//,' ',70(1H*),
      1          /' CALCULATION FOR A FREQUENCY OF ',F10.5,' EV  =',
      2           F14.5,' A.U. '/18X,'WAVELENGTH OF ',F10.2,' NM  =',
@@ -720,7 +720,7 @@ C
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /VECTOR/ C(MORB2),EIGS(MAXORB),CA(MORB2),DUMY(MAXORB)
       COMMON /WMATRX/ W(N2ELEC*2)
-      COMMON /COORD/ COORD(3,NUMATM)
+      COMMON /GEOM /  GEO(3,NUMATM),  COORD(3,NUMATM)
       COMMON /OMVAL/ OMEGA
       COMMON /CHANEL/ IFILES(30)
       EQUIVALENCE(IW,IFILES(6))
@@ -906,7 +906,7 @@ C
 C CALCULATES THE AVERAGE VALUE OF BETA
 C
             IF ((ID .EQ. 1) .AND. (IC .EQ. 1)) THEN
-               BAVX = BAVX + 3.0*BETAW
+               BAVX = BAVX + 3.0D0*BETAW
             ELSEIF (((ID.EQ.5).OR.(ID.EQ.9)).AND. (IC .EQ. 1)) THEN
                BAVX = BAVX + BETAW
             ELSEIF (((ID.EQ.2).OR.(ID .EQ. 4)) .AND. (IC .EQ. 2)) THEN
@@ -917,7 +917,7 @@ C
 C CALCULATES AVERAGE BETA IN Y-DIRECTION
 C
             IF ((ID .EQ. 5) .AND. (IC .EQ. 2)) THEN
-               BAVY = BAVY + 3.0*BETAW
+               BAVY = BAVY + 3.0D0*BETAW
             ELSEIF (((ID.EQ.2).OR.(ID .EQ. 4)) .AND. (IC .EQ. 1)) THEN
                BAVY = BAVY + BETAW
             ELSEIF (((ID.EQ.1).OR.(ID .EQ. 9)) .AND. (IC .EQ. 2)) THEN
@@ -928,7 +928,7 @@ C
 C CALCULATES AVERAGE BETA IN THE Z-DIRECTION
 C
             IF ((ID .EQ. 9) .AND. (IC .EQ. 3)) THEN
-               BAVZ = BAVZ + 3.0 * BETAW
+               BAVZ = BAVZ + 3.0D0 * BETAW
             ELSEIF (((ID.EQ.3).OR.(ID .EQ. 7)) .AND. (IC .EQ. 1)) THEN
                BAVZ = BAVZ + BETAW
             ELSEIF (((ID.EQ.6).OR.(ID .EQ. 8)) .AND. (IC .EQ. 2)) THEN
@@ -1162,31 +1162,31 @@ C
 C CALCULATE AVERAGE BETA IN THE X-DIRECTION
 C
             IF ((ID .EQ. 1) .AND. (IC .EQ. 1)) THEN
-               BAVX = BAVX + 3.0 * BETAW
+               BAVX = BAVX + 3.0D0 * BETAW
             ELSEIF ((ID .EQ. 2) .AND. (IC .EQ. 2)) THEN
-               BAVX = BAVX + 2.0 * BETAW
+               BAVX = BAVX + 2.0D0 * BETAW
             ELSEIF ((ID .EQ. 3) .AND. (IC .EQ. 3)) THEN
-               BAVX = BAVX + 2.0 * BETAW
+               BAVX = BAVX + 2.0D0 * BETAW
             ELSEIF (((ID.EQ.4).OR.(ID .EQ. 6)) .AND. (IC .EQ. 1)) THEN
                BAVX = BAVX + BETAW
             ENDIF
 C CALCULATES AVERAGE BETA IN THE Y-DIRECTION
             IF ((ID .EQ. 4) .AND. (IC .EQ. 2)) THEN
-               BAVY = BAVY + 3.0 * BETAW
+               BAVY = BAVY + 3.0D0 * BETAW
             ELSEIF ((ID .EQ. 2) .AND. (IC .EQ. 1)) THEN
-               BAVY = BAVY + 2.0 * BETAW
+               BAVY = BAVY + 2.0D0 * BETAW
             ELSEIF ((ID .EQ. 5) .AND. (IC .EQ. 3)) THEN
-               BAVY = BAVY + 2.0 * BETAW
+               BAVY = BAVY + 2.0D0 * BETAW
             ELSEIF (((ID.EQ.1).OR.(ID .EQ. 6)) .AND. (IC .EQ. 2)) THEN
                BAVY = BAVY + BETAW
             ENDIF
 C CALCULATES AVERAGE BETA IN THE Z-DIRECTION
             IF ((ID .EQ. 6) .AND. (IC .EQ. 3)) THEN
-               BAVZ = BAVZ + 3.0 * BETAW
+               BAVZ = BAVZ + 3.0D0 * BETAW
             ELSEIF ((ID .EQ. 3) .AND. (IC .EQ. 1)) THEN
-               BAVZ = BAVZ + 2.0 * BETAW
+               BAVZ = BAVZ + 2.0D0 * BETAW
             ELSEIF ((ID .EQ. 5) .AND. (IC .EQ. 2)) THEN
-               BAVZ = BAVZ + 2.0 * BETAW
+               BAVZ = BAVZ + 2.0D0 * BETAW
             ELSEIF (((ID.EQ.4) .OR. (ID.EQ.1)) .AND. (IC .EQ. 3)) THEN
                BAVZ = BAVZ + BETAW
             ENDIF
@@ -1352,7 +1352,7 @@ C
 C  CHECK FOR CONVERGENCE
 C
       DIFF = 0.0D00
-      MAXU = -1000.00
+      MAXU = -1000.00D0
       DO 100 I = 1,NORBS
          DO 90 J = 1,NORBS
             UDIF = UAB(I,J)-UOLD1(I,J)
@@ -2377,11 +2377,11 @@ C
 C CALCULATE THE AVERAGE GAMMA VALUE
 C
          IF (IE .LE. 3) THEN
-            GAV = GAV + 3.0*YY
+            GAV = GAV + 3.0D0*YY
          ELSEIF (IE .GT. 9) THEN
             GAV = GAV + YY
          ELSE
-            GAV = GAV + 2.0*YY
+            GAV = GAV + 2.0D0*YY
          ENDIF
 C
 C WRITE GAMMA(ABCD)
@@ -2610,11 +2610,11 @@ C
 C CALCULATE THE AVERAGE GAMMA VALUE
 C
          IF (IE .LE. 3) THEN
-            GAV = GAV + 3.0*YY
+            GAV = GAV + 3.0D0*YY
          ELSEIF (IE .GT. 9) THEN
             GAV = GAV + YY
          ELSE
-            GAV = GAV + 2.0*YY
+            GAV = GAV + 2.0D0*YY
          ENDIF
 C
 C WRITE GAMMA(ABCD)
@@ -2670,7 +2670,7 @@ C
       CALL DAREAD (G2Z,MAXSQ,19)
 C XXX
       CALL BETCOM (U1X,G1X,U2X,G2X,NCLOSE,NORBS,BXXX)
-      BAVX = BAVX +3.0 * BXXX
+      BAVX = BAVX +3.0D0 * BXXX
 C YXX
       CALL BETCOM (U1X,G1X,U2Y,G2Y,NCLOSE,NORBS,BYXX)
       BAVY = BAVY + BYXX
@@ -2706,7 +2706,7 @@ C XYY
       BAVX = BAVX + BXYY
 C YYY
       CALL BETCOM (U1Y,G1Y,U2Y,G2Y,NCLOSE,NORBS,BYYY)
-      BAVY = BAVY + 3.0*BYYY
+      BAVY = BAVY + 3.0D0*BYYY
 C ZYY
       CALL BETCOM (U1Y,G1Y,U2Z,G2Z,NCLOSE,NORBS,BZYY)
       BAVZ = BAVZ + BZYY
@@ -2742,7 +2742,7 @@ C YZZ
       BAVY = BAVY + BYZZ
 C ZZZ
       CALL BETCOM (U1Z,G1Z,U2Z,G2Z,NCLOSE,NORBS,BZZZ)
-      BAVZ = BAVZ + 3.0 * BZZZ
+      BAVZ = BAVZ + 3.0D0 * BZZZ
 C
       BAVX = BAVX/5.0D+00
       BAVY = BAVY/5.0D+00
@@ -2827,7 +2827,7 @@ C
       CALL DAREAD (G1Z,MAXSQ,13)
 C XXX
       CALL BETALL (U1X,G1X,U0X,G0X,U1X,G1X,NCLOSE,NORBS,BXXX)
-      BAVX = BAVX + 3.0 * BXXX
+      BAVX = BAVX + 3.0D0 * BXXX
 C YXX
       CALL BETALL (U1Y,G1Y,U0X,G0X,U1X,G1X,NCLOSE,NORBS,BYXX)
       BAVY = BAVY + BYXX
@@ -2863,7 +2863,7 @@ C XYY
       BAVX = BAVX + BXYY
 C YYY
       CALL BETALL (U1Y,G1Y,U0Y,G0Y,U1Y,G1Y,NCLOSE,NORBS,BYYY)
-      BAVY = BAVY + 3.0 * BYYY
+      BAVY = BAVY + 3.0D0 * BYYY
 C ZYY
       CALL BETALL (U1Z,G1Z,U0Y,G0Y,U1Y,G1Y,NCLOSE,NORBS,BZYY)
       BAVZ = BAVZ + BZYY
@@ -2899,7 +2899,7 @@ C YZZ
       BAVY = BAVY + BYZZ
 C ZZZ
       CALL BETALL (U1Z,G1Z,U0Z,G0Z,U1Z,G1Z,NCLOSE,NORBS,BZZZ)
-      BAVZ = BAVZ + 3.0 * BZZZ
+      BAVZ = BAVZ + 3.0D0 * BZZZ
 C
       BAVX = BAVX/5.0D+00
       BAVY = BAVY/5.0D+00
@@ -2985,7 +2985,7 @@ C NONITERATIVE BETA CALCULATION
 C
 C XXX
       CALL BETAL1 (U0X,G0X,U1X,G1X,U1X,G1X,NCLOSE,NORBS,BXXX)
-      BAVX = BAVX + 3.0* BXXX
+      BAVX = BAVX + 3.0D0* BXXX
 C YXX
       CALL BETAL1 (U0Y,G0Y,U1X,G1X,U1X,G1X,NCLOSE,NORBS,BYXX)
       BAVY = BAVY + BYXX
@@ -3021,7 +3021,7 @@ C XYY
       BAVX = BAVX + BXYY
 C YYY
       CALL BETAL1 (U0Y,G0Y,U1Y,G1Y,U1Y,G1Y,NCLOSE,NORBS,BYYY)
-      BAVY = BAVY + 3.0 * BYYY
+      BAVY = BAVY + 3.0D0 * BYYY
 C ZYY
       CALL BETAL1 (U0Z,G0Z,U1Y,G1Y,U1Y,G1Y,NCLOSE,NORBS,BZYY)
       BAVZ = BAVZ + BZYY
@@ -3057,7 +3057,7 @@ C YZZ
       BAVY = BAVY + BYZZ
 C ZZZ
       CALL BETAL1 (U0Z,G0Z,U1Z,G1Z,U1Z,G1Z,NCLOSE,NORBS,BZZZ)
-      BAVZ = BAVZ + 3.0 * BZZZ
+      BAVZ = BAVZ + 3.0D0 * BZZZ
 C
       BAVX = BAVX/5.0D+00
       BAVY = BAVY/5.0D+00

@@ -8,7 +8,7 @@ C...............................................................
       COMMON /CORE  / CORE(107)
       COMMON /DENSTY/ P(MPACK),PA(MPACK),PB(MPACK)
       COMMON /MOLMEC/ HTYPE(4),NHCO(4,20),NNHCO,ITYPE
-      COMMON /GEOM  / GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM), XCOORD(3,NUMATM)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM),NORBS,NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
@@ -83,7 +83,7 @@ C
 C
       IF (ICALCN.NE.NUMCAL) THEN
          DO 20 I=2,107
-   20    HYF(I,1)= 5.0832*DD(I)
+   20    HYF(I,1)= 5.0832D0*DD(I)
          WTMOL=0.D0
          SUM=0.D0
          DO 30 I=1,NUMAT
