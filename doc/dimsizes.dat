@@ -1,11 +1,15 @@
+*COMDECK SIZES
 ***************************************************************************
-*   THIS FILE CONTAINS ALL THE ARRAY SIZES FOR USE IN THE PACKAGE.        *
+*   THIS FILE CONTAINS ALL THE ARRAY SIZES FOR USE IN MOPAC.              *
 *                                                                         *
-*   THERE ARE ONLY TWO PARAMETERS THAT THE PROGRAMMER NEED SET:           *
+*     THERE ARE ONLY  PARAMETERS THAT THE PROGRAMMER NEED SET:            *
 *     MAXHEV = MAXIMUM NUMBER OF HEAVY ATOMS (HEAVY: NON-HYDROGEN ATOMS)  *
 *     MAXLIT = MAXIMUM NUMBER OF HYDROGEN ATOMS.                          *
+*     MAXTIM = DEFAULT TIME FOR A JOB. (SECONDS)                          *
+*     MAXDMP = DEFAULT TIME FOR AUTOMATIC RESTART FILE GENERATION (SECS)  *
 *                                                                         *
-      PARAMETER (MAXHEV=40, MAXLIT=40)
+      PARAMETER (MAXHEV=43,   MAXLIT=43)
+      PARAMETER (MAXTIM=3600, MAXDMP=3600)
 *                                                                         *
 ***************************************************************************
 *                                                                         *
@@ -24,7 +28,7 @@
 *     MORB2          SQUARE OF THE MAXIMUM NUMBER OF ORBITALS ALLOWED.    *
 *     MAXHES         AREA OF HESSIAN MATRIX                               *
 ***************************************************************************
-      PARAMETER (VERSON=3.00D0)
+      PARAMETER (VERSON=4.00D0)
       PARAMETER (NUMATM=MAXHEV+MAXLIT)
       PARAMETER (MAXORB=4*MAXHEV+MAXLIT)
       PARAMETER (MAXPAR=3*NUMATM)
@@ -37,6 +41,7 @@
 *   FOR SHORT VERSION USE LINE WITH NMECI=1, FOR LONG VERSION USE LINE    *
 *   WITH NMECI=10                                                         *
 ***************************************************************************
-      PARAMETER (NMECI=10,   NPULAY=MPACK)
-C      PARAMETER (NMECI=1,   NPULAY=1)
+      PARAMETER (NMECI=10,  NPULAY=MPACK)
+C     PARAMETER (NMECI=1,   NPULAY=1)
 ***************************************************************************
+*DECK MOPAC
