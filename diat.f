@@ -20,9 +20,11 @@
 *
 ************************************************************************
       COMMON /KEYWRD/KEYWRD
-      CHARACTER*80 KEYWRD
+      CHARACTER*241 KEYWRD
       INTEGER A,PQ2,B,PQ1,AA,BB
-      LOGICAL FIRST, ANALYT
+      COMMON /NUMCAL/ NUMCAL
+      SAVE NPQ, IVAL
+      LOGICAL ANALYT
       COMMON /EXPONT/ EMUS(107),EMUP(107),EMUD(107)
       DIMENSION DI(9,9),S(3,3,3),UL1(3),UL2(3),C(3,5,5),NPQ(107)
      1          ,XI(3),XJ(3), SLIN(27), IVAL(3,5)
@@ -37,8 +39,11 @@
      14,4,4,4,4,4,4,4,4,0, 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
      2,32*6,15*0,3,5*0/
       DATA IVAL/1,0,9,1,3,8,1,4,7,1,2,6,0,0,5/
-      DATA FIRST /.TRUE./
-      ANALYT=(INDEX(KEYWRD,'ANALYT').NE.0)
+      DATA ICALCN/0/
+      IF(ICALCN.NE.NUMCAL)THEN
+         ANALYT=(INDEX(KEYWRD,'ANALYT').NE.0)
+         ICALCN=NUMCAL
+      ENDIF
       X1=XI(1)
       X2=XJ(1)
       Y1=XI(2)
@@ -88,7 +93,7 @@ C#      WRITE(6,'(4F15.10)')SG
                DO 40 K=1,NK1
                   IF(K.GT.I.OR.K.GT.J) GOTO 40
                   KSS=K
-                  S(I,J,K)=SS(PQ1,PQ2,ISS,JSS,KSS,UL1(I),UL2(J),R,FIRST)
+                  S(I,J,K)=SS(PQ1,PQ2,ISS,JSS,KSS,UL1(I),UL2(J),R)
    40    CONTINUE
       ENDIF
       DO 50 I=1,IA
@@ -112,7 +117,7 @@ C#      WRITE(6,'(4F15.10)')SG
                DO 50 L=LMIN,LMAX
                   II=IVAL(I,K)
                   JJ=IVAL(J,L)
-                  DI(II,JJ)=S1(I,J)*C3(I,K)*C3(J,L)*AA+
+                  DI(II,JJ)=S1(I,J)*(C3(I,K)*C3(J,L))*AA+
      1(C4(I,K)*C4(J,L)+C2(I,K)*C2(J,L))*BB*S2(I,J)+(C5(I,K)*C5(J,L)
      2+C1(I,K)*C1(J,L))*S3(I,J)
    50 CONTINUE
@@ -121,11 +126,13 @@ C#      DO 12 I=1,4
 C#  12  WRITE(6,'(4F15.10)')(DI(J,I),J=1,4)
       RETURN
       END
-      DOUBLE PRECISION FUNCTION SS(NA,NB,LA1,LB1,M1,UA,UB,R1,FIRST)
+      DOUBLE PRECISION FUNCTION SS(NA,NB,LA1,LB1,M1,UA,UB,R1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL FIRST
       DIMENSION FA(0:13),AFF(0:2,0:2,0:2),AF(0:19),BF(0:19),
      1BI(0:12,0:12)
+      SAVE AFF, FA, BI, FIRST
+      DATA FIRST /.TRUE./
       DATA AFF/27*0. D0/
       DATA FA/1.D0,1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
      1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0/
@@ -159,7 +166,6 @@ C
       ENDIF
       P=(UA+UB)*R*0.5D0
       B=(UA-UB)*R*0.5D0
-      EX=EXP(B)
       QUO=1/P
       AF(0)=QUO*EXP(-P)
       DO 30 N=1,19
@@ -201,7 +207,7 @@ C
       END
       SUBROUTINE COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INTEGER PQ1,PQ2,PQ,CO
+      INTEGER PQ1,PQ2,PQ
       DIMENSION C(75)
       XY=(X2-X1)**2+(Y2-Y1)**2
       R=SQRT(XY+(Z2-Z1)**2)
@@ -228,7 +234,6 @@ C
       SA=0.D0
       SB=0.D0
    50 CONTINUE
-      CO=0
       DO 60 I=1,75
    60 C(I)=0.D0
       IF (PQ1.GT.PQ2) GO TO 70
@@ -287,6 +292,7 @@ C     BINTGS FORMS THE "B" INTEGRALS FOR THE OVERLAP CALCULATION.
 C
 C**********************************************************************
       DIMENSION FACT(17)
+      SAVE FACT
       DATA FACT/1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
      1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0,
      28.71782912D10,1.307674368D12,2.092278989D13,3.556874281D14/

@@ -3,13 +3,17 @@
       INCLUDE 'SIZES'
       COMMON /NLLSQI/ NCOUNT
       COMMON /KEYWRD/ CONTRL
+      COMMON /NUMCAL/ NUMCAL
       DIMENSION X(*), P(*), EFS(*)
       DIMENSION CONST(MAXPAR), XSTOR(MAXPAR), GSTOR(MAXPAR)
       DIMENSION PHI(3),VT(3)
       INTEGER LEFT,RIGHT,CENTER
-      CHARACTER*80 KEYWRD, CONTRL
-      LOGICAL FIRST, DEBUG, LOWER
-      DATA CONST/MAXPAR*1.D0/, FIRST /.TRUE./
+      CHARACTER*241 KEYWRD, CONTRL
+      SAVE XMAXM, SCALE,  KEYWRD, EPS, DEBUG, TEE, YMAXST, XCRIT
+      SAVE MXCNT2, IPRINT, CONST
+      LOGICAL  DEBUG, LOWER
+      DATA CONST/MAXPAR*1.D0/
+      DATA ICALCN/0/
 ************************************************************************
 *
 *    LOCMIN IS CALLED BY NLLSQ ONLY. IT IS A LINE-SEARCH PROCEDURE FOR
@@ -17,8 +21,8 @@
 *    FOR MORE DETAILS
 *
 ************************************************************************
-      IF(FIRST) THEN
-         FIRST=.FALSE.
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
          XMAXM=1.D9
          SCALE=1.D0
          KEYWRD=CONTRL

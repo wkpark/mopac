@@ -11,16 +11,19 @@
 ************************************************************************
       COMMON /EULER / TVEC(3,3), ID
       COMMON /UCELL / L1L,L2L,L3L,L1U,L2U,L3U
+      COMMON /NUMCAL/ NUMCAL
       DIMENSION WSUM(100), WBITS(100), LIMS(3,2), XJUC(3), E1BITS(10),
      1E2BITS(10), WMAX(100)
-      LOGICAL FIRST
+      SAVE ICALCN
       EQUIVALENCE (L1L,LIMS(1,1))
-      DATA FIRST/.TRUE./
-      IF(FIRST)THEN
-         FIRST=.FALSE.
+      DATA ICALCN/0/
+      IF(ICALCN.NE.NUMCAL)THEN
+         ICALCN=NUMCAL
+C$DOIT ASIS
          DO 10 I=1,ID
             LIMS(I,1)=-1
    10    LIMS(I,2)= 1
+C$DOIT ASIS
          DO 20 I=ID+1,3
             LIMS(I,1)=0
    20    LIMS(I,2)=0
@@ -32,7 +35,6 @@
          WMAX(I)=0.D0
          WSUM(I)=0.D0
    30 WBITS(I)=0.D0
-      NEQUAL=1
       DO 40 I=1,10
          E1B(I)=0.D0
    40 E2A(I)=0.D0
@@ -40,6 +42,7 @@
       DO 90 I=L1L,L1U
          DO 90 J=L2L,L2U
             DO 90 K=L3L,L3U
+C$DOIT ASIS
                DO 50 L=1,3
    50          XJUC(L)=XJ(L)+TVEC(L,1)*I+TVEC(L,2)*J+TVEC(L,3)*K
                KB=1

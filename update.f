@@ -1,4 +1,4 @@
-      SUBROUTINE UPDATE(IPARAM, IELMNT, PARAM, MODE,KFN)
+      SUBROUTINE UPDATE(IPARAM, IELMNT, PARAM, KFN)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 ************************************************************************
 *
@@ -7,8 +7,6 @@
 *         IPARAM REFERS TO THE TYPE OF PARAMETER,
 *         IELMNT REFERS TO THE ELEMENT,
 *         PARAM IS THE VALUE OF THE PARAMETER, AND
-*         IF MODE = 1 THEN A COMMON BLOCK IS UPDATED,
-*         IF MODE = 2 THEN A DATUM IS EXTRACTED FROM THE COMMON BLOCK.
 *
 ************************************************************************
       COMMON /MNDO/  USSM(107), UPPM(107), UDDM(107), ZSM(107),ZPM(107),

@@ -13,12 +13,11 @@
       COMMON /NATORB/ NATORB(107)
       COMMON /ALPHA3/ ALP3(153)
       COMMON /KEYWRD/ KEYWRD
-      CHARACTER*80 KEYWRD
-      LOGICAL FIRST, MINDO3
-      DATA FIRST/.TRUE./
-      IF(FIRST)THEN
-         FIRST=.TRUE.
-         MINDO3=(INDEX(KEYWRD,'MINDO').NE.0)
+      COMMON /NUMCAL/ NUMCAL
+      CHARACTER*241 KEYWRD
+      DATA ICALCN/0/
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
       ENDIF
       A0=0.529167D0
       TERM=(27.21D0*DEL1)/(RR*A0*A0)
@@ -132,9 +131,6 @@ C   HEAVY ATOM-HEAVY ATOM
      1       -2.D0*(RR-QA)/(SQRT((RR-QA)**2+(QA-DB)**2+AQD))**3
      2       -2.D0*(RR+QA)/(SQRT((RR+QA)**2+(QA+DB)**2+AQD))**3
      3       +2.D0*(RR-QA)/(SQRT((RR-QA)**2+(QA+DB)**2+AQD))**3
-      QXYQXY=-(4.D0*RR)/(SQRT(RR**2+2.D0*(QA-QB)**2+AQQ))**3
-     1       -(4.D0*RR)/(SQRT(RR**2+2.D0*(QA+QB)**2+AQQ))**3
-     2       +(8.D0*RR)/(SQRT(RR**2+2.D0*(QA**2+QB**2)+AQQ))**3
       QXZQXZ=-2.D0*(RR+QA-QB)/(SQRT((RR+QA-QB)**2+(QA-QB)**2+AQQ))**3
      1       +2.D0*(RR+QA+QB)/(SQRT((RR+QA+QB)**2+(QA-QB)**2+AQQ))**3
      2       +2.D0*(RR-QA-QB)/(SQRT((RR-QA-QB)**2+(QA-QB)**2+AQQ))**3

@@ -19,6 +19,7 @@
       DIMENSION XYZ(3,NUMATM), IROT(5,35), ISP(9)
       CHARACTER * 6 LINE(21)
       CHARACTER ELEMNT*2,ATORBS(9)*7,ITEXT(MAXORB)*7,JTEXT(MAXORB)*2
+      SAVE ATORBS, IROT, ISP
       DATA ATORBS/'S-SIGMA','P-SIGMA','  P-PI ','  P-PI ','D-SIGMA',
      1            '  D-PI ','  D-PI ',' D-DELL',' D-DELL'/
 ***********************************************************************

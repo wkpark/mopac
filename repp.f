@@ -45,8 +45,8 @@ C***********************************************************************
       COMMON /NATORB/ NATORB(107)
       DIMENSION RI(22),CORE(4,2)
       DIMENSION ARG(72),SQR(72)
-      DATA  OD/1.D00/, TD/2.D00/, FD/4.D00/, ED/8.D0/
-      DATA PP/0.5D00/, P2/0.25D00/, P3/0.125D00/, P4/0.0625D00/
+      DATA  TD/2.D00/
+      DATA PP/0.5D00/
       DATA A0/0.529167D0/ ,EV/27.21D0/, EV1/13.605D0/, EV2/6.8025D0/,
      1 EV3/3.40125D0/, EV4/1.700625D0/
 C
@@ -92,6 +92,7 @@ C
          ARG(5) = XXX*XXX + AQE
          ARG(6) = RSQ + AQE
          ARG(7) = ARG(6) + QA*QA
+C$DOIT ASIS
          DO 10 I = 1,7
             SQR(I) = SQRT(ARG(I))
    10    CONTINUE
@@ -130,6 +131,7 @@ C
          ARG(5) = XXX*XXX + AEQ
          ARG(6) = RSQ + AEQ
          ARG(7) = ARG(6) + QB*QB
+C$DOIT ASIS
          DO 20 I = 1,7
             SQR(I) = SQRT(ARG(I))
    20    CONTINUE
@@ -342,7 +344,6 @@ C
      2       + EV2/SQR(36)
          DXQXZ = -EV2/SQR(54) + EV2/SQR(55) + EV2/SQR(56) - EV2/SQR(57)
          QXZDX = -EV2/SQR(58) + EV2/SQR(59) + EV2/SQR(60) - EV2/SQR(61)
-         QXYQXY = EV2/SQR(62) + EV2/SQR(63) - EV1/SQR(64)
          QXZQXZ = EV3/SQR(65) - EV3/SQR(67) - EV3/SQR(69) + EV3/SQR(71)
      1       - EV3/SQR(66) + EV3/SQR(68) + EV3/SQR(70) - EV3/SQR(72)
          RI(1) = EE

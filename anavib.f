@@ -7,10 +7,11 @@
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
       COMMON /ELEMTS/ ELEMNT(107)
-      LOGICAL VIB1, VIB2, VIB3, VIB4, VIB5
+      LOGICAL VIB1, VIB2, VIB3, VIB4
       COMMON /FOKMAT/ F(MPACK*2)
       CHARACTER*2 ELEMNT
       DIMENSION VANRAD(107), IJF(10), FIJ(10)
+      SAVE VANRAD
       DATA VANRAD/
      1   0.32,0.93,
      2   1.23, 0.90, 0.82, 0.77, 0.75, 0.73, 0.72, 0.71,
@@ -24,8 +25,6 @@
      1   1.57, 1.56, 1.56, 1.56,
      2   1.44, 1.34, 1.30, 1.28, 1.26, 1.27, 1.30, 1.34,
      3   1.49, 1.48, 1.47, 1.46, 1.46, 1.45,1.45,21*1.45/
-      DATA FACT/6.023D23/
-      C2PI=1.D0/(2.998D10*3.141592653598D0*2.D0)
       N3=NUMAT*3
 C
 C    COMPUTE INTERATOMIC DISTANCES.
@@ -48,7 +47,6 @@ C
          VIB2=.TRUE.
          VIB3=.TRUE.
          VIB4=.TRUE.
-         VIB5=.TRUE.
          J3=0
          L=0
          TOT=0.D0
@@ -128,7 +126,7 @@ C#      WRITE(6,*)FIJ(I),IJF(I)
             Y= VIBS(J2,K)-VIBS(I2,K)
             Z= VIBS(J3,K)-VIBS(I3,K)
             E=FIJ(IJ)*SUM*100.D0
-            IF(ABS(E).GT.110)GOTO 120
+C#            IF(ABS(E).GT.110)GOTO 120
             SHIFT=X*X+Y*Y+Z*Z+1.D-30
             IF(ABS(E) .GT. 10.D0.OR.IJ.LT.5.AND.ABS(E).GT.0.1) THEN
                SHIFT=SQRT(SHIFT)

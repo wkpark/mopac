@@ -1,20 +1,19 @@
-
 C
 C         Notice of Public Domain nature of this Program
 C
-C      'This computer program is a work of the United States 
-C       Government and as such is not subject to protection by 
-C       copyright (17 U.S.C. # 105.)  Any person who fraudulently 
-C       places a copyright notice or does any other act contrary 
-C       to the provisions of 17 U.S. Code 506(c) shall be subject 
-C       to the penalties provided therein.  This notice shall not 
-C       be altered or removed from this software and is to be on 
+C      'This computer program is a work of the United States
+C       Government and as such is not subject to protection by
+C       copyright (17 U.S.C. # 105.)  Any person who fraudulently
+C       places a copyright notice or does any other act contrary
+C       to the provisions of 17 U.S. Code 506(c) shall be subject
+C       to the penalties provided therein.  This notice shall not
+C       be altered or removed from this software and is to be on
 C       all reproductions.'
 C
-      FUNCTION AABABC(IOCCA1, IOCCB1, IOCCA2, IOCCB2, NMOS)
+      FUNCTION AABABC(IOCCA1, IOCCB1, IOCCA2, NMOS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION IOCCA1(NMOS), IOCCB1(NMOS), IOCCA2(NMOS), IOCCB2(NMOS)
+      DIMENSION IOCCA1(NMOS), IOCCB1(NMOS), IOCCA2(NMOS)
 ***********************************************************************
 *
 * AABABC EVALUATES THE C.I. MATRIX ELEMENT FOR TWO MICROSTATES DIFFERING
@@ -34,7 +33,8 @@ C
       DO 50 K=1,NMOS
    50 SUM=SUM+ (XY(I,J,K,K)-XY(I,K,J,K))*(IOCCA1(K)-OCCA(K)) +
      1          XY(I,J,K,K)             *(IOCCB1(K)-OCCA(K))
-      AABABC=SUM*((-1)**(IJ-(IJ/2)*2))
+      IF(MOD(IJ,2).EQ.1)SUM=-SUM
+      AABABC=SUM
       RETURN
       END
       FUNCTION AABBCD(IOCCA1, IOCCB1, IOCCA2, IOCCB2, NMOS)
@@ -100,7 +100,8 @@ C
 C
 C   IJ IN THE PERMUTATION NUMBER, .EQUIV. -1 IF IJ IS ODD.
 C
-      AABBCD=XR*((-1)**(IJ-(IJ/2)*2))
+      IF(MOD(IJ,2).EQ.1)XR=-XR
+      AABBCD=XR
       RETURN
       END
       FUNCTION AABACD(IOCCA1, IOCCB1, IOCCA2, IOCCB2, NMOS)
@@ -128,13 +129,15 @@ C
          IF(IOCCA1(L) .GT. IOCCA2(L)) GOTO 80
    70 IJ=IJ+IOCCA1(L)+IOCCB1(L)
    80 IJ=IJ+IOCCB2(I)+IOCCB1(K)
-      AABACD=(XY(I,K,J,L)-XY(I,L,K,J))*((-1)**(IJ-(IJ/2)*2))
+      SUM=(XY(I,K,J,L)-XY(I,L,K,J))
+      IF(MOD(IJ,2).EQ.1)SUM=-SUM
+      AABACD=SUM
       RETURN
       END
-      FUNCTION BABBBC(IOCCA1, IOCCB1, IOCCA2, IOCCB2, NMOS)
+      FUNCTION BABBBC(IOCCA1, IOCCB1, IOCCB2, NMOS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION IOCCA1(NMOS), IOCCB1(NMOS), IOCCA2(NMOS), IOCCB2(NMOS)
+      DIMENSION IOCCA1(NMOS), IOCCB1(NMOS), IOCCB2(NMOS)
 ***********************************************************************
 *
 * BABBBC EVALUATES THE C.I. MATRIX ELEMENT FOR TWO MICROSTATES DIFFERING
@@ -157,7 +160,8 @@ C   THE UNPAIRED M.O.S ARE I AND J
       DO 50 K=1,NMOS
    50 SUM=SUM+ (XY(I,J,K,K)-XY(I,K,J,K))*(IOCCB1(K)-OCCA(K)) +
      1          XY(I,J,K,K)             *(IOCCA1(K)-OCCA(K))
-      BABBBC=SUM*((-1)**(IJ-(IJ/2)*2))
+      IF(MOD(IJ,2).EQ.1)SUM=-SUM
+      BABBBC=SUM
       RETURN
       END
       FUNCTION BABBCD(IOCCA1, IOCCB1, IOCCA2, IOCCB2, NMOS)

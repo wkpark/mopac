@@ -17,25 +17,29 @@ C
 C***********************************************************************
       COMMON /KEYWRD/ KEYWRD
       COMMON /EULER / TVEC(3,3), ID
-      COMMON /MOLMEC/ HTYPE(4),NHCO(4,20),NNHCO,ITYPE,USEMM
+      COMMON /MOLMEC/ HTYPE(4),NHCO(4,20),NNHCO,ITYPE
       COMMON /UCELL / L1L,L2L,L3L,L1U,L2U,L3U
       COMMON /DCARTC/ K1L,K2L,K3L,K1U,K2U,K3U
-      CHARACTER*80 KEYWRD
+      COMMON /NUMCAL/ NUMCAL
+      CHARACTER*241 KEYWRD
       DIMENSION PDI(171),PADI(171),PBDI(171),
      1CDI(3,2),NDI(2),LSTOR1(6), LSTOR2(6), ENG(3)
-      LOGICAL DEBUG, FIRST, FORCE, MAKEP, ANADER, USEMM
+      LOGICAL DEBUG, FORCE, MAKEP, ANADER, LARGE
       EQUIVALENCE (LSTOR1(1),L1L), (LSTOR2(1), K1L)
-      DATA CHNGE,CHNGE2 /1.D-4,5.D-5/
+      SAVE CHNGE, CHNGE2, ANADER, DEBUG, FORCE
+      DATA ICALCN/0/
+      DATA CHNGE /1.D-4/
+      CHNGE2=CHNGE*0.5D0
 *
 * CHNGE IS A MACHINE-PRECISION DEPENDENT CONSTANT
 * CHNGE2=CHNGE/2
 *
-      DATA FIRST/.TRUE./
-      IF (FIRST) THEN
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
+         LARGE = (INDEX(KEYWRD,'LARGE') .NE. 0)
          ANADER= (INDEX(KEYWRD,'ANALYT') .NE. 0)
          DEBUG = (INDEX(KEYWRD,'DCART') .NE. 0)
-         FORCE = (INDEX(KEYWRD,'PRECISE')+INDEX(KEYWRD,'FORCE') .NE. 0)
-         FIRST = .FALSE.
+         FORCE = (INDEX(KEYWRD,'PREC')+INDEX(KEYWRD,'FORCE') .NE. 0)
       ENDIF
       NCELLS=(L1U-L1L+1)*(L2U-L2L+1)*(L3U-L3L+1)
       DO 10 I=1,6
@@ -47,7 +51,6 @@ C***********************************************************************
          DO 20 J=1,3
    20 DXYZ(J,I)=0.D0
       IF(ANADER) REWIND 2
-      KREP=0
       DO 130 II=1,NUMAT
          III=NCELLS*(II-1)+IOFSET
          IM1=II
@@ -70,6 +73,7 @@ C   GET FIRST ATOM
                DO 120 JK=K2L,K2U
                   DO 120 KL=K3L,K3U
                      JJJ=JJJ+1
+                     KKK=KKK-1
                      DO 40 L=1,3
    40                CDI(L,1)=COORD(L,JJ)+TVEC(L,1)*IK+TVEC(L,2)*JK+TVEC
      1(L,3)*KL
@@ -106,41 +110,41 @@ C GET SECOND ATOM FIRST ATOM INTERSECTION
                      IF(II.EQ.JJ) GOTO  120
                      IF(ANADER)THEN
                         CALL ANALYT(PDI,PADI,PBDI,CDI,NDI,JF,JL,IF,IL
-     1,                 NORBS,ENG,KREP)
+     1,                 ENG)
                         DO 100 K=1,3
-                           DXYZ(K,III)=DXYZ(K,III)+ENG(K)
-  100                   DXYZ(K,JJJ)=DXYZ(K,JJJ)-ENG(K)
+                           DXYZ(K,III)=DXYZ(K,III)-ENG(K)
+  100                   DXYZ(K,JJJ)=DXYZ(K,JJJ)+ENG(K)
                      ELSE
                         IF( .NOT. FORCE) THEN
                            CDI(1,1)=CDI(1,1)+CHNGE2
                            CDI(2,1)=CDI(2,1)+CHNGE2
                            CDI(3,1)=CDI(3,1)+CHNGE2
                            CALL DHC(PDI,PADI,PBDI,CDI,NDI,JF,JM,JL,IF,IM
-     1,IL,                 NORBS,AA)
+     1,IL,                 AA,1)
                         ENDIF
                         DO 110 K=1,3
                            IF( FORCE )THEN
                               CDI(K,2)=CDI(K,2)-CHNGE2
                               CALL DHC(PDI,PADI,PBDI,CDI,NDI,JF,JM,JL,IF
-     1,IM,IL,                 NORBS,AA)
+     1,IM,IL,                 AA,1)
                            ENDIF
                            CDI(K,2)=CDI(K,2)+CHNGE
                            CALL DHC(PDI,PADI,PBDI,CDI,NDI,JF,JM,JL,IF,IM
-     1,IL,                 NORBS,EE)
+     1,IL,                 EE,2)
                            CDI(K,2)=CDI(K,2)-CHNGE2
                            IF( .NOT. FORCE) CDI(K,2)=CDI(K,2)-CHNGE2
-                           DERIV=(AA-EE)*46.122D0/CHNGE
-                           DXYZ(K,III)=DXYZ(K,III)+DERIV
-                           DXYZ(K,JJJ)=DXYZ(K,JJJ)-DERIV
+                           DERIV=(AA-EE)*23.061D0/CHNGE
+                           DXYZ(K,III)=DXYZ(K,III)-DERIV
+                           DXYZ(K,JJJ)=DXYZ(K,JJJ)+DERIV
   110                   CONTINUE
                      ENDIF
   120       CONTINUE
   130 CONTINUE
-      IF(USEMM)THEN
+      IF(NNHCO.NE.0)THEN
 C
 C   NOW ADD IN MOLECULAR-MECHANICS CORRECTION TO THE H-N-C=O TORSION
 C
-         DEL=1.D-5
+         DEL=1.D-8
          DO 160 I=1,NNHCO
             DO 150 J=1,4
                DO 140 K=1,3
@@ -153,8 +157,8 @@ C
      1I),ANGLE)
                   COORD(K,NHCO(J,I))=COORD(K,NHCO(J,I))-DEL
                   HEAT=HTYPE(ITYPE)*SIN(ANGLE)**2
-                  SUM=(REFH-HEAT)/DEL
-                  DXYZ(K,NHCO(J,I))=DXYZ(K,NHCO(J,I))+SUM
+                  SUM=(REFH-HEAT)/(2.D0*DEL)
+                  DXYZ(K,NHCO(J,I))=DXYZ(K,NHCO(J,I))-SUM
   140          CONTINUE
   150       CONTINUE
   160    CONTINUE
@@ -163,14 +167,22 @@ C
   170 LSTOR1(I)=LSTOR2(I)
       IF (  .NOT. DEBUG) RETURN
       WRITE(6,'(//10X,''CARTESIAN COORDINATE DERIVATIVES'',//3X,
-     1''ATOM  AT. NO.'',5X,''X'',12X,''Y'',12X,''Z'',/)')
-      WRITE(6,'(2I6,F13.6,2F13.6)')
+     1''NUMBER  ATOM '',5X,''X'',12X,''Y'',12X,''Z'',/)')
+      IF(NCELLS.EQ.1)THEN
+         WRITE(6,'(2I6,F13.6,2F13.6)')
+     1 (I,NAT(I),(DXYZ(J,I),J=1,3),I=1,NUMTOT)
+      ELSEIF(LARGE)THEN
+         WRITE(6,'(2I6,F13.6,2F13.6)')
      1 (I,NAT((I-1)/NCELLS+1),(DXYZ(J,I),J=1,3),I=1,NUMTOT)
+      ELSE
+         WRITE(6,'(2I6,F13.6,2F13.6)')
+     1 (I,NAT((I-1)/NCELLS+1),(DXYZ(J,I)+DXYZ(J,I+1)+DXYZ(J,I+2)
+     2,J=1,3),I=1,NUMTOT,3)
+      ENDIF
       IF (ANADER) REWIND 2
       RETURN
       END
-      SUBROUTINE DHC (P,PA,PB,XI,NAT,IF,IM,IL,JF,JM,JL,
-     1NORBS,DENER)
+      SUBROUTINE DHC (P,PA,PB,XI,NAT,IF,IM,IL,JF,JM,JL,DENER,MODE)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION P(*), PA(*), PB(*)
       DIMENSION XI(3,*),NFIRST(2),NMIDLE(2),NLAST(2),NAT(*)
@@ -184,10 +196,13 @@ C***********************************************************************
      1       /ONELEC/ USS(107),UPP(107),UDD(107)
       COMMON /EULER / TVEC(3,3), ID
       COMMON /NUMCAL/ NUMCAL
-      CHARACTER*80 KEYWRD
-      LOGICAL UHF
+      SAVE ICALCN, WLIM, UHF
+      CHARACTER*241 KEYWRD
+      LOGICAL UHF, CUTOFF
       DIMENSION H(171), SHMAT(9,9), F(171),
-     1          WJ(100), E1B(10), E2A(10), WK(100), W(100)
+     1          WJ(100), E1B(10), E2A(10), WK(100), W(100),
+     2          WJS(100), WKS(100)
+      DOUBLE PRECISION WJS, WKS
       DATA ICALCN /0/
       IF( ICALCN.NE.NUMCAL) THEN
          ICALCN=NUMCAL
@@ -213,7 +228,6 @@ C***********************************************************************
       IA=NFIRST(1)
       IB=NLAST(1)
       IC=NMIDLE(1)
-      JT=JB*(JB+1)/2
       J=2
       I=1
       NJ=NAT(2)
@@ -243,44 +257,49 @@ C***********************************************************************
       ELSE
          CALL SOLROT (NJ,NI,XI(1,2),XI(1,1),WJ,WK,KR,E2A,E1B,ENUCLR,100.
      1D0)
-      ENDIF
-      IF(WJ(1).LT.WLIM)THEN
-         DO 50 I=1,KR-1
-   50    WK(I)=0.D0
+      IF(MODE.EQ.1)CUTOFF=(WJ(1).LT.WLIM)
+         IF(CUTOFF)THEN
+            DO 50 I=1,KR-1
+   50       WK(I)=0.D0
+         ENDIF
+         DO 60 I=1,KR-1
+            WJS(I)=WJ(I)
+            WKS(I)=WK(I)
+   60    CONTINUE
       ENDIF
 C
 C    * ENUCLR IS SUMMED OVER CORE-CORE REPULSION INTEGRALS.
 C
       I2=0
-      DO 60 I1=IA,IC
+      DO 70 I1=IA,IC
          II=I1*(I1-1)/2+IA-1
-         DO 60 J1=IA,I1
+         DO 70 J1=IA,I1
             II=II+1
             I2=I2+1
             H(II)=H(II)+E1B(I2)
-   60 F(II)=F(II)+E1B(I2)
-      DO  70 I1=IC+1,IB
+   70 F(II)=F(II)+E1B(I2)
+      DO  80 I1=IC+1,IB
          II=(I1*(I1+1))/2
          F(II)=F(II)+E1B(1)
-   70 H(II)=H(II)+E1B(1)
+   80 H(II)=H(II)+E1B(1)
       I2=0
-      DO 80 I1=JA,JC
+      DO 90 I1=JA,JC
          II=I1*(I1-1)/2+JA-1
-         DO 80 J1=JA,I1
+         DO 90 J1=JA,I1
             II=II+1
             I2=I2+1
             H(II)=H(II)+E2A(I2)
-   80 F(II)=F(II)+E2A(I2)
-      DO 90 I1=JC+1,JB
+   90 F(II)=F(II)+E2A(I2)
+      DO 100 I1=JC+1,JB
          II=(I1*(I1+1))/2
          F(II)=F(II)+E2A(1)
-   90 H(II)=H(II)+E2A(1)
-      CALL FOCK2D(F,P,PA,W, WJ, WK,2,NFIRST,NMIDLE,NLAST)
+  100 H(II)=H(II)+E2A(1)
+      CALL FOCK2(F,P,PA,W, WJS, WKS,2,NFIRST,NMIDLE,NLAST)
       EE=HELECT(NLAST(2),PA,H,F)
       IF( UHF ) THEN
-         DO 100 I=1,LINEAR
-  100    F(I)=H(I)
-         CALL FOCK2D(F,P,PB,W, WJ, WK,2,NFIRST,NMIDLE,NLAST)
+         DO 110 I=1,LINEAR
+  110    F(I)=H(I)
+         CALL FOCK2(F,P,PB,W, WJS, WKS,2,NFIRST,NMIDLE,NLAST)
          EE=EE+HELECT(NLAST(2),PB,H,F)
       ELSE
          EE=EE*2.D0

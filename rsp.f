@@ -23,42 +23,36 @@ C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
 C
 C     ------------------------------------------------------------------
 C
-      DIMENSION FV1(MAXORB),FV2(MAXORB)
+      DIMENSION FV1(MAXHEV*4+MAXLIT*3),FV2(MAXHEV*4+MAXLIT*3)
+      SAVE FIRST, EPS, ETA, NV
       LOGICAL FIRST
       DATA FIRST /.TRUE./
       IF (FIRST) THEN
          FIRST=.FALSE.
          CALL EPSETA(EPS,ETA)
-         NV=(MAXORB*(MAXORB+1))/2
       ENDIF
+      NV=(N*(N+1))/2
       NM=N
-      IF (N .LE. NM) GO TO 10
-      IERR = 10 * N
-      GO TO 60
-   10 IF (NV .GE. (N * (N + 1)) / 2) GO TO 20
-      IERR = 20 * N
-      GO TO 60
-C
-   20 CALL  TRED3(N,NV,A,W,FV1,FV2,EPS,EPS)
-      IF (MATZ .NE. 0) GO TO 30
+      CALL  TRED3(N,NV,A,W,FV1,FV2,EPS,EPS)
+      IF (MATZ .NE. 0) GO TO 10
 C     ********** FIND EIGENVALUES ONLY **********
       CALL  TQLRAT(N,W,FV2,IERR,EPS)
-      GO TO 60
+      GO TO 40
 C     ********** FIND BOTH EIGENVALUES AND EIGENVECTORS **********
-   30 DO 50    I = 1, N
+   10 DO 30    I = 1, N
 C
-         DO 40    J = 1, N
+         DO 20    J = 1, N
             Z(J,I)=0.0D0
-   40    CONTINUE
+   20    CONTINUE
 C
          Z(I,I)=1.0D0
-   50 CONTINUE
+   30 CONTINUE
 C
       CALL  TQL2(NM,N,W,FV1,Z,IERR,EPS)
-      IF (IERR .NE. 0) GO TO 60
-      CALL  TRBAK3(NM,N,NV,A,N,Z,EPS)
+      IF (IERR .NE. 0) GO TO 40
+      CALL  TRBAK3(NM,N,NV,A,N,Z)
 C     ********** LAST CARD OF RSP **********
-   60 RETURN
+   40 RETURN
       END
       SUBROUTINE EPSETA(EPS,ETA)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -380,7 +374,7 @@ C                EIGENVALUE AFTER 30 ITERATIONS **********
   140 RETURN
 C     ********** LAST CARD OF TQLRAT **********
       END
-      SUBROUTINE TRBAK3(NM,N,NV,A,M,Z,EPS)
+      SUBROUTINE TRBAK3(NM,N,NV,A,M,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C               ===== PROCESSED BY AUGMENT, VERSION 4N =====
 C     APPROVED FOR VAX 11/780 ON MAY 6,1980.  J.D.NEECE
@@ -513,7 +507,6 @@ C
 C     ------------------------------------------------------------------
 C
 C     ********** FOR I=N STEP -1 UNTIL 1 DO -- **********
-      TOL=ETA/EPS
       DO 100   II = 1, N
          I = N + 1 - II
          L = I - 1

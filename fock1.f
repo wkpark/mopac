@@ -14,18 +14,11 @@ C *********************************************************************
      1       /MOLORB/ USPD(MAXORB),DUMY(MAXORB)
       COMMON /TWOELE/ GSS(107),GSP(107),GPP(107),GP2(107),HSP(107)
      1                ,GSD(107),GPD(107),GDD(107)
-      DIMENSION QTOT(NUMATM), QA(NUMATM), QB(NUMATM)
+      DIMENSION QTOT(NUMATM), QA(NUMATM)
       COMMON /KEYWRD/ KEYWRD
-      CHARACTER*80 KEYWRD
-      LOGICAL FIRST
-      DATA FIRST /.TRUE./
-      IF(FIRST)THEN
-         FIRST=.FALSE.
-      ENDIF
+      CHARACTER*241 KEYWRD
       CALL CHRGE(PTOT,QTOT)
       CALL CHRGE(PA,QA)
-      DO 10 I=1,NUMAT
-   10 QB(I)=QTOT(I)-QA(I)
       DO 100 II=1,NUMAT
          IA=NFIRST(II)
          IB=NMIDLE(II)
@@ -46,9 +39,7 @@ C *********************************************************************
      1        +PTOT(((IB-2)*(IB-1))/2)
          PAPOP=PA((IB*(IB+1))/2)+PA(((IB-1)*(IB))/2)
      1        +PA(((IB-2)*(IB-1))/2)
-   40    DBPOP=DTPOP-DAPOP
-         PBPOP=PTPOP-PAPOP
-         IF(NI.EQ.1)THEN
+   40    IF(NI.EQ.1)THEN
             SUM=0.D0
          ELSE
             SUM2=0.D0

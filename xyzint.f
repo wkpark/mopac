@@ -24,12 +24,10 @@
 *
 ***********************************************************************
       COMMON /GEOOK/ IGEOOK
-      LOGICAL FIRST
-      DATA FIRST/.TRUE./
+      COMMON /NUMCAL/ NUMCAL
+      DATA ICALCN/0/
       IGEOOK=99
-      NAI1=0
-      NAI2=0
-      IF(.NOT.FIRST.AND.NA(2).EQ.-1)THEN
+      IF(.NOT.(ICALCN.NE.NUMCAL).AND.NA(2).EQ.-1)THEN
          NA(2)=1
          DO 10 I=2,NUMAT
             J=NA(I)
@@ -40,7 +38,7 @@
      2          (XYZ(3,I)-XYZ(3,J))**2)
    10    CONTINUE
       ELSE
-         IF(NA(2).EQ.-1)FIRST=.FALSE.
+         IF(NA(2).EQ.-1)ICALCN=NUMCAL
          DO 30 I=1,NUMAT
             NA(I)=2
             NB(I)=3
@@ -205,7 +203,7 @@ C      ROTATE AROUND Z AXIS TO PUT KJ ALONG Y AXIS
       DDD=1.0D0-COSA**2
       IF(DDD.LE.0.0) GO TO 10
       YXDIST=DIST* SQRT(DDD)
-      IF(YXDIST.GT.1.0D-9) GO TO 20
+      IF(YXDIST.GT.1.0D-6) GO TO 20
    10 CONTINUE
       XI2=XI1
       XL2=XL1
@@ -217,7 +215,6 @@ C      ROTATE AROUND Z AXIS TO PUT KJ ALONG Y AXIS
    20 COSPH=YJ1/YXDIST
       SINPH=XJ1/YXDIST
       XI2=XI1*COSPH-YI1*SINPH
-      XJ2=XJ1*COSPH-YJ1*SINPH
       XL2=XL1*COSPH-YL1*SINPH
       YI2=XI1*SINPH+YI1*COSPH
       YJ2=XJ1*SINPH+YJ1*COSPH
@@ -241,7 +238,6 @@ C      ROTATE KJ AROUND THE X AXIS SO KJ LIES ALONG THE Z AXIS
 *          AND (B1,B2).  THE RESULT IS PUT IN RCOS.
 *
 **********************************************************************
-      PI=2.0D0* ASIN(1.0D00)
       ZERO=1.0D-6
       IF( ABS(A1).LT.ZERO.AND. ABS(A2).LT.ZERO) GO TO 10
       IF( ABS(B1).LT.ZERO.AND. ABS(B2).LT.ZERO) GO TO 10

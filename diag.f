@@ -66,6 +66,7 @@ C
       TINY=0.D0
       LUMO=NOCC+1
       IJ=0
+C#      CALL TIMER('SQUARING')
       DO 60 I=LUMO,N
          KK=0
          DO 30 J=1,N
@@ -88,12 +89,13 @@ C
             IF(TINY.LT.ABS(SUM)) TINY=ABS(SUM)
    50    FMO(IJ)=SUM
    60 CONTINUE
-      TINY=0.04D0*TINY
+      TINY=0.05D0*TINY
 C***********************************************************************
 C
 C   NOW DO A CRUDE 2 BY 2 ROTATION TO "ELIMINATE" SIGNIFICANT ELEMENTS
 C
 C***********************************************************************
+C#      CALL TIMER('ROTATING')
       IJ=0
       DO 90 I=LUMO,N
          DO 80 J=1,NOCC
@@ -111,10 +113,10 @@ C    USE BIGEPS TO DETERMINE WHETHER TO DO A 2 BY 2 ROTATION
 C
             IF(ABS(C/D).LT.BIGEPS) GOTO 80
 C
-C  AT THIS POINT WE KNOW THAT 
-               E=SIGN(SQRT(4.D0*C*C+D*D),D)
-               ALPHA=SQRT(0.5D0*(1.D0+D/E))
-               BETA=-SIGN(SQRT(1.D0-ALPHA*ALPHA),C)
+C  AT THIS POINT WE KNOW THAT
+            E=SIGN(SQRT(4.D0*C*C+D*D),D)
+            ALPHA=SQRT(0.5D0*(1.D0+D/E))
+            BETA=-SIGN(SQRT(1.D0-ALPHA*ALPHA),C)
 C
 C      ROTATION OF PSEUDO-EIGENVECTORS
 C
@@ -126,5 +128,6 @@ C
    70       CONTINUE
    80    CONTINUE
    90 CONTINUE
+C#      CALL TIMER('RETURNING')
       RETURN
       END

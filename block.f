@@ -7,20 +7,19 @@
 *
 ***********************************************************************
       COMMON /ELEMTS/ ELEMNT(107)
-     1       /ALPHA / ALP(107)
-     2       /CORE  / CORE(107)
-     3       /MULTIP/ DD(107),QQ(107),AM(107),AD(107),AQ(107)
-     4       /EXPONT/ ZS(107),ZP(107),ZD(107)
-     5       /ONELEC/ USS(107),UPP(107),UDD(107)
-     6       /BETAS / BETAS(107),BETAP(107),BETAD(107)
-     7       /TWOELE/ GSS(107),GSP(107),GPP(107),GP2(107),HSP(107),
-     8                GSD(107),GPD(107),GDD(107)
-     9       /ATOMIC/ EISOL(107),EHEAT(107)
-     1       /VSIPS / VS(107),VP(107),VD(107)
-     2       /ISTOPE/ AMS(107)
-     3       /IDEAS / GUESS1(107,10),GUESS2(107,10),GUESS3(107,10)
-     4       /IDEAP / GUESP1(107,10),GUESP2(107,10),GUESP3(107,10)
-     5       /GAUSS / FN1(107),FN2(107)
+     1       /CORE  / CORE(107)
+     2       /MULTIP/ DD(107),QQ(107),AM(107),AD(107),AQ(107)
+     3       /EXPONT/ ZS(107),ZP(107),ZD(107)
+     4       /ONELEC/ USS(107),UPP(107),UDD(107)
+     5       /BETAS / BETAS(107),BETAP(107),BETAD(107)
+     6       /TWOELE/ GSS(107),GSP(107),GPP(107),GP2(107),HSP(107),
+     7                GSD(107),GPD(107),GDD(107)
+     8       /ATOMIC/ EISOL(107),EHEAT(107)
+     9       /VSIPS / VS(107),VP(107),VD(107)
+     1       /ISTOPE/ AMS(107)
+     2       /IDEAA / GUESA1(107,10),GUESA2(107,10),GUESA3(107,10)
+     3       /IDEAP / GUESP1(107,10),GUESP2(107,10),GUESP3(107,10)
+     4       /GAUSS / FN1(107),FN2(107)
 ***********************************************************************
 *
 *     COMMON BLOCKS FOR MNDO
@@ -31,15 +30,32 @@
      2ALPM(107), EISOLM(107), DDM(107), QQM(107), AMM(107), ADM(107),
      3AQM(107) ,GSSM(107), GSPM(107), GPPM(107), GP2M(107), HSPM(107),
      4POLVOM(107)
+***********************************************************************
+*
+*     COMMON BLOCKS FOR PM3
+*
+***********************************************************************
       COMMON /PM3 /  USSPM3(107), UPPPM3(107), UDDPM3(107), ZSPM3(107),
      1ZPPM3(107), ZDPM3(107), BETASP(107), BETAPP(107), BETADP(107),
      2ALPPM3(107), EISOLP(107), DDPM3(107), QQPM3(107), AMPM3(107),
      3ADPM3(107), AQPM3(107) ,GSSPM3(107), GSPPM3(107), GPPPM3(107),
      4GP2PM3(107), HSPPM3(107),POLVOP(107)
+***********************************************************************
+*
+*     COMMON BLOCKS FOR AM1
+*
+***********************************************************************
+      COMMON /AM1BLO/USSAM1(107), UPPAM1(107), UDDAM1(107), ZSAM1(107),
+     1ZPAM1(107), ZDAM1(107), BETASA(107), BETAPA(107), BETADA(107),
+     2ALPAM1(107), EISOLA(107), DDAM1(107), QQAM1(107), AMAM1(107),
+     3ADAM1(107), AQAM1(107) ,GSSAM1(107), GSPAM1(107), GPPAM1(107),
+     4GP2AM1(107), HSPAM1(107),POLVOA(107)
      5       /REFS/ REFMN(107), REFM3(107), REFAM(107), REFPM3(107)
+***********************************************************************
 *
 *  COMMON BLOCKS FOR MINDO/3
 *
+***********************************************************************
       COMMON /ONELE3 /  USS3(18),UPP3(18)
      1       /TWOEL3 /  F03(107)
      2       /ATOMI3 /  EISOL3(18),EHEAT3(18)
@@ -145,7 +161,7 @@ C
       DATA EHEAT(9)  / 18.890D0/
       DATA EHEAT(10) /  0.000D0/
 C
-C#      DATA EHEAT(11) / 25.850D0/
+      DATA EHEAT(11) / 25.850D0/
       DATA EHEAT(12) / 35.000D0/
       DATA EHEAT(13) / 79.490D0/
       DATA EHEAT(14) /108.390D0/
@@ -154,7 +170,7 @@ C#      DATA EHEAT(11) / 25.850D0/
       DATA EHEAT(17) / 28.990D0/
       DATA EHEAT(18) /  0.000D0/
 C
-C#      DATA EHEAT(19) / 21.420D0/
+      DATA EHEAT(19) / 21.420D0/
       DATA EHEAT(20) / 42.600D0/
       DATA EHEAT(21) / 90.300D0/
       DATA EHEAT(22) /112.300D0/
@@ -387,8 +403,8 @@ C      H  1  11  16  22  29  37  92 106 121 137
 C      B     15  20  26  33  41
 C      C         21  27  34  42  97 111 126 142
 C      N             28  35  43         127 143
-C      O                 36  44         128 144
-C      F                     45         129
+C      O                 36  44     113 128
+C      F                     45     114
 C     SI                        105
 C      P                            120     151
 C      S                                136 152
@@ -419,17 +435,17 @@ C     CL                                    153
       DATA BETA3(105),ALP3(105) /  0.291703D0 ,  0.918432D0 /
       DATA BETA3(106),ALP3(106) /  0.320118D0 ,  0.923170D0 /
       DATA BETA3(111),ALP3(111) /  0.457816D0 ,  1.029693D0 /
+      DATA BETA3(113),ALP3(113) /  0.470000D0 ,  1.662500D0 /
+      DATA BETA3(114),ALP3(114) /  0.300000D0 ,  1.750000D0 /
       DATA BETA3(120),ALP3(120) /  0.311790D0 ,  1.186652D0 /
       DATA BETA3(121),ALP3(121) /  0.220654D0 ,  1.700698D0 /
       DATA BETA3(126),ALP3(126) /  0.284620D0 ,  1.761370D0 /
       DATA BETA3(127),ALP3(127) /  0.313170D0 ,  1.878176D0/
       DATA BETA3(128),ALP3(128) /  0.422890D0 ,  2.077240D0 /
-      DATA BETA3(129),ALP3(129)  /  0.000000D0 ,  0.000000D0 /
       DATA BETA3(136),ALP3(136) /  0.202489D0 ,  1.751617D0 /
       DATA BETA3(137),ALP3(137) /  0.231653D0 ,  2.089404D0 /
       DATA BETA3(142),ALP3(142) /  0.315480D0 ,  1.676222D0 /
       DATA BETA3(143),ALP3(143) /  0.302298D0 ,  1.817064D0 /
-      DATA BETA3(144),ALP3(144) /  0.000000D0 ,  0.000000D0 /
       DATA BETA3(151),ALP3(151) /  0.277322D0 ,  1.543720D0 /
       DATA BETA3(152),ALP3(152) /  0.221764D0 ,  1.950318D0 /
       DATA BETA3(153),ALP3(153) /  0.258969D0 ,  1.792125D0 /
@@ -453,51 +469,60 @@ C     OF THE OVERLAP INTEGRALS AND MOLECULAR DIPOLE MOMENTS.
 *                               DATA FOR THE " ++ " SPARKLE
       DATA EHEAT(103)    / 0.0D0/
       DATA VS(103)       /10.0D0/
-      DATA ALP(103)      / 1.5D0/
-      DATA EISOL(103)    / 0.0D0/
-      DATA AM(103)       / 0.5D0/
-      DATA ALPM(103)      / 1.5D0/
-      DATA EISOLM(103)    / 0.0D0/
-      DATA AMM(103)       / 0.5D0/
-      DATA ALPPM3(103)      / 1.5D0/
-      DATA EISOLP(103)    / 0.0D0/
-      DATA AMPM3(103)       / 0.5D0/
+C
+C  START OF MNDO
+C
+      DATA ALPM(103)     / 1.5D0/
+      DATA EISOLM(103)   / 0.0D0/
+      DATA AMM(103)      / 0.5D0/
+C
+C  START OF AM1
+C
+      DATA ALPAM1(103)   / 1.5D0/
+      DATA EISOLA(103)   / 0.0D0/
+      DATA AMAM1(103)    / 0.5D0/
+C
+C  START OF PM3
+C
+      DATA ALPPM3(103)   / 1.5D0/
+      DATA EISOLP(103)   / 0.0D0/
+      DATA AMPM3(103)    / 0.5D0/
 *                               DATA FOR THE " + " SPARKLE
       DATA EHEAT(104)    / 0.0D0/
       DATA VS(104)       /10.0D0/
-      DATA ALP(104)      / 1.5D0/
-      DATA EISOL(104)    / 0.0D0/
-      DATA AM(104)       / 0.5D0/
-      DATA ALPM(104)      / 1.5D0/
-      DATA EISOLM(104)    / 0.0D0/
-      DATA AMM(104)       / 0.5D0/
-      DATA ALPPM3(104)      / 1.5D0/
-      DATA EISOLP(104)    / 0.0D0/
-      DATA AMPM3(104)       / 0.5D0/
+      DATA ALPAM1(104)   / 1.5D0/
+      DATA EISOLA(104)   / 0.0D0/
+      DATA AMAM1(104)    / 0.5D0/
+      DATA ALPM(104)     / 1.5D0/
+      DATA EISOLM(104)   / 0.0D0/
+      DATA AMM(104)      / 0.5D0/
+      DATA ALPPM3(104)   / 1.5D0/
+      DATA EISOLP(104)   / 0.0D0/
+      DATA AMPM3(104)    / 0.5D0/
 *                               DATA FOR THE " -- " SPARKLE
       DATA EHEAT(105)    / 0.0D0/
       DATA VS(105)       /10.0D0/
-      DATA ALP(105)      / 1.5D0/
-      DATA EISOL(105)    / 0.0D0/
-      DATA AM(105)       / 0.5D0/
-      DATA ALPM(105)      / 1.5D0/
-      DATA EISOLM(105)    / 0.0D0/
-      DATA AMM(105)       / 0.5D0/
-      DATA ALPPM3(105)      / 1.5D0/
-      DATA EISOLP(105)    / 0.0D0/
-      DATA AMPM3(105)       / 0.5D0/
+      DATA ALPAM1(105)   / 1.5D0/
+      DATA EISOLA(105)   / 0.0D0/
+      DATA AMAM1(105)    / 0.5D0/
+      DATA ALPM(105)     / 1.5D0/
+      DATA EISOLM(105)   / 0.0D0/
+      DATA AMM(105)      / 0.5D0/
+      DATA ALPPM3(105)   / 1.5D0/
+      DATA EISOLP(105)   / 0.0D0/
+      DATA AMPM3(105)    / 0.5D0/
 *                               DATA FOR THE " - " SPARKLE
       DATA EHEAT(106)    / 0.0D0/
       DATA VS(106)       /10.0D0/
-      DATA ALP(106)      / 1.5D0/
-      DATA EISOL(106)    / 0.0D0/
-      DATA AM(106)       / 0.5D0/
-      DATA ALPM(106)      / 1.5D0/
-      DATA EISOLM(106)    / 0.0D0/
-      DATA AMM(106)       / 0.5D0/
-      DATA ALPPM3(106)      / 1.5D0/
-      DATA EISOLP(106)    / 0.0D0/
-      DATA AMPM3(106)       / 0.5D0/
+      DATA ALPAM1(106)   / 1.5D0/
+      DATA EISOLA(106)   / 0.0D0/
+      DATA AMAM1(106)    / 0.5D0/
+      DATA ALPM(106)     / 1.5D0/
+      DATA EISOLM(106)   / 0.0D0/
+      DATA AMM(106)      / 0.5D0/
+      DATA ALPPM3(106)   / 1.5D0/
+      DATA EISOLP(106)   / 0.0D0/
+      DATA AMPM3(106)    / 0.5D0/
 ***********************************************************************
 *
 *    START OF MNDO PARAMETERS
@@ -634,14 +659,22 @@ C                    DATA FOR ELEMENT  9        FLUORINE
 *                               DATA FOR THE SODIUM-LIKE SPARKLE
       DATA REFMN  (11)/' Na: (MNDO):  SODIUM-LIKE SPARKLE.   USE WITH CA
      1RE.                             '/
-      DATA EHEAT(11)    / 0.0D0/
+      DATA REFAM  (11)/' Na: (AM1):   SODIUM-LIKE SPARKLE.   USE WITH CA
+     1RE.                             '/
+      DATA REFPM3 (11)/' Na: (PM3):   SODIUM-LIKE SPARKLE.   USE WITH CA
+     1RE.                             '/
       DATA VS(11)       /10.0D0/
-      DATA ALP(11)      / 1.32D0/
-      DATA EISOL(11)    / 0.0D0/
-      DATA AM(11)       / 0.5D0/
-      DATA ALPM(11)      / 1.32D0/
-      DATA EISOLM(11)    / 0.0D0/
-      DATA AMM(11)       / 0.5D0/
+      DATA ALPAM1(11)      / 1.668D0/
+      DATA ALPM(11)        / 1.660D0/
+      DATA ALPPM3(11)      / 1.681D0/
+C
+      DATA EISOLA(11)      / 0.0D0/
+      DATA EISOLM(11)      / 0.0D0/
+      DATA EISOLP(11)      / 0.0D0/
+C
+      DATA AMAM1(11)       / 0.5D0/
+      DATA AMM(11)         / 0.5D0/
+      DATA AMPM3(11)       / 0.5D0/
 C                    DATA FOR ELEMENT 13        ALUMINUM
       DATA REFMN  (13)/' Al: (MNDO):  L.P. DAVIS, ET.AL.  J. COMP. CHEM.
      1, 2, 433, (1981) SEE MANUAL.    '/
@@ -662,20 +695,20 @@ C                    DATA FOR ELEMENT 13        ALUMINUM
 C                    DATA FOR ELEMENT 14          SILICON
       DATA REFMN  (14)/' Si: (MNDO): M.J.S.DEWAR, ET. AL. ORGANOMETALLIC
      1S  5, 375 (1986)                '/
-      DATA USS   M(14)/     -37.0375330D0/
-      DATA UPP   M(14)/     -27.7696780D0/
-      DATA BETAS M(14)/      -9.0868040D0/
-      DATA BETAP M(14)/      -1.0758270D0/
-      DATA ZS    M(14)/       1.3159860D0/
-      DATA ZP    M(14)/       1.7099430D0/
-      DATA ZD    M(14)/       1.0000000D0/
-      DATA ALP   M(14)/       2.2053160D0/
-      DATA EISOL M(14)/     -82.8394220D0/
-      DATA DD    M(14)/       1.2580349D0/
-      DATA QQ    M(14)/       0.9785824D0/
-      DATA AM    M(14)/       0.3608967D0/
-      DATA AD    M(14)/       0.3664244D0/
-      DATA AQ    M(14)/       0.4506740D0/
+      DATA USSM   (14)/     -37.0375330D0/
+      DATA UPPM   (14)/     -27.7696780D0/
+      DATA BETASM (14)/      -9.0868040D0/
+      DATA BETAPM (14)/      -1.0758270D0/
+      DATA ZSM    (14)/       1.3159860D0/
+      DATA ZPM    (14)/       1.7099430D0/
+      DATA ZDM    (14)/       1.0000000D0/
+      DATA ALPM   (14)/       2.2053160D0/
+      DATA EISOLM (14)/     -82.8394220D0/
+      DATA DDM    (14)/       1.2580349D0/
+      DATA QQM    (14)/       0.9785824D0/
+      DATA AMM    (14)/       0.3608967D0/
+      DATA ADM    (14)/       0.3664244D0/
+      DATA AQM    (14)/       0.4506740D0/
 C                    DATA FOR ELEMENT 15        PHOSPHORUS
       DATA REFMN  (15)/'  P: (MNDO): M.J.S.DEWAR, M.L.MCKEE, H.S.RZEPA,
      1J. AM. CHEM. SOC., 100 3607 1978'/
@@ -729,19 +762,24 @@ C                    DATA FOR ELEMENT 17        CHLORINE
       DATA ADM    (17)/       0.8061220D0/
       DATA AQM    (17)/       0.6053435D0/
 *                               DATA FOR THE POTASSIUM-LIKE SPARKLE
-      DATA REFMN  (19)/'  K: (MNDO):  POTASSIUM-LIKE SPARKLE.  USE WITH
-     1CARE.                           '/
-*                               DATA FOR THE POTASSIUM-LIKE SPARKLE
-      DATA REFAM  (19)/' K:  (AM1):  POTASSIUM-LIKE SPARKLE.   USE WITH
+      DATA REFAM   (19)/' K:  (AM1):  POTASSIUM-LIKE SPARKLE.   USE WITH
      1 CARE.                          '/
-      DATA EHEAT(19)    / 0.0D0/
+      DATA REFMN   (19)/' K:  (MNDO): POTASSIUM-LIKE SPARKLE.   USE WITH
+     1 CARE.                          '/
+      DATA REFPM3  (19)/' K:  (PM3):  POTASSIUM-LIKE SPARKLE.   USE WITH
+     1 CARE.                          '/
       DATA VS(19)       /10.0D0/
-      DATA ALP(19)      / 1.16D0/
-      DATA EISOL(19)    / 0.0D0/
-      DATA AM(19)       / 0.5D0/
-      DATA ALPM(19)      / 1.16D0/
-      DATA EISOLM(19)    / 0.0D0/
-      DATA AMM(19)       / 0.5D0/
+      DATA ALPAM1(19)      / 1.405D0/
+      DATA ALPM(19)        / 1.396D0/
+      DATA ALPPM3(19)      / 1.400D0/
+C
+      DATA EISOLA(19)      / 0.0D0/
+      DATA EISOLM(19)      / 0.0D0/
+      DATA EISOLP(19)      / 0.0D0/
+C
+      DATA AMAM1(19)       / 0.5D0/
+      DATA AMM(19)         / 0.5D0/
+      DATA AMPM3(19)       / 0.5D0/
 C                    DATA FOR ELEMENT 24  CHROMIUM
       DATA REFMN  (24)/' Cr: (MNDO):  M.J.S. DEWAR, E.F. HEALY, J.J.P.
      1STEWART (IN PREPARATION)        '/
@@ -955,20 +993,20 @@ C                    DATA FOR ELEMENT 90        SILICON
       DATA AQM    (91)/       0.5632724D0/
       DATA REFMN (102)/' Cb: (MNDO):  Capped Bond  (Hydrogen-like, takes
      1 on a  zero charge.)            '/
-      DATA USS  M(102)/     -11.9062760D0/
+      DATA USSM  (102)/     -11.9062760D0/
       DATA BETASM(102)/-9999999.0000000D0/
-      DATA ZS   M(102)/       4.0000000D0/
-      DATA ZP   M(102)/       0.3000000D0/
-      DATA ZD   M(102)/       0.3000000D0/
-      DATA ALP  M(102)/       2.5441341D0/
+      DATA ZSM   (102)/       4.0000000D0/
+      DATA ZPM   (102)/       0.3000000D0/
+      DATA ZDM   (102)/       0.3000000D0/
+      DATA ALPM  (102)/       2.5441341D0/
       DATA EISOLM(102)/       4.0000000D0/
-      DATA GSS  M(102)/      12.8480000D0/
-      DATA HSP  M(102)/       0.1000000D0/
-      DATA DD   M(102)/       0.0684105D0/
-      DATA QQ   M(102)/       1.0540926D0/
-      DATA AM   M(102)/       0.4721793D0/
-      DATA AD   M(102)/       0.9262742D0/
-      DATA AQ   M(102)/       0.2909059D0/
+      DATA GSSM  (102)/      12.8480000D0/
+      DATA HSPM  (102)/       0.1000000D0/
+      DATA DDM   (102)/       0.0684105D0/
+      DATA QQM   (102)/       1.0540926D0/
+      DATA AMM   (102)/       0.4721793D0/
+      DATA ADM   (102)/       0.9262742D0/
+      DATA AQM   (102)/       0.2909059D0/
 ***********************************************************************
 *
 *    START OF AM1 PARAMETERS
@@ -977,407 +1015,472 @@ C                    DATA FOR ELEMENT 90        SILICON
 C                    DATA FOR ELEMENT  1       AM1:   HYDROGEN
       DATA REFAM  ( 1)/'  H: (AM1): M.J.S. DEWAR ET AL, J. AM. CHEM. SOC
      1. 107 3902-3909 (1985)          '/
-      DATA USS   ( 1)/     -11.3964270D0/
-      DATA BETAS ( 1)/      -6.1737870D0/
-      DATA ZS    ( 1)/       1.1880780D0/
-      DATA ALP   ( 1)/       2.8823240D0/
-      DATA EISOL ( 1)/     -11.3964270D0/
-      DATA GSS   ( 1)/      12.8480000D0/
-      DATA AM    ( 1)/       0.4721793D0/
-      DATA AD    ( 1)/       0.4721793D0/
-      DATA AQ    ( 1)/       0.4721793D0/
-      DATA GUESS1( 1,1)/       0.1227960D0/
-      DATA GUESS2( 1,1)/       5.0000000D0/
-      DATA GUESS3( 1,1)/       1.2000000D0/
-      DATA GUESS1( 1,2)/       0.0050900D0/
-      DATA GUESS2( 1,2)/       5.0000000D0/
-      DATA GUESS3( 1,2)/       1.8000000D0/
-      DATA GUESS1( 1,3)/      -0.0183360D0/
-      DATA GUESS2( 1,3)/       2.0000000D0/
-      DATA GUESS3( 1,3)/       2.1000000D0/
+      DATA USSAM1( 1)/     -11.3964270D0/
+      DATA BETASA( 1)/      -6.1737870D0/
+      DATA ZS AM1( 1)/       1.1880780D0/
+      DATA ALPAM1( 1)/       2.8823240D0/
+      DATA EISOLA( 1)/     -11.3964270D0/
+      DATA GSSAM1( 1)/      12.8480000D0/
+      DATA AM AM1( 1)/       0.4721793D0/
+      DATA AD AM1( 1)/       0.4721793D0/
+      DATA AQ AM1( 1)/       0.4721793D0/
+      DATA GUESA1( 1,1)/       0.1227960D0/
+      DATA GUESA2( 1,1)/       5.0000000D0/
+      DATA GUESA3( 1,1)/       1.2000000D0/
+      DATA GUESA1( 1,2)/       0.0050900D0/
+      DATA GUESA2( 1,2)/       5.0000000D0/
+      DATA GUESA3( 1,2)/       1.8000000D0/
+      DATA GUESA1( 1,3)/      -0.0183360D0/
+      DATA GUESA2( 1,3)/       2.0000000D0/
+      DATA GUESA3( 1,3)/       2.1000000D0/
 C                    DATA FOR ELEMENT  3       AM1:   LITHIUM    *
       DATA REFAM  ( 3)/' Li: (MNDO):  TAKEN FROM MNDOC BY W.THIEL,
      1QCPE NO.438, V. 2, P.63, (1982).'/
-      DATA USS   (  3)/      -5.1280000D0/
-      DATA UPP   (  3)/      -2.7212000D0/
-      DATA BETAS (  3)/      -1.3500400D0/
-      DATA BETAP (  3)/      -1.3500400D0/
-      DATA ZS    (  3)/       0.7023800D0/
-      DATA ZP    (  3)/       0.7023800D0/
-      DATA ALP   (  3)/       1.2501400D0/
-      DATA EISOL (  3)/      -5.1280000D0/
-      DATA GSS   (  3)/       7.3000000D0/
-      DATA GSP   (  3)/       5.4200000D0/
-      DATA GPP   (  3)/       5.0000000D0/
-      DATA GP2   (  3)/       4.5200000D0/
-      DATA HSP   (  3)/       0.8300000D0/
-      DATA DD    (  3)/       2.0549783D0/
-      DATA QQ    (  3)/       1.7437069D0/
-      DATA AM    (  3)/       0.2682837D0/
-      DATA AD    (  3)/       0.2269793D0/
-      DATA AQ    (  3)/       0.2614581D0/
+      DATA USSAM1(  3)/      -5.1280000D0/
+      DATA UPPAM1(  3)/      -2.7212000D0/
+      DATA BETASA(  3)/      -1.3500400D0/
+      DATA BETAPA(  3)/      -1.3500400D0/
+      DATA ZS AM1(  3)/       0.7023800D0/
+      DATA ZP AM1(  3)/       0.7023800D0/
+      DATA ALPAM1(  3)/       1.2501400D0/
+      DATA EISOLA(  3)/      -5.1280000D0/
+      DATA GSSAM1(  3)/       7.3000000D0/
+      DATA GSPAM1(  3)/       5.4200000D0/
+      DATA GPPAM1(  3)/       5.0000000D0/
+      DATA GP2AM1(  3)/       4.5200000D0/
+      DATA HSPAM1(  3)/       0.8300000D0/
+      DATA DD AM1(  3)/       2.0549783D0/
+      DATA QQ AM1(  3)/       1.7437069D0/
+      DATA AM AM1(  3)/       0.2682837D0/
+      DATA AD AM1(  3)/       0.2269793D0/
+      DATA AQ AM1(  3)/       0.2614581D0/
 C                    DATA FOR ELEMENT  4       AM1:   BERYLLIUM  *
       DATA REFAM  ( 4)/' Be: (MNDO):  M.J.S. DEWAR, H.S. RZEPA, J. AM. C
      1HEM. SOC., 100, 777, (1978)     '/
-      DATA USS   ( 4)/     -16.6023780D0/
-      DATA UPP   ( 4)/     -10.7037710D0/
-      DATA BETAS ( 4)/      -4.0170960D0/
-      DATA BETAP ( 4)/      -4.0170960D0/
-      DATA ZS    ( 4)/       1.0042100D0/
-      DATA ZP    ( 4)/       1.0042100D0/
-      DATA ALP   ( 4)/       1.6694340D0/
-      DATA EISOL ( 4)/     -24.2047560D0/
-      DATA GSS   ( 4)/       9.0000000D0/
-      DATA GSP   ( 4)/       7.4300000D0/
-      DATA GPP   ( 4)/       6.9700000D0/
-      DATA GP2   ( 4)/       6.2200000D0/
-      DATA HSP   ( 4)/       1.2800000D0/
-      DATA DD    ( 4)/       1.4373245D0/
-      DATA QQ    ( 4)/       1.2196103D0/
-      DATA AM    ( 4)/       0.3307607D0/
-      DATA AD    ( 4)/       0.3356142D0/
-      DATA AQ    ( 4)/       0.3846373D0/
+      DATA USSAM1( 4)/     -16.6023780D0/
+      DATA UPPAM1( 4)/     -10.7037710D0/
+      DATA BETASA( 4)/      -4.0170960D0/
+      DATA BETAPA( 4)/      -4.0170960D0/
+      DATA ZS AM1( 4)/       1.0042100D0/
+      DATA ZP AM1( 4)/       1.0042100D0/
+      DATA ALPAM1( 4)/       1.6694340D0/
+      DATA EISOLA( 4)/     -24.2047560D0/
+      DATA GSSAM1( 4)/       9.0000000D0/
+      DATA GSPAM1( 4)/       7.4300000D0/
+      DATA GPPAM1( 4)/       6.9700000D0/
+      DATA GP2AM1( 4)/       6.2200000D0/
+      DATA HSPAM1( 4)/       1.2800000D0/
+      DATA DD AM1( 4)/       1.4373245D0/
+      DATA QQ AM1( 4)/       1.2196103D0/
+      DATA AM AM1( 4)/       0.3307607D0/
+      DATA AD AM1( 4)/       0.3356142D0/
+      DATA AQ AM1( 4)/       0.3846373D0/
 C                    DATA FOR ELEMENT  5       AM1:   BORON  *
       DATA REFAM  ( 5)/'  B: (AM1):  M.J.S. DEWAR, C. JIE, E. G. ZOEBISC
      1H ORGANOMETALLICS 7, 513 (1988) '/
 C                    DATA FOR ELEMENT  5
-      DATA USS   (  5)/     -34.4928700D0/
-      DATA UPP   (  5)/     -22.6315250D0/
-      DATA BETAS (  5)/      -9.5991140D0/
-      DATA BETAP (  5)/      -6.2737570D0/
-      DATA ZS    (  5)/       1.6117090D0/
-      DATA ZP    (  5)/       1.5553850D0/
-      DATA ALP   (  5)/       2.4469090D0/
-      DATA EISOL (  5)/     -63.7172650D0/
-      DATA GSS   (  5)/      10.5900000D0/
-      DATA GSP   (  5)/       9.5600000D0/
-      DATA GPP   (  5)/       8.8600000D0/
-      DATA GP2   (  5)/       7.8600000D0/
-      DATA HSP   (  5)/       1.8100000D0/
-      DATA DD    (  5)/       0.9107622D0/
-      DATA QQ    (  5)/       0.7874223D0/
-      DATA AM    (  5)/       0.3891951D0/
-      DATA AD    (  5)/       0.5045152D0/
-      DATA AQ    (  5)/       0.5678856D0/
+      DATA USSAM1(  5)/     -34.4928700D0/
+      DATA UPPAM1(  5)/     -22.6315250D0/
+      DATA BETASA(  5)/      -9.5991140D0/
+      DATA BETAPA(  5)/      -6.2737570D0/
+      DATA ZS AM1(  5)/       1.6117090D0/
+      DATA ZP AM1(  5)/       1.5553850D0/
+      DATA ALPAM1(  5)/       2.4469090D0/
+      DATA EISOLA(  5)/     -63.7172650D0/
+      DATA GSSAM1(  5)/      10.5900000D0/
+      DATA GSPAM1(  5)/       9.5600000D0/
+      DATA GPPAM1(  5)/       8.8600000D0/
+      DATA GP2AM1(  5)/       7.8600000D0/
+      DATA HSPAM1(  5)/       1.8100000D0/
+      DATA DD AM1(  5)/       0.9107622D0/
+      DATA QQ AM1(  5)/       0.7874223D0/
+      DATA AM AM1(  5)/       0.3891951D0/
+      DATA AD AM1(  5)/       0.5045152D0/
+      DATA AQ AM1(  5)/       0.5678856D0/
 C                    DATA FOR ELEMENT  6       AM1:   CARBON
       DATA REFAM  ( 6)/'  C: (AM1): M.J.S. DEWAR ET AL, J. AM. CHEM. SOC
      1. 107 3902-3909 (1985)          '/
-      DATA USS   ( 6)/     -52.0286580D0/
-      DATA UPP   ( 6)/     -39.6142390D0/
-      DATA BETAS ( 6)/     -15.7157830D0/
-      DATA BETAP ( 6)/      -7.7192830D0/
-      DATA ZS    ( 6)/       1.8086650D0/
-      DATA ZP    ( 6)/       1.6851160D0/
-      DATA ALP   ( 6)/       2.6482740D0/
-      DATA EISOL ( 6)/    -120.8157940D0/
-      DATA GSS   ( 6)/      12.2300000D0/
-      DATA GSP   ( 6)/      11.4700000D0/
-      DATA GPP   ( 6)/      11.0800000D0/
-      DATA GP2   ( 6)/       9.8400000D0/
-      DATA HSP   ( 6)/       2.4300000D0/
-      DATA DD    ( 6)/       0.8236736D0/
-      DATA QQ    ( 6)/       0.7268015D0/
-      DATA AM    ( 6)/       0.4494671D0/
-      DATA AD    ( 6)/       0.6082946D0/
-      DATA AQ    ( 6)/       0.6423492D0/
-      DATA GUESS1( 6,1)/       0.0113550D0/
-      DATA GUESS2( 6,1)/       5.0000000D0/
-      DATA GUESS3( 6,1)/       1.6000000D0/
-      DATA GUESS1( 6,2)/       0.0459240D0/
-      DATA GUESS2( 6,2)/       5.0000000D0/
-      DATA GUESS3( 6,2)/       1.8500000D0/
-      DATA GUESS1( 6,3)/      -0.0200610D0/
-      DATA GUESS2( 6,3)/       5.0000000D0/
-      DATA GUESS3( 6,3)/       2.0500000D0/
-      DATA GUESS1( 6,4)/      -0.0012600D0/
-      DATA GUESS2( 6,4)/       5.0000000D0/
-      DATA GUESS3( 6,4)/       2.6500000D0/
+      DATA USSAM1( 6)/     -52.0286580D0/
+      DATA UPPAM1( 6)/     -39.6142390D0/
+      DATA BETASA( 6)/     -15.7157830D0/
+      DATA BETAPA( 6)/      -7.7192830D0/
+      DATA ZS AM1( 6)/       1.8086650D0/
+      DATA ZP AM1( 6)/       1.6851160D0/
+      DATA ALPAM1( 6)/       2.6482740D0/
+      DATA EISOLA( 6)/    -120.8157940D0/
+      DATA GSSAM1( 6)/      12.2300000D0/
+      DATA GSPAM1( 6)/      11.4700000D0/
+      DATA GPPAM1( 6)/      11.0800000D0/
+      DATA GP2AM1( 6)/       9.8400000D0/
+      DATA HSPAM1( 6)/       2.4300000D0/
+      DATA DD AM1( 6)/       0.8236736D0/
+      DATA QQ AM1( 6)/       0.7268015D0/
+      DATA AM AM1( 6)/       0.4494671D0/
+      DATA AD AM1( 6)/       0.6082946D0/
+      DATA AQ AM1( 6)/       0.6423492D0/
+      DATA GUESA1( 6,1)/       0.0113550D0/
+      DATA GUESA2( 6,1)/       5.0000000D0/
+      DATA GUESA3( 6,1)/       1.6000000D0/
+      DATA GUESA1( 6,2)/       0.0459240D0/
+      DATA GUESA2( 6,2)/       5.0000000D0/
+      DATA GUESA3( 6,2)/       1.8500000D0/
+      DATA GUESA1( 6,3)/      -0.0200610D0/
+      DATA GUESA2( 6,3)/       5.0000000D0/
+      DATA GUESA3( 6,3)/       2.0500000D0/
+      DATA GUESA1( 6,4)/      -0.0012600D0/
+      DATA GUESA2( 6,4)/       5.0000000D0/
+      DATA GUESA3( 6,4)/       2.6500000D0/
 C                    DATA FOR ELEMENT  7       AM1:   NITROGEN
       DATA REFAM  ( 7)/'  N: (AM1): M.J.S. DEWAR ET AL, J. AM. CHEM. SOC
      1. 107 3902-3909 (1985)          '/
-      DATA USS   ( 7)/     -71.8600000D0/
-      DATA UPP   ( 7)/     -57.1675810D0/
-      DATA BETAS ( 7)/     -20.2991100D0/
-      DATA BETAP ( 7)/     -18.2386660D0/
-      DATA ZS    ( 7)/       2.3154100D0/
-      DATA ZP    ( 7)/       2.1579400D0/
-      DATA ALP   ( 7)/       2.9472860D0/
-      DATA EISOL ( 7)/    -202.4077430D0/
-      DATA GSS   ( 7)/      13.5900000D0/
-      DATA GSP   ( 7)/      12.6600000D0/
-      DATA GPP   ( 7)/      12.9800000D0/
-      DATA GP2   ( 7)/      11.5900000D0/
-      DATA HSP   ( 7)/       3.1400000D0/
-      DATA DD    ( 7)/       0.6433247D0/
-      DATA QQ    ( 7)/       0.5675528D0/
-      DATA AM    ( 7)/       0.4994487D0/
-      DATA AD    ( 7)/       0.7820840D0/
-      DATA AQ    ( 7)/       0.7883498D0/
-      DATA GUESS1( 7,1)/       0.0252510D0/
-      DATA GUESS2( 7,1)/       5.0000000D0/
-      DATA GUESS3( 7,1)/       1.5000000D0/
-      DATA GUESS1( 7,2)/       0.0289530D0/
-      DATA GUESS2( 7,2)/       5.0000000D0/
-      DATA GUESS3( 7,2)/       2.1000000D0/
-      DATA GUESS1( 7,3)/      -0.0058060D0/
-      DATA GUESS2( 7,3)/       2.0000000D0/
-      DATA GUESS3( 7,3)/       2.4000000D0/
+      DATA USSAM1( 7)/     -71.8600000D0/
+      DATA UPPAM1( 7)/     -57.1675810D0/
+      DATA BETASA( 7)/     -20.2991100D0/
+      DATA BETAPA( 7)/     -18.2386660D0/
+      DATA ZS AM1( 7)/       2.3154100D0/
+      DATA ZP AM1( 7)/       2.1579400D0/
+      DATA ALPAM1( 7)/       2.9472860D0/
+      DATA EISOLA( 7)/    -202.4077430D0/
+      DATA GSSAM1( 7)/      13.5900000D0/
+      DATA GSPAM1( 7)/      12.6600000D0/
+      DATA GPPAM1( 7)/      12.9800000D0/
+      DATA GP2AM1( 7)/      11.5900000D0/
+      DATA HSPAM1( 7)/       3.1400000D0/
+      DATA DD AM1( 7)/       0.6433247D0/
+      DATA QQ AM1( 7)/       0.5675528D0/
+      DATA AM AM1( 7)/       0.4994487D0/
+      DATA AD AM1( 7)/       0.7820840D0/
+      DATA AQ AM1( 7)/       0.7883498D0/
+      DATA GUESA1( 7,1)/       0.0252510D0/
+      DATA GUESA2( 7,1)/       5.0000000D0/
+      DATA GUESA3( 7,1)/       1.5000000D0/
+      DATA GUESA1( 7,2)/       0.0289530D0/
+      DATA GUESA2( 7,2)/       5.0000000D0/
+      DATA GUESA3( 7,2)/       2.1000000D0/
+      DATA GUESA1( 7,3)/      -0.0058060D0/
+      DATA GUESA2( 7,3)/       2.0000000D0/
+      DATA GUESA3( 7,3)/       2.4000000D0/
 C                    DATA FOR ELEMENT  8       AM1:   OXYGEN
       DATA REFAM  ( 8)/'  O: (AM1): M.J.S. DEWAR ET AL, J. AM. CHEM. SOC
      1. 107 3902-3909 (1985)          '/
-      DATA USS   ( 8)/     -97.8300000D0/
-      DATA UPP   ( 8)/     -78.2623800D0/
-      DATA BETAS ( 8)/     -29.2727730D0/
-      DATA BETAP ( 8)/     -29.2727730D0/
-      DATA ZS    ( 8)/       3.1080320D0/
-      DATA ZP    ( 8)/       2.5240390D0/
-      DATA ALP   ( 8)/       4.4553710D0/
-      DATA EISOL ( 8)/    -316.0995200D0/
-      DATA GSS   ( 8)/      15.4200000D0/
-      DATA GSP   ( 8)/      14.4800000D0/
-      DATA GPP   ( 8)/      14.5200000D0/
-      DATA GP2   ( 8)/      12.9800000D0/
-      DATA HSP   ( 8)/       3.9400000D0/
-      DATA DD    ( 8)/       0.4988896D0/
-      DATA QQ    ( 8)/       0.4852322D0/
-      DATA AM    ( 8)/       0.5667034D0/
-      DATA AD    ( 8)/       0.9961066D0/
-      DATA AQ    ( 8)/       0.9065223D0/
-      DATA GUESS1( 8,1)/       0.2809620D0/
-      DATA GUESS2( 8,1)/       5.0000000D0/
-      DATA GUESS3( 8,1)/       0.8479180D0/
-      DATA GUESS1( 8,2)/       0.0814300D0/
-      DATA GUESS2( 8,2)/       7.0000000D0/
-      DATA GUESS3( 8,2)/       1.4450710D0/
+      DATA USSAM1( 8)/     -97.8300000D0/
+      DATA UPPAM1( 8)/     -78.2623800D0/
+      DATA BETASA( 8)/     -29.2727730D0/
+      DATA BETAPA( 8)/     -29.2727730D0/
+      DATA ZS AM1( 8)/       3.1080320D0/
+      DATA ZP AM1( 8)/       2.5240390D0/
+      DATA ALPAM1( 8)/       4.4553710D0/
+      DATA EISOLA( 8)/    -316.0995200D0/
+      DATA GSSAM1( 8)/      15.4200000D0/
+      DATA GSPAM1( 8)/      14.4800000D0/
+      DATA GPPAM1( 8)/      14.5200000D0/
+      DATA GP2AM1( 8)/      12.9800000D0/
+      DATA HSPAM1( 8)/       3.9400000D0/
+      DATA DD AM1( 8)/       0.4988896D0/
+      DATA QQ AM1( 8)/       0.4852322D0/
+      DATA AM AM1( 8)/       0.5667034D0/
+      DATA AD AM1( 8)/       0.9961066D0/
+      DATA AQ AM1( 8)/       0.9065223D0/
+      DATA GUESA1( 8,1)/       0.2809620D0/
+      DATA GUESA2( 8,1)/       5.0000000D0/
+      DATA GUESA3( 8,1)/       0.8479180D0/
+      DATA GUESA1( 8,2)/       0.0814300D0/
+      DATA GUESA2( 8,2)/       7.0000000D0/
+      DATA GUESA3( 8,2)/       1.4450710D0/
 C                    DATA FOR ELEMENT  9       AM1:   FLUORINE  *
       DATA REFAM  ( 9)/'  F: (AM1): M.J.S. DEWAR AND E. G. ZOEBISCH, THE
      1OCHEM, 180, 1 (1988).           '/
-      DATA USS   ( 9)/    -136.1055790D0/
-      DATA UPP   ( 9)/    -104.8898850D0/
-      DATA BETAS ( 9)/     -69.5902770D0/
-      DATA BETAP ( 9)/     -27.9223600D0/
-      DATA ZS    ( 9)/       3.7700820D0/
-      DATA ZP    ( 9)/       2.4946700D0/
-      DATA ALP   ( 9)/       5.5178000D0/
-      DATA EISOL ( 9)/    -482.2905830D0/
-      DATA GSS   ( 9)/      16.9200000D0/
-      DATA GSP   ( 9)/      17.2500000D0/
-      DATA GPP   ( 9)/      16.7100000D0/
-      DATA GP2   ( 9)/      14.9100000D0/
-      DATA HSP   ( 9)/       4.8300000D0/
-      DATA DD    ( 9)/       0.4145203D0/
-      DATA QQ    ( 9)/       0.4909446D0/
-      DATA AM    ( 9)/       0.6218302D0/
-      DATA AD    ( 9)/       1.2088792D0/
-      DATA AQ    ( 9)/       0.9449355D0/
-      DATA GUESS1( 9,1)/       0.2420790D0/
-      DATA GUESS2( 9,1)/       4.8000000D0/
-      DATA GUESS3( 9,1)/       0.9300000D0/
-      DATA GUESS1( 9,2)/       0.0036070D0/
-      DATA GUESS2( 9,2)/       4.6000000D0/
-      DATA GUESS3( 9,2)/       1.6600000D0/
-*                               DATA FOR THE SODIUM-LIKE SPARKLE
-      DATA REFAM  (11)/' Na: (MNDO):  SODIUM-LIKE SPARKLE.   USE WITH CA
-     1RE.                             '/
+      DATA USSAM1( 9)/    -136.1055790D0/
+      DATA UPPAM1( 9)/    -104.8898850D0/
+      DATA BETASA( 9)/     -69.5902770D0/
+      DATA BETAPA( 9)/     -27.9223600D0/
+      DATA ZS AM1( 9)/       3.7700820D0/
+      DATA ZP AM1( 9)/       2.4946700D0/
+      DATA ALPAM1( 9)/       5.5178000D0/
+      DATA EISOLA( 9)/    -482.2905830D0/
+      DATA GSSAM1( 9)/      16.9200000D0/
+      DATA GSPAM1( 9)/      17.2500000D0/
+      DATA GPPAM1( 9)/      16.7100000D0/
+      DATA GP2AM1( 9)/      14.9100000D0/
+      DATA HSPAM1( 9)/       4.8300000D0/
+      DATA DD AM1( 9)/       0.4145203D0/
+      DATA QQ AM1( 9)/       0.4909446D0/
+      DATA AM AM1( 9)/       0.6218302D0/
+      DATA AD AM1( 9)/       1.2088792D0/
+      DATA AQ AM1( 9)/       0.9449355D0/
+      DATA GUESA1( 9,1)/       0.2420790D0/
+      DATA GUESA2( 9,1)/       4.8000000D0/
+      DATA GUESA3( 9,1)/       0.9300000D0/
+      DATA GUESA1( 9,2)/       0.0036070D0/
+      DATA GUESA2( 9,2)/       4.6000000D0/
+      DATA GUESA3( 9,2)/       1.6600000D0/
 C                    DATA FOR ELEMENT 13       AM1:   ALUMINUM  *
-      DATA REFAM  (13)/' Al: (MNDO):  L.P. DAVIS, ET.AL.  J. COMP. CHEM.
-     1, 2, 433, (1981)  SEE MANUAL    '/
-      DATA USS   (13)/     -23.8070970D0/
-      DATA UPP   (13)/     -17.5198780D0/
-      DATA BETAS (13)/      -2.6702840D0/
-      DATA BETAP (13)/      -2.6702840D0/
-      DATA ZS    (13)/       1.4441610D0/
-      DATA ZP    (13)/       1.4441610D0/
-      DATA ZD    (13)/       1.0000000D0/
-      DATA ALP   (13)/       1.8688394D0/
-      DATA EISOL (13)/     -44.4840720D0/
-      DATA GSS   (13)/       8.0900000D0/
-      DATA GSP   (13)/       6.6300000D0/
-      DATA GPP   (13)/       5.9800000D0/
-      DATA GP2   (13)/       5.4000000D0/
-      DATA HSP   (13)/       0.7000000D0/
-      DATA DD    (13)/       1.3992387D0/
-      DATA QQ    (13)/       1.1586797D0/
-      DATA AM    (13)/       0.2973172D0/
-      DATA AD    (13)/       0.2635574D0/
-      DATA AQ    (13)/       0.3673560D0/
+      DATA REFAM  (13)/' Al: (AM1):  M. J. S. Dewar, A. J. Holder, Organ
+     1ometallics, 9, 508-511 (1990).  '/
+      DATA USSAM1( 13)/     -24.3535850D0/
+      DATA UPPAM1( 13)/     -18.3636450D0/
+      DATA BETASA( 13)/      -3.8668220D0/
+      DATA BETAPA( 13)/      -2.3171460D0/
+      DATA ZSAM1 ( 13)/       1.5165930D0/
+      DATA ZPAM1 ( 13)/       1.3063470D0/
+      DATA ZDAM1 ( 13)/       1.0000000D0/
+      DATA ALPAM1( 13)/       1.9765860D0/
+      DATA EISOLA( 13)/     -46.4208150D0/
+      DATA GSSAM1( 13)/       8.0900000D0/
+      DATA GSPAM1( 13)/       6.6300000D0/
+      DATA GPPAM1( 13)/       5.9800000D0/
+      DATA GP2AM1( 13)/       5.4000000D0/
+      DATA HSPAM1( 13)/       0.7000000D0/
+      DATA DDAM1 ( 13)/       1.4040443D0/
+      DATA QQAM1 ( 13)/       1.2809154D0/
+      DATA AMAM1 ( 13)/       0.2973172D0/
+      DATA ADAM1 ( 13)/       0.2630229D0/
+      DATA AQAM1 ( 13)/       0.3427832D0/
+      DATA GUESA1( 13,1)/       0.0900000D0/
+      DATA GUESA2( 13,1)/      12.3924430D0/
+      DATA GUESA3( 13,1)/       2.0503940D0/
 C                    DATA FOR ELEMENT 14       AM1:   SILICON  *
       DATA REFAM  (14)/' Si: (AM1): M.J.S.DEWAR, C. JIE, ORGANOMETALLICS
      1, 6, 1486-1490 (1987).          '/
-      DATA USS   (14)/     -33.9536220D0/
-      DATA UPP   (14)/     -28.9347490D0/
-      DATA BETAS (14)/      -3.784852D0/
-      DATA BETAP (14)/      -1.968123D0/
-      DATA ZS    (14)/       1.830697D0/
-      DATA ZP    (14)/       1.2849530D0/
-      DATA ZD    (14)/       1.0000000D0/
-      DATA ALP   (14)/       2.257816D0/
-      DATA EISOL (14)/     -79.0017420D0/
-      DATA GSS   (14)/       9.8200000D0/
-      DATA GSP   (14)/       8.3600000D0/
-      DATA GPP   (14)/       7.3100000D0/
-      DATA GP2   (14)/       6.5400000D0/
-      DATA HSP   (14)/       1.3200000D0/
-      DATA DD    (14)/       1.1631107D0/
-      DATA QQ    (14)/       1.3022422D0/
-      DATA AM    (14)/       0.3608967D0/
-      DATA AD    (14)/       0.3829813D0/
-      DATA AQ    (14)/       0.3712106D0/
-      DATA GUESS1(14,1)/       0.25D0/
-      DATA GUESS2(14,1)/       9.000D0/
-      DATA GUESS3(14,1)/       0.911453D0/
-      DATA GUESS1(14,2)/       0.061513D0/
-      DATA GUESS2(14,2)/       5.00D0/
-      DATA GUESS3(14,2)/       1.995569D0/
-      DATA GUESS1(14,3)/       0.0207890D0/
-      DATA GUESS2(14,3)/       5.00D0/
-      DATA GUESS3(14,3)/       2.990610D0/
+      DATA USSAM1(14)/     -33.9536220D0/
+      DATA UPPAM1(14)/     -28.9347490D0/
+      DATA BETASA(14)/      -3.784852D0/
+      DATA BETAPA(14)/      -1.968123D0/
+      DATA ZS AM1(14)/       1.830697D0/
+      DATA ZP AM1(14)/       1.2849530D0/
+      DATA ZD AM1(14)/       1.0000000D0/
+      DATA ALPAM1(14)/       2.257816D0/
+      DATA EISOLA(14)/     -79.0017420D0/
+      DATA GSSAM1(14)/       9.8200000D0/
+      DATA GSPAM1(14)/       8.3600000D0/
+      DATA GPPAM1(14)/       7.3100000D0/
+      DATA GP2AM1(14)/       6.5400000D0/
+      DATA HSPAM1(14)/       1.3200000D0/
+      DATA DD AM1(14)/       1.1631107D0/
+      DATA QQ AM1(14)/       1.3022422D0/
+      DATA AM AM1(14)/       0.3608967D0/
+      DATA AD AM1(14)/       0.3829813D0/
+      DATA AQ AM1(14)/       0.3712106D0/
+      DATA GUESA1(14,1)/       0.25D0/
+      DATA GUESA2(14,1)/       9.000D0/
+      DATA GUESA3(14,1)/       0.911453D0/
+      DATA GUESA1(14,2)/       0.061513D0/
+      DATA GUESA2(14,2)/       5.00D0/
+      DATA GUESA3(14,2)/       1.995569D0/
+      DATA GUESA1(14,3)/       0.0207890D0/
+      DATA GUESA2(14,3)/       5.00D0/
+      DATA GUESA3(14,3)/       2.990610D0/
 C                    DATA FOR ELEMENT 15        PHOSPHORUS
-      DATA REFAM  (15)/'  P: (MNDO): M.J.S.DEWAR, M.L.MCKEE, H.S.RZEPA,
-     1J. AM. CHEM. SOC., 100 3607 1978'/
-      DATA USS   (15)/     -56.1433600D0/
-      DATA UPP   (15)/     -42.8510800D0/
-      DATA BETAS (15)/      -6.7916000D0/
-      DATA BETAP (15)/      -6.7916000D0/
-      DATA ZS    (15)/       2.1087200D0/
-      DATA ZP    (15)/       1.7858100D0/
-      DATA ZD    (15)/       1.0000000D0/
-      DATA ALP   (15)/       2.4152800D0/
-      DATA EISOL (15)/    -152.9599600D0/
-      DATA DD    (15)/       1.0129699D0/
-      DATA QQ    (15)/       0.9370090D0/
-      DATA AM    (15)/       0.4248438D0/
-      DATA AD    (15)/       0.4882420D0/
-      DATA AQ    (15)/       0.4979406D0/
+      DATA REFAM  (15)/'  P: (AM1): M.J.S.DEWAR, JIE, C, THEOCHEM, 187,
+     11 (1989)                        '/
+      DATA USSAM1( 15)/     -42.0298630D0/
+      DATA UPPAM1( 15)/     -34.0307090D0/
+      DATA BETASA( 15)/      -6.3537640D0/
+      DATA BETAPA( 15)/      -6.5907090D0/
+      DATA ZS AM1( 15)/       1.9812800D0/
+      DATA ZP AM1( 15)/       1.8751500D0/
+      DATA ZD AM1( 15)/       1.0000000D0/
+      DATA ALPAM1( 15)/       2.4553220D0/
+      DATA EISOLA( 15)/    -124.4368355D0/
+      DATA GSSAM1( 15)/      11.5600050D0/
+      DATA GSPAM1( 15)/       5.2374490D0/
+      DATA GPPAM1( 15)/       7.8775890D0/
+      DATA GP2AM1( 15)/       7.3076480D0/
+      DATA HSPAM1( 15)/       0.7792380D0/
+      DATA DD AM1( 15)/       1.0452022D0/
+      DATA QQ AM1( 15)/       0.8923660D0/
+      DATA AM AM1( 15)/       0.4248440D0/
+      DATA AD AM1( 15)/       0.3275319D0/
+      DATA AQ AM1( 15)/       0.4386854D0/
+      DATA GUESA1( 15,1)/      -0.0318270D0/
+      DATA GUESA2( 15,1)/       6.0000000D0/
+      DATA GUESA3( 15,1)/       1.4743230D0/
+      DATA GUESA1( 15,2)/       0.0184700D0/
+      DATA GUESA2( 15,2)/       7.0000000D0/
+      DATA GUESA3( 15,2)/       1.7793540D0/
+      DATA GUESA1( 15,3)/       0.0332900D0/
+      DATA GUESA2( 15,3)/       9.0000000D0/
+      DATA GUESA3( 15,3)/       3.0065760D0/
 C                    DATA FOR ELEMENT 16       AM1:   SULFUR  *
 C
-      DATA REFAM  (16)/'  S: (MNDO): M.J.S.DEWAR, C.H. REYNOLDS, J. COM
-     1P. CHEM. 2, 140-143 (1986)      '/
-      DATA USS   (16)/     -72.2422810D0/
-      DATA UPP   (16)/     -56.9732070D0/
-      DATA BETAS (16)/     -10.7616700D0/
-      DATA BETAP (16)/     -10.1084330D0/
-      DATA ZS    (16)/       2.3129620D0/
-      DATA ZP    (16)/       2.0091460D0/
-      DATA ZD    (16)/       1.0000000D0/
-      DATA ALP   (16)/       2.4780260D0/
-      DATA EISOL (16)/    -226.0123900D0/
-      DATA GSS   (16)/      12.8800000D0/
-      DATA GSP   (16)/      11.2600000D0/
-      DATA GPP   (16)/       9.9000000D0/
-      DATA GP2   (16)/       8.8300000D0/
-      DATA HSP   (16)/       2.2600000D0/
-      DATA DD    (16)/       0.9189935D0/
-      DATA QQ    (16)/       0.8328514D0/
-      DATA AM    (16)/       0.4733554D0/
-      DATA AD    (16)/       0.5544502D0/
-      DATA AQ    (16)/       0.5585244D0/
+      DATA REFAM  (16)/'  S: (AM1): M.J.S.DEWAR, Y-C YUAN, THEOCHEM, IN
+     1 PRESS                          '/
+      DATA USSAM1(16)/     -56.6940560D0/
+      DATA UPPAM1(16)/     -48.7170490D0/
+      DATA BETASA(16)/      -3.9205660D0/
+      DATA BETAPA(16)/      -7.9052780D0/
+      DATA ZS AM1(16)/       2.3665150D0/
+      DATA ZP AM1(16)/       1.6672630D0/
+      DATA ZD AM1(16)/       1.0000000D0/
+      DATA ALPAM1(16)/       2.4616480D0/
+      DATA EISOLA(16)/    -191.7321930D0/
+      DATA GSSAM1(16)/      11.7863290D0/
+      DATA GSPAM1(16)/       8.6631270D0/
+      DATA GPPAM1(16)/      10.0393080D0/
+      DATA GP2AM1(16)/       7.7816880D0/
+      DATA HSPAM1(16)/       2.5321370D0/
+      DATA DD AM1(16)/       0.9004265D0/
+      DATA QQ AM1(16)/       1.0036329D0/
+      DATA AM AM1(16)/       0.4331617D0/
+      DATA AD AM1(16)/       0.5907115D0/
+      DATA AQ AM1(16)/       0.6454943D0/
+      DATA GUESA1(16,1)/      -0.5091950D0/
+      DATA GUESA2(16,1)/       4.5936910D0/
+      DATA GUESA3(16,1)/       0.7706650D0/
+      DATA GUESA1(16,2)/      -0.0118630D0/
+      DATA GUESA2(16,2)/       5.8657310D0/
+      DATA GUESA3(16,2)/       1.5033130D0/
+      DATA GUESA1(16,3)/       0.0123340D0/
+      DATA GUESA2(16,3)/      13.5573360D0/
+      DATA GUESA3(16,3)/       2.0091730D0/
 C                    DATA FOR ELEMENT 17       AM1:   CHLORINE  *
       DATA REFAM  (17)/' Cl: (AM1): M.J.S. DEWAR AND E. G. ZOEBISCH, THE
      1OCHEM, 180, 1 (1988).           '/
-      DATA USS   (17)/    -111.6139480D0/
-      DATA UPP   (17)/     -76.6401070D0/
-      DATA BETAS (17)/     -24.5946700D0/
-      DATA BETAP (17)/     -14.6372160D0/
-      DATA ZS    (17)/       3.6313760D0/
-      DATA ZP    (17)/       2.0767990D0/
-      DATA ZD    (17)/       1.0000000D0/
-      DATA ALP   (17)/       2.9193680D0/
-      DATA EISOL (17)/    -372.1984310D0/
-      DATA GSS   (17)/      15.0300000D0/
-      DATA GSP   (17)/      13.1600000D0/
-      DATA GPP   (17)/      11.3000000D0/
-      DATA GP2   (17)/       9.9700000D0/
-      DATA HSP   (17)/       2.4200000D0/
-      DATA DD    (17)/       0.5406286D0/
-      DATA QQ    (17)/       0.8057208D0/
-      DATA AM    (17)/       0.5523705D0/
-      DATA AD    (17)/       0.7693200D0/
-      DATA AQ    (17)/       0.6133369D0/
-      DATA GUESS1(17,1)/       0.0942430D0/
-      DATA GUESS2(17,1)/       4.0000000D0/
-      DATA GUESS3(17,1)/       1.3000000D0/
-      DATA GUESS1(17,2)/       0.0271680D0/
-      DATA GUESS2(17,2)/       4.0000000D0/
-      DATA GUESS3(17,2)/       2.1000000D0/
+      DATA USSAM1(17)/    -111.6139480D0/
+      DATA UPPAM1(17)/     -76.6401070D0/
+      DATA BETASA(17)/     -24.5946700D0/
+      DATA BETAPA(17)/     -14.6372160D0/
+      DATA ZS AM1(17)/       3.6313760D0/
+      DATA ZP AM1(17)/       2.0767990D0/
+      DATA ZD AM1(17)/       1.0000000D0/
+      DATA ALPAM1(17)/       2.9193680D0/
+      DATA EISOLA(17)/    -372.1984310D0/
+      DATA GSSAM1(17)/      15.0300000D0/
+      DATA GSPAM1(17)/      13.1600000D0/
+      DATA GPPAM1(17)/      11.3000000D0/
+      DATA GP2AM1(17)/       9.9700000D0/
+      DATA HSPAM1(17)/       2.4200000D0/
+      DATA DD AM1(17)/       0.5406286D0/
+      DATA QQ AM1(17)/       0.8057208D0/
+      DATA AM AM1(17)/       0.5523705D0/
+      DATA AD AM1(17)/       0.7693200D0/
+      DATA AQ AM1(17)/       0.6133369D0/
+      DATA GUESA1(17,1)/       0.0942430D0/
+      DATA GUESA2(17,1)/       4.0000000D0/
+      DATA GUESA3(17,1)/       1.3000000D0/
+      DATA GUESA1(17,2)/       0.0271680D0/
+      DATA GUESA2(17,2)/       4.0000000D0/
+      DATA GUESA3(17,2)/       2.1000000D0/
 C                    DATA FOR ELEMENT 30        ZINC
       DATA REFAM  (30)/' Zn: (AM1):  M.J.S. DEWAR, K.M. MERZ, ORGANOMET
      1ALLICS, 7, 522-524 (1988)       '/
-      DATA USS   ( 30)/     -21.0400080D0/
-      DATA UPP   ( 30)/     -17.6555740D0/
-      DATA BETAS ( 30)/      -1.9974290D0/
-      DATA BETAP ( 30)/      -4.7581190D0/
-      DATA ZS    ( 30)/       1.9542990D0/
-      DATA ZP    ( 30)/       1.3723650D0/
-      DATA ZD    ( 30)/       1.0000000D0/
-      DATA ALP   ( 30)/       1.4845630D0/
-      DATA EISOL ( 30)/     -30.2800160D0/
-      DATA GSS   ( 30)/      11.8000000D0/
-      DATA GSP   ( 30)/      11.1820180D0/
-      DATA GPP   ( 30)/      13.3000000D0/
-      DATA GP2   ( 30)/      12.9305200D0/
-      DATA HSP   ( 30)/       0.4846060D0/
-      DATA DD    ( 30)/       1.3581113D0/
-      DATA QQ    ( 30)/       1.5457406D0/
-      DATA AM    ( 30)/       0.4336641D0/
-      DATA AD    ( 30)/       0.2317423D0/
-      DATA AQ    ( 30)/       0.2621165D0/
+      DATA USSAM1( 30)/     -21.0400080D0/
+      DATA UPPAM1( 30)/     -17.6555740D0/
+      DATA BETASA( 30)/      -1.9974290D0/
+      DATA BETAPA( 30)/      -4.7581190D0/
+      DATA ZS AM1( 30)/       1.9542990D0/
+      DATA ZP AM1( 30)/       1.3723650D0/
+      DATA ZD AM1( 30)/       1.0000000D0/
+      DATA ALPAM1( 30)/       1.4845630D0/
+      DATA EISOLA( 30)/     -30.2800160D0/
+      DATA GSSAM1( 30)/      11.8000000D0/
+      DATA GSPAM1( 30)/      11.1820180D0/
+      DATA GPPAM1( 30)/      13.3000000D0/
+      DATA GP2AM1( 30)/      12.9305200D0/
+      DATA HSPAM1( 30)/       0.4846060D0/
+      DATA DD AM1( 30)/       1.3581113D0/
+      DATA QQ AM1( 30)/       1.5457406D0/
+      DATA AM AM1( 30)/       0.4336641D0/
+      DATA AD AM1( 30)/       0.2317423D0/
+      DATA AQ AM1( 30)/       0.2621165D0/
+C                    DATA FOR ELEMENT 32        GERMANIUM
+      DATA REFAM  (32)/' Ge: (AM1): M.J.S.Dewar and C.Jie, Organometalli
+     1cs, 8, 1544, (1989)             '/
+      DATA USSAM1( 32)/     -34.1838890D0/
+      DATA UPPAM1( 32)/     -28.6408110D0/
+      DATA BETASA( 32)/      -4.3566070D0/
+      DATA BETAPA( 32)/      -0.9910910D0/
+      DATA ZS AM1( 32)/       1.2196310D0/
+      DATA ZP AM1( 32)/       1.9827940D0/
+      DATA ALPAM1( 32)/       2.1364050D0/
+      DATA EISOLA( 32)/     -78.7084810D0/
+      DATA GSSAM1( 32)/      10.1686050D0/
+      DATA GSPAM1( 32)/       8.1444730D0/
+      DATA GPPAM1( 32)/       6.6719020D0/
+      DATA GP2AM1( 32)/       6.2697060D0/
+      DATA HSPAM1( 32)/       0.9370930D0/
+      DATA DD AM1( 32)/       1.2472095D0/
+      DATA QQ AM1( 32)/       1.0698642D0/
+      DATA AM AM1( 32)/       0.3737084D0/
+      DATA AD AM1( 32)/       0.3180309D0/
+      DATA AQ AM1( 32)/       0.3485612D0/
 C                    DATA FOR ELEMENT 35       AM1:   BROMINE  *
       DATA REFAM  (35)/' Br: (AM1): M.J.S. DEWAR AND E. G. ZOEBISCH, THE
      1OCHEM, 180, 1 (1988).           '/
-      DATA USS   (35)/    -104.6560630D0/
-      DATA UPP   (35)/     -74.9300520D0/
-      DATA BETAS (35)/     -19.3998800D0/
-      DATA BETAP (35)/      -8.9571950D0/
-      DATA ZS    (35)/       3.0641330D0/
-      DATA ZP    (35)/       2.0383330D0/
-      DATA ZD    (35)/       1.0000000D0/
-      DATA ALP   (35)/       2.5765460D0/
-      DATA EISOL (35)/    -352.3142087D0/
-      DATA GSS   (35)/      15.0364395D0/
-      DATA GSP   (35)/      13.0346824D0/
-      DATA GPP   (35)/      11.2763254D0/
-      DATA GP2   (35)/       9.8544255D0/
-      DATA HSP   (35)/       2.4558683D0/
-      DATA DD    (35)/       0.8458104D0/
-      DATA QQ    (35)/       1.0407133D0/
-      DATA AM    (35)/       0.5526071D0/
-      DATA AD    (35)/       0.6024598D0/
-      DATA AQ    (35)/       0.5307555D0/
-      DATA GUESS1(35,1)/       0.0666850D0/
-      DATA GUESS2(35,1)/       4.0000000D0/
-      DATA GUESS3(35,1)/       1.5000000D0/
-      DATA GUESS1(35,2)/       0.0255680D0/
-      DATA GUESS2(35,2)/       4.0000000D0/
-      DATA GUESS3(35,2)/       2.3000000D0/
+      DATA USSAM1(35)/    -104.6560630D0/
+      DATA UPPAM1(35)/     -74.9300520D0/
+      DATA BETASA(35)/     -19.3998800D0/
+      DATA BETAPA(35)/      -8.9571950D0/
+      DATA ZS AM1(35)/       3.0641330D0/
+      DATA ZP AM1(35)/       2.0383330D0/
+      DATA ZD AM1(35)/       1.0000000D0/
+      DATA ALPAM1(35)/       2.5765460D0/
+      DATA EISOLA(35)/    -352.3142087D0/
+      DATA GSSAM1(35)/      15.0364395D0/
+      DATA GSPAM1(35)/      13.0346824D0/
+      DATA GPPAM1(35)/      11.2763254D0/
+      DATA GP2AM1(35)/       9.8544255D0/
+      DATA HSPAM1(35)/       2.4558683D0/
+      DATA DD AM1(35)/       0.8458104D0/
+      DATA QQ AM1(35)/       1.0407133D0/
+      DATA AM AM1(35)/       0.5526071D0/
+      DATA AD AM1(35)/       0.6024598D0/
+      DATA AQ AM1(35)/       0.5307555D0/
+      DATA GUESA1(35,1)/       0.0666850D0/
+      DATA GUESA2(35,1)/       4.0000000D0/
+      DATA GUESA3(35,1)/       1.5000000D0/
+      DATA GUESA1(35,2)/       0.0255680D0/
+      DATA GUESA2(35,2)/       4.0000000D0/
+      DATA GUESA3(35,2)/       2.3000000D0/
 C                    DATA FOR ELEMENT 53       AM1:   IODINE  *
       DATA REFAM  (53)/'  I: (AM1): M.J.S. DEWAR AND E. G. ZOEBISCH, THE
      1OCHEM, 180, 1 (1988).           '/
-      DATA USS   (53)/    -103.5896630D0/
-      DATA UPP   (53)/     -74.4299970D0/
-      DATA BETAS (53)/      -8.4433270D0/
-      DATA BETAP (53)/      -6.3234050D0/
-      DATA ZS    (53)/       2.1028580D0/
-      DATA ZP    (53)/       2.1611530D0/
-      DATA ZD    (53)/       1.0000000D0/
-      DATA ALP   (53)/       2.2994240D0/
-      DATA EISOL (53)/    -346.8642857D0/
-      DATA GSS   (53)/      15.0404486D0/
-      DATA GSP   (53)/      13.0565580D0/
-      DATA GPP   (53)/      11.1477837D0/
-      DATA GP2   (53)/       9.9140907D0/
-      DATA HSP   (53)/       2.4563820D0/
-      DATA DD    (53)/       1.4878778D0/
-      DATA QQ    (53)/       1.1887388D0/
-      DATA AM    (53)/       0.5527544D0/
-      DATA AD    (53)/       0.4497523D0/
-      DATA AQ    (53)/       0.4631775D0/
-      DATA GUESS1(53,1)/       0.0043610D0/
-      DATA GUESS2(53,1)/       2.3000000D0/
-      DATA GUESS3(53,1)/       1.8000000D0/
-      DATA GUESS1(53,2)/       0.0157060D0/
-      DATA GUESS2(53,2)/       3.0000000D0/
-      DATA GUESS3(53,2)/       2.2400000D0/
+      DATA USSAM1(53)/    -103.5896630D0/
+      DATA UPPAM1(53)/     -74.4299970D0/
+      DATA BETASA(53)/      -8.4433270D0/
+      DATA BETAPA(53)/      -6.3234050D0/
+      DATA ZS AM1(53)/       2.1028580D0/
+      DATA ZP AM1(53)/       2.1611530D0/
+      DATA ZD AM1(53)/       1.0000000D0/
+      DATA ALPAM1(53)/       2.2994240D0/
+      DATA EISOLA(53)/    -346.8642857D0/
+      DATA GSSAM1(53)/      15.0404486D0/
+      DATA GSPAM1(53)/      13.0565580D0/
+      DATA GPPAM1(53)/      11.1477837D0/
+      DATA GP2AM1(53)/       9.9140907D0/
+      DATA HSPAM1(53)/       2.4563820D0/
+      DATA DD AM1(53)/       1.4878778D0/
+      DATA QQ AM1(53)/       1.1887388D0/
+      DATA AM AM1(53)/       0.5527544D0/
+      DATA AD AM1(53)/       0.4497523D0/
+      DATA AQ AM1(53)/       0.4631775D0/
+      DATA GUESA1(53,1)/       0.0043610D0/
+      DATA GUESA2(53,1)/       2.3000000D0/
+      DATA GUESA3(53,1)/       1.8000000D0/
+      DATA GUESA1(53,2)/       0.0157060D0/
+      DATA GUESA2(53,2)/       3.0000000D0/
+      DATA GUESA3(53,2)/       2.2400000D0/
+C                    DATA FOR ELEMENT 80        MERCURY
+      DATA REFAM  (80)/' Hg: (AM1): M.J.S.Dewar and C.Jie, Organometalli
+     1cs 8, 1547, (1989)              '/
+      DATA USSAM1( 80)/     -19.9415780D0/
+      DATA UPPAM1( 80)/     -11.1108700D0/
+      DATA BETASA( 80)/      -0.9086570D0/
+      DATA BETAPA( 80)/      -4.9093840D0/
+      DATA ZS AM1( 80)/       2.0364130D0/
+      DATA ZP AM1( 80)/       1.9557660D0/
+      DATA ALPAM1( 80)/       1.4847340D0/
+      DATA EISOLA( 80)/     -29.0831560D0/
+      DATA GSSAM1( 80)/      10.8000000D0/
+      DATA GSPAM1( 80)/       9.3000000D0/
+      DATA GPPAM1( 80)/      14.3000000D0/
+      DATA GP2AM1( 80)/      13.5000000D0/
+      DATA HSPAM1( 80)/       1.3000000D0/
+      DATA DD AM1( 80)/       1.8750829D0/
+      DATA QQ AM1( 80)/       1.5424241D0/
+      DATA AM AM1( 80)/       0.3969129D0/
+      DATA AD AM1( 80)/       0.2926605D0/
+      DATA AQ AM1( 80)/       0.3360599D0/
 C
 C     START OF "OLD" ELEMENTS: THESE ARE OLD PARAMETERS WHICH
 C     CAN BE USED, IF DESIRED, BY SPECIFYING "<CHEMICAL SYMBOL>YEAR"
@@ -1386,63 +1489,63 @@ C
 C                    DATA FOR ELEMENT 90        SILICON
       DATA REFAM  (90)/' Si: (MNDO): M.J.S.DEWAR, M.L.MCKEE, H.S.RZEPA,
      1J. AM. CHEM. SOC., 100 3607 1978'/
-      DATA USS   (90)/     -40.5682920D0/
-      DATA UPP   (90)/     -28.0891870D0/
-      DATA BETAS (90)/      -4.2562180D0/
-      DATA BETAP (90)/      -4.2562180D0/
-      DATA ZS    (90)/       1.4353060D0/
-      DATA ZP    (90)/       1.4353060D0/
-      DATA ZD    (90)/       1.0000000D0/
-      DATA ALP   (90)/       2.1961078D0/
-      DATA EISOL (90)/     -90.5399580D0/
-      DATA DD    (90)/       1.4078712D0/
-      DATA QQ    (90)/       1.1658281D0/
-      DATA AM    (90)/       0.3608967D0/
-      DATA AD    (90)/       0.3441817D0/
-      DATA AQ    (90)/       0.3999442D0/
-      DATA HSP(90)/1.32D00/
-      DATA GP2(90)/6.54D00/
-      DATA GPP(90)/7.31D00/
-      DATA GSP(90)/8.36D00/
-      DATA GSS(90)/9.82D00/
+      DATA USSAM1 (90)/     -40.5682920D0/
+      DATA UPPAM1 (90)/     -28.0891870D0/
+      DATA BETASA (90)/      -4.2562180D0/
+      DATA BETAPA (90)/      -4.2562180D0/
+      DATA ZSAM1  (90)/       1.4353060D0/
+      DATA ZPAM1  (90)/       1.4353060D0/
+      DATA ZDAM1  (90)/       1.0000000D0/
+      DATA ALPAM1  (90)/       2.1961078D0/
+      DATA EISOLA (90)/     -90.5399580D0/
+      DATA DDAM1  (90)/       1.4078712D0/
+      DATA QQAM1  (90)/       1.1658281D0/
+      DATA AMAM1  (90)/       0.3608967D0/
+      DATA ADAM1  (90)/       0.3441817D0/
+      DATA AQAM1  (90)/       0.3999442D0/
+      DATA HSPAM1 (90)/1.32D00/
+      DATA GP2AM1 (90)/6.54D00/
+      DATA GPPAM1 (90)/7.31D00/
+      DATA GSPAM1 (90)/8.36D00/
+      DATA GSSAM1 (90)/9.82D00/
       DATA REFAM  (91)/'  S: (MNDO): M.J.S.DEWAR, H.S. RZEPA, M.L.MCKEE,
      1 J.AM.CHEM.SOC.100, 3607 (1978).'/
-      DATA USS   (91)/     -75.2391520D0/
-      DATA UPP   (91)/     -57.8320130D0/
-      DATA BETAS (91)/     -11.1422310D0/
-      DATA BETAP (91)/     -11.1422310D0/
-      DATA ZS    (91)/       2.6135910D0/
-      DATA ZP    (91)/       2.0343930D0/
-      DATA ZD    (91)/       1.0000000D0/
-      DATA ALP   (91)/       2.4916445D0/
-      DATA EISOL (91)/    -235.4413560D0/
-      DATA GSS   (91)/      12.8800000D0/
-      DATA GSP   (91)/      11.2600000D0/
-      DATA GPP   (91)/       9.9000000D0/
-      DATA GP2   (91)/       8.8300000D0/
-      DATA HSP   (91)/       2.2600000D0/
-      DATA DD    (91)/       0.8231596D0/
-      DATA QQ    (91)/       0.8225156D0/
-      DATA AM    (91)/       0.4733554D0/
-      DATA AD    (91)/       0.5889395D0/
-      DATA AQ    (91)/       0.5632724D0/
+      DATA USSAM1 (91)/     -75.2391520D0/
+      DATA UPPAM1 (91)/     -57.8320130D0/
+      DATA BETASA (91)/     -11.1422310D0/
+      DATA BETAPA (91)/     -11.1422310D0/
+      DATA ZSAM1  (91)/       2.6135910D0/
+      DATA ZPAM1  (91)/       2.0343930D0/
+      DATA ZDAM1  (91)/       1.0000000D0/
+      DATA ALPAM1 (91)/       2.4916445D0/
+      DATA EISOLA (91)/    -235.4413560D0/
+      DATA GSSAM1 (91)/      12.8800000D0/
+      DATA GSPAM1 (91)/      11.2600000D0/
+      DATA GPPAM1 (91)/       9.9000000D0/
+      DATA GP2AM1 (91)/       8.8300000D0/
+      DATA HSPAM1 (91)/       2.2600000D0/
+      DATA DDAM1  (91)/       0.8231596D0/
+      DATA QQAM1  (91)/       0.8225156D0/
+      DATA AMAM1  (91)/       0.4733554D0/
+      DATA ADAM1  (91)/       0.5889395D0/
+      DATA AQAM1  (91)/       0.5632724D0/
       DATA REFAM (102)/' Cb: (AM1):  Capped Bond  (Hydrogen-like, takes
      1 on zero charge.)               '/
 C                    DATA FOR ELEMENT102
-      DATA USS   (102)/     -11.9062760D0/
-      DATA BETAS (102)/-9999999.0000000D0/
-      DATA ZS    (102)/       4.0000000D0/
-      DATA ZP    (102)/       0.3000000D0/
-      DATA ZD    (102)/       0.3000000D0/
-      DATA ALP   (102)/       2.5441341D0/
-      DATA EISOL (102)/       4.0000000D0/
-      DATA GSS   (102)/      12.8480000D0/
-      DATA HSP   (102)/       0.1000000D0/
-      DATA DD    (102)/       0.0684105D0/
-      DATA QQ    (102)/       1.0540926D0/
-      DATA AM    (102)/       0.4721793D0/
-      DATA AD    (102)/       0.9262742D0/
-      DATA AQ    (102)/       0.2909059D0/
+      DATA USSAM1 (102)/     -11.9062760D0/
+      DATA BETASA (102)/-9999999.0000000D0/
+      DATA ZSAM1  (102)/       4.0000000D0/
+      DATA ZPAM1  (102)/       0.3000000D0/
+      DATA ZDAM1  (102)/       0.3000000D0/
+      DATA ALPAM1 (102)/       2.5441341D0/
+      DATA EISOLA (102)/       4.0000000D0/
+      DATA GSSAM1 (102)/      12.8480000D0/
+      DATA HSPAM1 (102)/       0.1000000D0/
+      DATA DDAM1  (102)/       0.0684105D0/
+      DATA QQAM1  (102)/       1.0540926D0/
+      DATA AMAM1  (102)/       0.4721793D0/
+      DATA ADAM1  (102)/       0.9262742D0/
+      DATA AQAM1  (102)/       0.2909059D0/
 C
 C     START OF MNDO-PM3 PARAMETER SET
 C
@@ -1464,7 +1567,34 @@ C                    DATA FOR ELEMENT  1        HYDROGEN
       DATA GUESP1(  1,2)/      -1.0603290D0/
       DATA GUESP2(  1,2)/       6.0037880D0/
       DATA GUESP3(  1,2)/       1.5701890D0/
-C                    DATA FOR ELEMENT  6      CARBON
+C                    DATA FOR ELEMENT  4        BERYLLIUM
+      DATA REFPM3( 4)/ ' Be: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3(  4)/     -17.2647520D0/
+      DATA UPPPM3(  4)/     -11.3042430D0/
+      DATA BETASP(  4)/      -3.9620530D0/
+      DATA BETAPP(  4)/      -2.7806840D0/
+      DATA ZSPM3 (  4)/       0.8774390D0/
+      DATA ZPPM3 (  4)/       1.5087550D0/
+      DATA ALPPM3(  4)/       1.5935360D0/
+      DATA EISOLP(  4)/     -25.5166530D0/
+      DATA GSSPM3(  4)/       9.0128510D0/
+      DATA GSPPM3(  4)/       6.5761990D0/
+      DATA GPPPM3(  4)/       6.0571820D0/
+      DATA GP2PM3(  4)/       9.0052190D0/
+      DATA HSPPM3(  4)/       0.5446790D0/
+      DATA DDPM3 (  4)/       1.0090531D0/
+      DATA QQPM3 (  4)/       0.8117586D0/
+      DATA AMPM3 (  4)/       0.3312330D0/
+      DATA ADPM3 (  4)/       0.2908996D0/
+      DATA AQPM3 (  4)/       0.3530008D0/
+      DATA GUESP1(  4,1)/       1.6315720D0/
+      DATA GUESP2(  4,1)/       2.6729620D0/
+      DATA GUESP3(  4,1)/       1.7916860D0/
+      DATA GUESP1(  4,2)/      -2.1109590D0/
+      DATA GUESP2(  4,2)/       1.9685940D0/
+      DATA GUESP3(  4,2)/       1.7558710D0/
+C                    DATA FOR ELEMENT  6        CARBON
       DATA REFPM3 ( 6)/'  C: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3(  6)/     -47.2703200D0/
@@ -1491,7 +1621,7 @@ C                    DATA FOR ELEMENT  6      CARBON
       DATA GUESP1(  6,2)/       0.0507330D0/
       DATA GUESP2(  6,2)/       6.0029790D0/
       DATA GUESP3(  6,2)/       0.8924880D0/
-C                    DATA FOR ELEMENT  7      NITROGEN
+C                    DATA FOR ELEMENT  7        NITROGEN
       DATA REFPM3 ( 7)/'  N: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3(  7)/     -49.3356720D0/
@@ -1518,7 +1648,7 @@ C                    DATA FOR ELEMENT  7      NITROGEN
       DATA GUESP1(  7,2)/      -1.5057720D0/
       DATA GUESP2(  7,2)/       6.0046580D0/
       DATA GUESP3(  7,2)/       1.7161490D0/
-C                    DATA FOR ELEMENT  8      OXYGEN
+C                    DATA FOR ELEMENT  8        OXYGEN
       DATA REFPM3 ( 8)/'  O: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3(  8)/     -86.9930020D0/
@@ -1545,7 +1675,7 @@ C                    DATA FOR ELEMENT  8      OXYGEN
       DATA GUESP1(  8,2)/       1.1378910D0/
       DATA GUESP2(  8,2)/       5.9505120D0/
       DATA GUESP3(  8,2)/       1.5983950D0/
-C                    DATA FOR ELEMENT  9      FLUORINE
+C                    DATA FOR ELEMENT  9        FLUORINE
       DATA REFPM3 ( 9)/'  F: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3(  9)/    -110.4353030D0/
@@ -1572,7 +1702,34 @@ C                    DATA FOR ELEMENT  9      FLUORINE
       DATA GUESP1(  9,2)/      -0.0028520D0/
       DATA GUESP2(  9,2)/       6.0037170D0/
       DATA GUESP3(  9,2)/       2.6361580D0/
-C                    DATA FOR ELEMENT 13      ALUMINUM
+C                    DATA FOR ELEMENT 12        MAGNESIUM
+      DATA REFPM3(12)/ ' Mg: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 12)/     -14.6236880D0/
+      DATA UPPPM3( 12)/     -14.1734600D0/
+      DATA BETASP( 12)/      -2.0716910D0/
+      DATA BETAPP( 12)/      -0.5695810D0/
+      DATA ZSPM3 ( 12)/       0.6985520D0/
+      DATA ZPPM3 ( 12)/       1.4834530D0/
+      DATA ALPPM3( 12)/       1.3291470D0/
+      DATA EISOLP( 12)/     -22.5530760D0/
+      DATA GSSPM3( 12)/       6.6943000D0/
+      DATA GSPPM3( 12)/       6.7939950D0/
+      DATA GPPPM3( 12)/       6.9104460D0/
+      DATA GP2PM3( 12)/       7.0908230D0/
+      DATA HSPPM3( 12)/       0.5433000D0/
+      DATA DDPM3 ( 12)/       1.1403950D0/
+      DATA QQPM3 ( 12)/       1.1279899D0/
+      DATA AMPM3 ( 12)/       0.2460235D0/
+      DATA ADPM3 ( 12)/       0.2695751D0/
+      DATA AQPM3 ( 12)/       0.2767522D0/
+      DATA GUESP1( 12,1)/       2.1170500D0/
+      DATA GUESP2( 12,1)/       6.0094770D0/
+      DATA GUESP3( 12,1)/       2.0844060D0/
+      DATA GUESP1( 12,2)/      -2.5477670D0/
+      DATA GUESP2( 12,2)/       4.3953700D0/
+      DATA GUESP3( 12,2)/       2.0636740D0/
+C                    DATA FOR ELEMENT 13        ALUMINUM
       DATA REFPM3 (13)/' Al: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 13)/     -24.8454040D0/
@@ -1600,7 +1757,7 @@ C                    DATA FOR ELEMENT 13      ALUMINUM
       DATA GUESP1( 13,2)/      -0.1540510D0/
       DATA GUESP2( 13,2)/       6.0050860D0/
       DATA GUESP3( 13,2)/       2.5199970D0/
-C                    DATA FOR ELEMENT 14      SILICON
+C                    DATA FOR ELEMENT 14        SILICON
       DATA REFPM3 (14)/' Si: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 14)/     -26.7634830D0/
@@ -1628,10 +1785,7 @@ C                    DATA FOR ELEMENT 14      SILICON
       DATA GUESP1( 14,2)/       0.0572590D0/
       DATA GUESP2( 14,2)/       6.0071830D0/
       DATA GUESP3( 14,2)/       2.0199870D0/
-      DATA GUESP1( 14,3)/       0.0207890D0/
-      DATA GUESP2( 14,3)/       5.0000000D0/
-      DATA GUESP3( 14,3)/       2.9906100D0/
-C                    DATA FOR ELEMENT 15      PHOSPHORUS
+C                    DATA FOR ELEMENT 15        PHOSPHORUS
       DATA REFPM3 (15)/'  P: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 15)/     -40.4130960D0/
@@ -1659,7 +1813,7 @@ C                    DATA FOR ELEMENT 15      PHOSPHORUS
       DATA GUESP1( 15,2)/      -0.0939350D0/
       DATA GUESP2( 15,2)/       1.9983600D0/
       DATA GUESP3( 15,2)/       1.9106770D0/
-C                    DATA FOR ELEMENT 16      SULFUR
+C                    DATA FOR ELEMENT 16        SULFUR
       DATA REFPM3 (16)/'  S: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 16)/     -49.8953710D0/
@@ -1687,7 +1841,7 @@ C                    DATA FOR ELEMENT 16      SULFUR
       DATA GUESP1( 16,2)/      -0.0548990D0/
       DATA GUESP2( 16,2)/       6.0018450D0/
       DATA GUESP3( 16,2)/       1.5799440D0/
-C                    DATA FOR ELEMENT 17      CHLORINE
+C                    DATA FOR ELEMENT 17        CHLORINE
       DATA REFPM3 (17)/' Cl: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 17)/    -100.6267470D0/
@@ -1715,7 +1869,143 @@ C                    DATA FOR ELEMENT 17      CHLORINE
       DATA GUESP1( 17,2)/      -0.0134580D0/
       DATA GUESP2( 17,2)/       1.9666180D0/
       DATA GUESP3( 17,2)/       2.2928910D0/
-C                    DATA FOR ELEMENT 35      BROMINE
+C                    DATA FOR ELEMENT 30        ZINC
+      DATA REFPM3(30)/ ' Zn: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 30)/     -18.5321980D0/
+      DATA UPPPM3( 30)/     -11.0474090D0/
+      DATA BETASP( 30)/      -0.7155780D0/
+      DATA BETAPP( 30)/      -6.3518640D0/
+      DATA ZSPM3 ( 30)/       1.8199890D0/
+      DATA ZPPM3 ( 30)/       1.5069220D0/
+      DATA ZDPM3 ( 30)/       1.0000000D0/
+      DATA ALPPM3( 30)/       1.3501260D0/
+      DATA EISOLP( 30)/     -27.3872000D0/
+      DATA GSSPM3( 30)/       9.6771960D0/
+      DATA GSPPM3( 30)/       7.7362040D0/
+      DATA GPPPM3( 30)/       4.9801740D0/
+      DATA GP2PM3( 30)/       4.6696560D0/
+      DATA HSPPM3( 30)/       0.6004130D0/
+      DATA DDPM3 ( 30)/       1.5005758D0/
+      DATA QQPM3 ( 30)/       1.4077174D0/
+      DATA AMPM3 ( 30)/       0.3556485D0/
+      DATA ADPM3 ( 30)/       0.2375689D0/
+      DATA AQPM3 ( 30)/       0.2661069D0/
+      DATA GUESP1( 30,1)/      -0.1112340D0/
+      DATA GUESP2( 30,1)/       6.0014780D0/
+      DATA GUESP3( 30,1)/       1.5160320D0/
+      DATA GUESP1( 30,2)/      -0.1323700D0/
+      DATA GUESP2( 30,2)/       1.9958390D0/
+      DATA GUESP3( 30,2)/       2.5196420D0/
+C                    DATA FOR ELEMENT 31        GALLIUM
+      DATA REFPM3(31)/ ' Ga: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 31)/     -29.8555930D0/
+      DATA UPPPM3( 31)/     -21.8753710D0/
+      DATA BETASP( 31)/      -4.9456180D0/
+      DATA BETAPP( 31)/      -0.4070530D0/
+      DATA ZSPM3 ( 31)/       1.8470400D0/
+      DATA ZPPM3 ( 31)/       0.8394110D0/
+      DATA ALPPM3( 31)/       1.6051150D0/
+      DATA EISOLP( 31)/     -57.3280250D0/
+      DATA GSSPM3( 31)/       8.4585540D0/
+      DATA GSPPM3( 31)/       8.9256190D0/
+      DATA GPPPM3( 31)/       5.0868550D0/
+      DATA GP2PM3( 31)/       4.9830450D0/
+      DATA HSPPM3( 31)/       2.0512600D0/
+      DATA DDPM3 ( 31)/       0.9776692D0/
+      DATA QQPM3 ( 31)/       2.5271534D0/
+      DATA AMPM3 ( 31)/       0.3108620D0/
+      DATA ADPM3 ( 31)/       0.5129360D0/
+      DATA AQPM3 ( 31)/       0.1546208D0/
+      DATA GUESP1( 31,1)/      -0.5601790D0/
+      DATA GUESP2( 31,1)/       5.6232730D0/
+      DATA GUESP3( 31,1)/       1.5317800D0/
+      DATA GUESP1( 31,2)/      -0.2727310D0/
+      DATA GUESP2( 31,2)/       1.9918430D0/
+      DATA GUESP3( 31,2)/       2.1838640D0/
+C                    DATA FOR ELEMENT 32        GERMANIUM
+      DATA REFPM3(32)/ ' Ge: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 32)/     -35.4671955D0/
+      DATA UPPPM3( 32)/     -31.5863583D0/
+      DATA BETASP( 32)/      -5.3250024D0/
+      DATA BETAPP( 32)/      -2.2501567D0/
+      DATA ZSPM3 ( 32)/       2.2373526D0/
+      DATA ZPPM3 ( 32)/       1.5924319D0/
+      DATA ALPPM3( 32)/       1.9723370D0/
+      DATA EISOLP( 32)/     -84.0156006D0/
+      DATA GSSPM3( 32)/       5.3769635D0/
+      DATA GSPPM3( 32)/      10.2095293D0/
+      DATA GPPPM3( 32)/       7.6718647D0/
+      DATA GP2PM3( 32)/       6.9242663D0/
+      DATA HSPPM3( 32)/       1.3370204D0/
+      DATA DDPM3 ( 32)/       1.1920304D0/
+      DATA QQPM3 ( 32)/       1.3321263D0/
+      DATA AMPM3 ( 32)/       0.1976098D0/
+      DATA ADPM3 ( 32)/       0.3798182D0/
+      DATA AQPM3 ( 32)/       0.3620669D0/
+      DATA GUESP1( 32,1)/       0.9631726D0/
+      DATA GUESP2( 32,1)/       6.0120134D0/
+      DATA GUESP3( 32,1)/       2.1633655D0/
+      DATA GUESP1( 32,2)/      -0.9593891D0/
+      DATA GUESP2( 32,2)/       5.7491802D0/
+      DATA GUESP3( 32,2)/       2.1693724D0/
+C                    DATA FOR ELEMENT 33        ARSENIC
+      DATA REFPM3(33)/ ' As: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 33)/     -38.5074240D0/
+      DATA UPPPM3( 33)/     -35.1524150D0/
+      DATA BETASP( 33)/      -8.2321650D0/
+      DATA BETAPP( 33)/      -5.0173860D0/
+      DATA ZSPM3 ( 33)/       2.6361770D0/
+      DATA ZPPM3 ( 33)/       1.7038890D0/
+      DATA ALPPM3( 33)/       1.7944770D0/
+      DATA EISOLP( 33)/    -122.6326140D0/
+      DATA GSSPM3( 33)/       8.7890010D0/
+      DATA GSPPM3( 33)/       5.3979830D0/
+      DATA GPPPM3( 33)/       8.2872500D0/
+      DATA GP2PM3( 33)/       8.2103460D0/
+      DATA HSPPM3( 33)/       1.9510340D0/
+      DATA DDPM3 ( 33)/       0.9679655D0/
+      DATA QQPM3 ( 33)/       1.2449874D0/
+      DATA AMPM3 ( 33)/       0.3230063D0/
+      DATA ADPM3 ( 33)/       0.5042239D0/
+      DATA AQPM3 ( 33)/       0.2574219D0/
+      DATA GUESP1( 33,1)/      -0.4600950D0/
+      DATA GUESP2( 33,1)/       1.9831150D0/
+      DATA GUESP3( 33,1)/       1.0867930D0/
+      DATA GUESP1( 33,2)/      -0.0889960D0/
+      DATA GUESP2( 33,2)/       1.9929440D0/
+      DATA GUESP3( 33,2)/       2.1400580D0/
+C                    DATA FOR ELEMENT 34        SELENIUM
+      DATA REFPM3(34)/ ' Se: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 34)/     -55.3781350D0/
+      DATA UPPPM3( 34)/     -49.8230760D0/
+      DATA BETASP( 34)/      -6.1578220D0/
+      DATA BETAPP( 34)/      -5.4930390D0/
+      DATA ZSPM3 ( 34)/       2.8280510D0/
+      DATA ZPPM3 ( 34)/       1.7325360D0/
+      DATA ALPPM3( 34)/       3.0439570D0/
+      DATA EISOLP( 34)/    -192.7748115D0/
+      DATA GSSPM3( 34)/       7.4325910D0/
+      DATA GSPPM3( 34)/      10.0604610D0/
+      DATA GPPPM3( 34)/       9.5683260D0/
+      DATA GP2PM3( 34)/       7.7242890D0/
+      DATA HSPPM3( 34)/       4.0165580D0/
+      DATA DDPM3 ( 34)/       0.8719813D0/
+      DATA QQPM3 ( 34)/       1.2244019D0/
+      DATA AMPM3 ( 34)/       0.2731566D0/
+      DATA ADPM3 ( 34)/       0.7509697D0/
+      DATA AQPM3 ( 34)/       0.5283737D0/
+      DATA GUESP1( 34,1)/       0.0478730D0/
+      DATA GUESP2( 34,1)/       6.0074000D0/
+      DATA GUESP3( 34,1)/       2.0817170D0/
+      DATA GUESP1( 34,2)/       0.1147200D0/
+      DATA GUESP2( 34,2)/       6.0086720D0/
+      DATA GUESP3( 34,2)/       1.5164230D0/
+C                    DATA FOR ELEMENT 35        BROMINE
       DATA REFPM3 (35)/' Br: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 35)/    -116.6193110D0/
@@ -1743,7 +2033,136 @@ C                    DATA FOR ELEMENT 35      BROMINE
       DATA GUESP1( 35,2)/      -0.9549160D0/
       DATA GUESP2( 35,2)/       5.9447030D0/
       DATA GUESP3( 35,2)/       2.3281420D0/
-C                    DATA FOR ELEMENT 53      IODINE
+C                    DATA FOR ELEMENT 48        CADMIUM
+      DATA REFPM3(48)/ ' Cd: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 48)/     -15.8285840D0/
+      DATA UPPPM3( 48)/       8.7497950D0/
+      DATA BETASP( 48)/      -8.5819440D0/
+      DATA BETAPP( 48)/      -0.6010340D0/
+      DATA ZSPM3 ( 48)/       1.6793510D0/
+      DATA ZPPM3 ( 48)/       2.0664120D0/
+      DATA ALPPM3( 48)/       1.5253820D0/
+      DATA EISOLP( 48)/     -22.4502080D0/
+      DATA GSSPM3( 48)/       9.2069600D0/
+      DATA GSPPM3( 48)/       8.2315390D0/
+      DATA GPPPM3( 48)/       4.9481040D0/
+      DATA GP2PM3( 48)/       4.6696560D0/
+      DATA HSPPM3( 48)/       1.6562340D0/
+      DATA DDPM3 ( 48)/       1.5982681D0/
+      DATA QQPM3 ( 48)/       1.2432402D0/
+      DATA AMPM3 ( 48)/       0.3383668D0/
+      DATA ADPM3 ( 48)/       0.3570290D0/
+      DATA AQPM3 ( 48)/       0.2820582D0/
+C                    DATA FOR ELEMENT 49        INDIUM
+      DATA REFPM3(49)/ ' In: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 49)/     -26.1762050D0/
+      DATA UPPPM3( 49)/     -20.0058220D0/
+      DATA BETASP( 49)/      -2.9933190D0/
+      DATA BETAPP( 49)/      -1.8289080D0/
+      DATA ZSPM3 ( 49)/       2.0161160D0/
+      DATA ZPPM3 ( 49)/       1.4453500D0/
+      DATA ALPPM3( 49)/       1.4183850D0/
+      DATA EISOLP( 49)/     -51.9750470D0/
+      DATA GSSPM3( 49)/       6.5549000D0/
+      DATA GSPPM3( 49)/       8.2298730D0/
+      DATA GPPPM3( 49)/       6.2992690D0/
+      DATA GP2PM3( 49)/       4.9842110D0/
+      DATA HSPPM3( 49)/       2.6314610D0/
+      DATA DDPM3 ( 49)/       1.5766241D0/
+      DATA QQPM3 ( 49)/       1.7774563D0/
+      DATA AMPM3 ( 49)/       0.2409004D0/
+      DATA ADPM3 ( 49)/       0.4532655D0/
+      DATA AQPM3 ( 49)/       0.3689812D0/
+      DATA GUESP1( 49,1)/      -0.3431380D0/
+      DATA GUESP2( 49,1)/       1.9940340D0/
+      DATA GUESP3( 49,1)/       1.6255160D0/
+      DATA GUESP1( 49,2)/      -0.1095320D0/
+      DATA GUESP2( 49,2)/       5.6832170D0/
+      DATA GUESP3( 49,2)/       2.8670090D0/
+C                    DATA FOR ELEMENT 50        TIN
+      DATA REFPM3(50)/ ' Sn: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 50)/     -34.5501920D0/
+      DATA UPPPM3( 50)/     -25.8944190D0/
+      DATA BETASP( 50)/      -2.7858020D0/
+      DATA BETAPP( 50)/      -2.0059990D0/
+      DATA ZSPM3 ( 50)/       2.3733280D0/
+      DATA ZPPM3 ( 50)/       1.6382330D0/
+      DATA ALPPM3( 50)/       1.6996500D0/
+      DATA EISOLP( 50)/     -78.8877790D0/
+      DATA GSSPM3( 50)/      10.1900330D0/
+      DATA GSPPM3( 50)/       7.2353270D0/
+      DATA GPPPM3( 50)/       5.6738100D0/
+      DATA GP2PM3( 50)/       5.1822140D0/
+      DATA HSPPM3( 50)/       1.0331570D0/
+      DATA DDPM3 ( 50)/       1.3120038D0/
+      DATA QQPM3 ( 50)/       1.5681814D0/
+      DATA AMPM3 ( 50)/       0.3744959D0/
+      DATA ADPM3 ( 50)/       0.3218163D0/
+      DATA AQPM3 ( 50)/       0.2832529D0/
+      DATA GUESP1( 50,1)/      -0.1503530D0/
+      DATA GUESP2( 50,1)/       6.0056940D0/
+      DATA GUESP3( 50,1)/       1.7046420D0/
+      DATA GUESP1( 50,2)/      -0.0444170D0/
+      DATA GUESP2( 50,2)/       2.2573810D0/
+      DATA GUESP3( 50,2)/       2.4698690D0/
+C                    DATA FOR ELEMENT 51        ANTIMONY
+      DATA REFPM3(51)/ ' Sb: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 51)/     -56.4321960D0/
+      DATA UPPPM3( 51)/     -29.4349540D0/
+      DATA BETASP( 51)/     -14.7942170D0/
+      DATA BETAPP( 51)/      -2.8179480D0/
+      DATA ZSPM3 ( 51)/       2.3430390D0/
+      DATA ZPPM3 ( 51)/       1.8999920D0/
+      DATA ALPPM3( 51)/       2.0343010D0/
+      DATA EISOLP( 51)/    -148.9382890D0/
+      DATA GSSPM3( 51)/       9.2382770D0/
+      DATA GSPPM3( 51)/       5.2776800D0/
+      DATA GPPPM3( 51)/       6.3500000D0/
+      DATA GP2PM3( 51)/       6.2500000D0/
+      DATA HSPPM3( 51)/       2.4244640D0/
+      DATA DDPM3 ( 51)/       1.4091903D0/
+      DATA QQPM3 ( 51)/       1.3521354D0/
+      DATA AMPM3 ( 51)/       0.3395177D0/
+      DATA ADPM3 ( 51)/       0.4589010D0/
+      DATA AQPM3 ( 51)/       0.2423472D0/
+      DATA GUESP1( 51,1)/       3.0020280D0/
+      DATA GUESP2( 51,1)/       6.0053420D0/
+      DATA GUESP3( 51,1)/       0.8530600D0/
+      DATA GUESP1( 51,2)/      -0.0188920D0/
+      DATA GUESP2( 51,2)/       6.0114780D0/
+      DATA GUESP3( 51,2)/       2.7933110D0/
+C                    DATA FOR ELEMENT 52        TELLURIUM
+      DATA REFPM3(52)/ ' Te: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 52)/     -44.9380360D0/
+      DATA UPPPM3( 52)/     -46.3140990D0/
+      DATA BETASP( 52)/      -2.6651460D0/
+      DATA BETAPP( 52)/      -3.8954300D0/
+      DATA ZSPM3 ( 52)/       4.1654920D0/
+      DATA ZPPM3 ( 52)/       1.6475550D0/
+      DATA ALPPM3( 52)/       2.4850190D0/
+      DATA EISOLP( 52)/    -168.0945925D0/
+      DATA GSSPM3( 52)/      10.2550730D0/
+      DATA GSPPM3( 52)/       8.1691450D0/
+      DATA GPPPM3( 52)/       7.7775920D0/
+      DATA GP2PM3( 52)/       7.7551210D0/
+      DATA HSPPM3( 52)/       3.7724620D0/
+      DATA DDPM3 ( 52)/       0.3484177D0/
+      DATA QQPM3 ( 52)/       1.5593085D0/
+      DATA AMPM3 ( 52)/       0.3768862D0/
+      DATA ADPM3 ( 52)/       1.1960743D0/
+      DATA AQPM3 ( 52)/       0.2184786D0/
+      DATA GUESP1( 52,1)/       0.0333910D0/
+      DATA GUESP2( 52,1)/       5.9563790D0/
+      DATA GUESP3( 52,1)/       2.2775750D0/
+      DATA GUESP1( 52,2)/      -1.9218670D0/
+      DATA GUESP2( 52,2)/       4.9732190D0/
+      DATA GUESP3( 52,2)/       0.5242430D0/
+C                    DATA FOR ELEMENT 53        IODINE
       DATA REFPM3 (53)/'  I: (PM3): J. J. P. STEWART, J. COMP. CHEM.
      1 10, 209 (1989).                '/
       DATA USSPM3( 53)/     -96.4540370D0/
@@ -1771,7 +2190,116 @@ C                    DATA FOR ELEMENT 53      IODINE
       DATA GUESP1( 53,2)/      -0.0368970D0/
       DATA GUESP2( 53,2)/       6.0101170D0/
       DATA GUESP3( 53,2)/       2.7103730D0/
-      DATA REFPM3(102)/' Cb: (PM3):  Capped Bond  (Hydrogen-like, takes 
+C                    DATA FOR ELEMENT 80        MERCURY
+      DATA REFPM3(80)/ ' Hg: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 80)/     -17.7622290D0/
+      DATA UPPPM3( 80)/     -18.3307510D0/
+      DATA BETASP( 80)/      -3.1013650D0/
+      DATA BETAPP( 80)/      -3.4640310D0/
+      DATA ZSPM3 ( 80)/       1.4768850D0/
+      DATA ZPPM3 ( 80)/       2.4799510D0/
+      DATA ALPPM3( 80)/       1.5293770D0/
+      DATA EISOLP( 80)/     -28.8997380D0/
+      DATA GSSPM3( 80)/       6.6247200D0/
+      DATA GSPPM3( 80)/      10.6392970D0/
+      DATA GPPPM3( 80)/      14.7092830D0/
+      DATA GP2PM3( 80)/      16.0007400D0/
+      DATA HSPPM3( 80)/       2.0363110D0/
+      DATA DDPM3 ( 80)/       1.2317811D0/
+      DATA QQPM3 ( 80)/       1.2164033D0/
+      DATA AMPM3 ( 80)/       0.2434664D0/
+      DATA ADPM3 ( 80)/       0.4515472D0/
+      DATA AQPM3 ( 80)/       0.2618394D0/
+      DATA GUESP1( 80,1)/       1.0827200D0/
+      DATA GUESP2( 80,1)/       6.4965980D0/
+      DATA GUESP3( 80,1)/       1.1951460D0/
+      DATA GUESP1( 80,2)/      -0.0965530D0/
+      DATA GUESP2( 80,2)/       3.9262810D0/
+      DATA GUESP3( 80,2)/       2.6271600D0/
+C                    DATA FOR ELEMENT 81        THALLIUM
+      DATA REFPM3(81)/ ' Tl: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 81)/     -30.0531700D0/
+      DATA UPPPM3( 81)/     -26.9206370D0/
+      DATA BETASP( 81)/      -1.0844950D0/
+      DATA BETAPP( 81)/      -7.9467990D0/
+      DATA ZSPM3 ( 81)/       6.8679210D0/
+      DATA ZPPM3 ( 81)/       1.9694450D0/
+      DATA ALPPM3( 81)/       1.3409510D0/
+      DATA EISOLP( 81)/     -56.6492050D0/
+      DATA GSSPM3( 81)/      10.4604120D0/
+      DATA GSPPM3( 81)/      11.2238830D0/
+      DATA GPPPM3( 81)/       4.9927850D0/
+      DATA GP2PM3( 81)/       8.9627270D0/
+      DATA HSPPM3( 81)/       2.5304060D0/
+      DATA DDPM3 ( 81)/       0.0781362D0/
+      DATA QQPM3 ( 81)/       1.5317110D0/
+      DATA AMPM3 ( 81)/       0.3844326D0/
+      DATA ADPM3 ( 81)/       2.5741815D0/
+      DATA AQPM3 ( 81)/       0.2213264D0/
+      DATA GUESP1( 81,1)/      -1.3613990D0/
+      DATA GUESP2( 81,1)/       3.5572260D0/
+      DATA GUESP3( 81,1)/       1.0928020D0/
+      DATA GUESP1( 81,2)/      -0.0454010D0/
+      DATA GUESP2( 81,2)/       2.3069950D0/
+      DATA GUESP3( 81,2)/       2.9650290D0/
+C                    DATA FOR ELEMENT 82        LEAD
+      DATA REFPM3(82)/ ' Pb: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 82)/     -30.3227560D0/
+      DATA UPPPM3( 82)/     -24.4258340D0/
+      DATA BETASP( 82)/      -6.1260240D0/
+      DATA BETAPP( 82)/      -1.3954300D0/
+      DATA ZSPM3 ( 82)/       3.1412890D0/
+      DATA ZPPM3 ( 82)/       1.8924180D0/
+      DATA ALPPM3( 82)/       1.6200450D0/
+      DATA EISOLP( 82)/     -73.4660775D0/
+      DATA GSSPM3( 82)/       7.0119920D0/
+      DATA GSPPM3( 82)/       6.7937820D0/
+      DATA GPPPM3( 82)/       5.1837800D0/
+      DATA GP2PM3( 82)/       5.0456510D0/
+      DATA HSPPM3( 82)/       1.5663020D0/
+      DATA DDPM3 ( 82)/       0.9866290D0/
+      DATA QQPM3 ( 82)/       1.5940562D0/
+      DATA AMPM3 ( 82)/       0.2576991D0/
+      DATA ADPM3 ( 82)/       0.4527678D0/
+      DATA AQPM3 ( 82)/       0.2150175D0/
+      DATA GUESP1( 82,1)/      -0.1225760D0/
+      DATA GUESP2( 82,1)/       6.0030620D0/
+      DATA GUESP3( 82,1)/       1.9015970D0/
+      DATA GUESP1( 82,2)/      -0.0566480D0/
+      DATA GUESP2( 82,2)/       4.7437050D0/
+      DATA GUESP3( 82,2)/       2.8618790D0/
+C                    DATA FOR ELEMENT 83        BISMUTH
+      DATA REFPM3(83)/ ' Bi: (PM3): J. J. P. STEWART, J. COMP. CHEM.
+     1(ACCEPTED)                      '/
+      DATA USSPM3( 83)/     -33.4959380D0/
+      DATA UPPPM3( 83)/     -35.5210260D0/
+      DATA BETASP( 83)/      -5.6072830D0/
+      DATA BETAPP( 83)/      -5.8001520D0/
+      DATA ZSPM3 ( 83)/       4.9164510D0/
+      DATA ZPPM3 ( 83)/       1.9349350D0/
+      DATA ALPPM3( 83)/       1.8574310D0/
+      DATA EISOLP( 83)/    -109.2774910D0/
+      DATA GSSPM3( 83)/       4.9894800D0/
+      DATA GSPPM3( 83)/       6.1033080D0/
+      DATA GPPPM3( 83)/       8.6960070D0/
+      DATA GP2PM3( 83)/       8.3354470D0/
+      DATA HSPPM3( 83)/       0.5991220D0/
+      DATA DDPM3 ( 83)/       0.2798609D0/
+      DATA QQPM3 ( 83)/       1.5590294D0/
+      DATA AMPM3 ( 83)/       0.1833693D0/
+      DATA ADPM3 ( 83)/       0.6776013D0/
+      DATA AQPM3 ( 83)/       0.2586520D0/
+      DATA GUESP1( 83,1)/       2.5816930D0/
+      DATA GUESP2( 83,1)/       5.0940220D0/
+      DATA GUESP3( 83,1)/       0.4997870D0/
+      DATA GUESP1( 83,2)/       0.0603200D0/
+      DATA GUESP2( 83,2)/       6.0015380D0/
+      DATA GUESP3( 83,2)/       2.4279700D0/
+C                    DATA FOR ELEMENT  103      CAPPED BOND
+      DATA REFPM3(102)/' Cb: (PM3):  Capped Bond  (Hydrogen-like, takes
      1on a  zero charge.)             '/
       DATA USSPM3(102)/     -11.9062760D0/
       DATA BETASP(102)/-9999999.0000000D0/

@@ -28,6 +28,7 @@ C*********************************************************************
       DIMENSION NATOM(MAXORB)
       CHARACTER * 6 LINE(21)
       CHARACTER*2 ELEMNT,ATORBS(9), ITEXT(MAXORB), JTEXT(MAXORB)
+      SAVE ATORBS
       DATA ATORBS/' S','PX','PY','PZ','X2','XZ','Z2','YZ','XY'/
       IF(NUMAT.NE.0.AND.NUMAT.EQ.NUMM) THEN
 C

@@ -9,6 +9,7 @@ C
 C***********************************************************************
       COMMON /SETC/ A(7),B(7),SA,SB,FACTOR,ISP,IPS
       DIMENSION INMB(17),III(78)
+      SAVE INMB, III
       DATA INMB/1,0,2,2,3,4,5,6,7,0,8,8,8,9,10,11,12/
 C     NUMBERING CORRESPONDS TO BOND TYPE MATRIX GIVEN ABOVE
 C      THE CODE IS
@@ -28,8 +29,7 @@ C      ASSIGNS BOND NUMBER
 C
       JMAX=MAX0(INMB(NA),INMB(NB))
       JMIN=MIN0(INMB(NA),INMB(NB))
-      NBOND=(JMAX*(JMAX-1))/2+JMIN
-      II=III(NBOND)
+      II=III((JMAX*(JMAX-1))/2+JMIN)
       DO 10 I=1,3
          DO 10 J=1,3
             DO 10 K=1,3
@@ -47,31 +47,31 @@ C *** S(2,2,2)=(P-PI(B)/P-PI(A))
 C     ------------------------------------------------------------------
 C *** FIRST ROW - FIRST ROW OVERLAPS
 C
-   20 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   20 CALL SET (ESA,ESB,NA,NB,RAB,II)
       S(1,1,1)=.25D00*SQRT((SA*SB*RAB*RAB)**3)*(A(3)*B(1)-B(3)*A(1))
       RETURN
 C
 C *** FIRST ROW - SECOND ROW OVERLAPS
 C
-   30 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   30 CALL SET (ESA,ESB,NA,NB,RAB,II)
       W=SQRT((SA**3)*(SB**5))*(RAB**4)*0.125D00
       S(1,1,1) = SQRT(1.D00/3.D00)
       S(1,1,1)=W*S(1,1,1)*(A(4)*B(1)-B(4)*A(1)+A(3)*B(2)-B(3)*A(2))
-      IF (NA.GT.1) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
-      IF (NB.GT.1) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
+      IF (NA.GT.1) CALL SET (EPA,ESB,NA,NB,RAB,II)
+      IF (NB.GT.1) CALL SET (ESA,EPB,NA,NB,RAB,II)
       W=SQRT((SA**3)*(SB**5))*(RAB**4)*0.125D00
       S(ISP,IPS,1)=W*(A(3)*B(1)-B(3)*A(1)+A(4)*B(2)-B(4)*A(2))
       RETURN
 C
 C *** FIRST ROW - THIRD ROW OVERLAPS
 C
-   40 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   40 CALL SET (ESA,ESB,NA,NB,RAB,II)
       W=SQRT((SA**3)*(SB**7)/7.5D00)*(RAB**5)*0.0625D00
       SROOT3 = SQRT(3.D00)
       S(1,1,1)=W*(A(5)*B(1)-B(5)*A(1)+
      12.D00*(A(4)*B(2)-B(4)*A(2)))/SROOT3
-      IF (NA.GT.1) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
-      IF (NB.GT.1) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
+      IF (NA.GT.1) CALL SET (EPA,ESB,NA,NB,RAB,II)
+      IF (NB.GT.1) CALL SET (ESA,EPB,NA,NB,RAB,II)
       W=SQRT((SA**3)*(SB**7)/7.5D00)*(RAB**5)*0.0625D00
       S(ISP,IPS,1)=W*(A(4)*(B(1)+B(3))-B(4)*(A(1)+A(3))+
      1B(2)*(A(3)+A(5))-A(2)*(B(3)+B(5)))
@@ -79,23 +79,23 @@ C
 C
 C *** SECOND ROW - SECOND ROW OVERLAPS
 C
-   50 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   50 CALL SET (ESA,ESB,NA,NB,RAB,II)
       W=SQRT((SA*SB)**5)*(RAB**5)*0.0625D00
       RT3=1.D00/SQRT(3.D00)
       S(1,1,1)=W*(A(5)*B(1)+B(5)*A(1)-2.0D00*A(3)*B(3))/3.0D00
-      CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
+      CALL SET (ESA,EPB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,II)
       W=SQRT((SA*SB)**5)*(RAB**5)*0.0625D00
       D=A(4)*(B(1)-B(3))-A(2)*(B(3)-B(5))
       E=B(4)*(A(1)-A(3))-B(2)*(A(3)-A(5))
       S(ISP,IPS,1)=W*RT3*(D+E)
-      CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,ESB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,II)
       W=SQRT((SA*SB)**5)*(RAB**5)*0.0625D00
       D=A(4)*(B(1)-B(3))-A(2)*(B(3)-B(5))
       E=B(4)*(A(1)-A(3))-B(2)*(A(3)-A(5))
       S(IPS,ISP,1)=-W*RT3*(E-D)
-      CALL SET (EPA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,EPB,NA,NB,RAB,II)
       W=SQRT((SA*SB)**5)*(RAB**5)*0.0625D00
       S(2,2,1)=-W*(B(3)*(A(5)+A(1))-A(3)*(B(5)+B(1)))
       HD = .5D00
@@ -105,26 +105,26 @@ C
 C
 C *** SECOND ROW - THIRD ROW OVERLAPS
 C
-   60 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   60 CALL SET (ESA,ESB,NA,NB,RAB,II)
       W=SQRT((SA**5)*(SB**7)/7.5D00)*(RAB**6)*0.03125D00
       RT3 = 1.D00 / SQRT(3.D00)
       TD = 2.D00
       S(1,1,1)=W*(A(6)*B(1)+A(5)*B(2)-TD*(A(4)*B(3)+
      1A(3)*B(4))+A(2)*B(5)+A(
      21)*B(6))/3.D00
-      CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
+      CALL SET (ESA,EPB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,II)
       W=SQRT((SA**5)*(SB**7)/7.5D00)*(RAB**6)*0.03125D00
       TD = 2.D00
       S(ISP,IPS,1)=W*RT3*(A(6)*B(2)+A(5)*B(1)-TD*(A(4)*B(4)+A(3)*B(3))
      1+A(2)*B(6)+A(1)*B(5))
-      CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,ESB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,II)
       W=SQRT((SA**5)*SB**7/7.5D00)*(RAB**6)*0.03125D00
       TD = 2.D00
       S(IPS,ISP,1)=-W*RT3*(A(5)*(TD*B(3)-B(1))-B(5)*(TD*A(3)-A(1))-A(2
      1)*(B(6)-TD*B(4))+B(2)*(A(6)-TD*A(4)))
-      CALL SET (EPA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,EPB,NA,NB,RAB,II)
       W=SQRT((SA**5)*SB**7/7.5D00)*(RAB**6)*0.03125D00
       S(2,2,1)=-W*(B(4)*(A(1)+A(5))-A(4)*(B(1)+B(5))
      1+B(3)*(A(2)+A(6))-A(3)*(B(2)+B(6)))
@@ -136,23 +136,23 @@ C
 C
 C *** THIRD ROW - THIRD ROW OVERLAPS
 C
-   70 CALL SET (ESA,ESB,NA,NB,RAB,NBOND,II)
+   70 CALL SET (ESA,ESB,NA,NB,RAB,II)
       W=SQRT((SA*SB*RAB*RAB)**7)/480.D00
       RT3 = 1.D00 / SQRT(3.D00)
       S(1,1,1)=W*(A(7)*B(1)-3.D00*(A(5)*B(3)-A(3)*B(5))-A(1)*B(7))/3.D00
-      CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
+      CALL SET (ESA,EPB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,II)
       W=SQRT((SA*SB*RAB*RAB)**7)/480.D00
       D=A(6)*(B(1)-B(3))-2.D00*A(4)*(B(3)-B(5))+A(2)*(B(5)-B(7))
       E=B(6)*(A(1)-A(3))-2.D00*B(4)*(A(3)-A(5))+B(2)*(A(5)-A(7))
       S(ISP,IPS,1)=W*RT3*(D-E)
-      CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
-      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,ESB,NA,NB,RAB,II)
+      IF (NA.GT.NB) CALL SET (ESA,EPB,NA,NB,RAB,II)
       W=SQRT((SA*SB*RAB*RAB)**7)/480.D00
       D=A(6)*(B(1)-B(3))-2.D00*A(4)*(B(3)-B(5))+A(2)*(B(5)-B(7))
       E=B(6)*(A(1)-A(3))-2.D00*B(4)*(A(3)-A(5))+B(2)*(A(5)-A(7))
       S(IPS,ISP,1)=-W*RT3*(-D-E)
-      CALL SET (EPA,EPB,NA,NB,RAB,NBOND,II)
+      CALL SET (EPA,EPB,NA,NB,RAB,II)
       W=SQRT((SA*SB*RAB*RAB)**7)/480.D00
       TD = 2.D00
       S(2,2,1)=-W*(A(3)*(B(7)+TD*B(3))-A(5)*(B(1)+
@@ -164,7 +164,7 @@ C
       RETURN
 C
       END
-      SUBROUTINE SET (S1,S2,NA,NB,RAB,NBOND,II)
+      SUBROUTINE SET (S1,S2,NA,NB,RAB,II)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       COMMON /SETC/ A(7),B(7),SA,SB,FACTOR,ISP,IPS
 C***********************************************************************
@@ -218,6 +218,7 @@ C
 C     BINTGS FORMS THE "B" INTEGRALS FOR THE OVERLAP CALCULATION.
 C
 C**********************************************************************
+      SAVE FACT
       DATA FACT/1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
      1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0,
      28.71782912D10,1.307674368D12,2.092278989D13,3.556874281D14/

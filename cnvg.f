@@ -1,7 +1,7 @@
       SUBROUTINE CNVG(PNEW, P, P1,NORBS, NITER, PL)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION P1(*), P(*), PNEW(*)
-      LOGICAL EXTRAP, FIRST
+      LOGICAL EXTRAP
 C***********************************************************************
 C
 C  CNVG IS A TWO-POINT INTERPOLATION ROUTINE FOR SPEEDING CONVERGENCE
@@ -13,10 +13,12 @@ C           PL     = LARGEST DIFFERENCE BETWEEN OLD AND NEW DENSITY
 C                    MATRIX DIAGONAL ELEMENTS
 C***********************************************************************
       COMMON/KEYWRD/ KEYWRD
-      CHARACTER*80 KEYWRD
-      DATA FIRST/.TRUE./
-      IF(FIRST) THEN
-         FIRST=.FALSE.
+      COMMON /NUMCAL/ NUMCAL
+      SAVE RHFUHF
+      CHARACTER*241 KEYWRD
+      DATA ICALCN/0/
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
          IF(INDEX(KEYWRD,'UHF').NE.0)THEN
             RHFUHF=1.D0
          ELSE
@@ -69,9 +71,13 @@ C
 C   RE-NORMALIZE IF ANY DENSITY MATRIX ELEMENTS HAVE BEEN TRUNCATED
 C
       SUM0=SUM1
-   60 SUM=SUM1/SUM2
+   60 IF(SUM2.GT.1.D-3)THEN
+         SUM=SUM1/SUM2
+      ELSE
+         SUM=0.D0
+      ENDIF
       SUM1=SUM0
-      IF(ABS(SUM-1.D0).GT.1.D-5)THEN
+      IF(SUM2.GT.1.D-3.AND.ABS(SUM-1.D0).GT.1.D-5)THEN
 C#      WRITE(6,'(6F12.6)')(P((I*(I+1))/2),I=1,NORBS)
          SUM2=0.D0
          DO 70 I=1,NORBS

@@ -1,4 +1,5 @@
       SUBROUTINE ROTATE (NI,NJ,XI,XJ,W,KR,E1B,E2A,ENUC,CUTOFF)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C***********************************************************************
 C
 C..IMPROVED SCALAR VERSION
@@ -30,9 +31,11 @@ C     (OO/OO)=16,  (PP/OO)=17,  (OO/PP)=18,  (PP/PP)=19,  (PO/PO)=20,
 C     (PP/P*P*)=21,   (P*P/P*P)=22.
 C
 C***********************************************************************
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      CHARACTER*80 KEYWRD
-      LOGICAL SI,SJ, AM1PM3, ANALYT, AM1
+      COMMON /NUMCAL/ NUMCAL
+      SAVE ANALYT, ICALCN
+      COMMON /MOLMEC/ HTYPE(4),NHCO(4,20),NNHCO,ITYPE
+      CHARACTER*241 KEYWRD
+      LOGICAL SI,SJ, ANALYT
       COMMON /NATORB/ NATORB(107)
       COMMON /TWOEL3/ F03(107)
       COMMON /ALPHA3/ ALP3(153)
@@ -46,6 +49,7 @@ C***********************************************************************
       DIMENSION XI(3),XJ(3),W(100),E1B(10),E2A(10)
       DIMENSION RI(22),CCORE(4,2), BORON1(3,4), BORON2(3,4), BORON3(3,4)
       EQUIVALENCE (CCORE(1,1),CSS1)
+      DATA ICALCN/0/
       DATA BORON1/  0.182613D0,  0.118587D0, -0.073280D0,
      1              0.412253D0, -0.149917D0,  0.000000D0,
      2              0.261751D0,  0.050275D0,  0.000000D0,
@@ -59,17 +63,8 @@ C***********************************************************************
      2              1.063995D0,  1.936492D0,  0.000000D0,
      3              0.819351D0,  1.574414D0,  0.000000D0/
 C
-C INITIALIZE ITYPE - PROGRAM ASSUMES ITYPE IS PRESERVED BETWEEN CALLS
-      DATA ITYPE /0/
-C
-      IF (ITYPE.EQ.0) THEN
-         IF(INDEX(KEYWRD,'MINDO') .NE. 0) THEN
-            ITYPE=1
-         ELSE
-            AM1   = (INDEX(KEYWRD,'AM1') .NE. 0)
-            AM1PM3= (INDEX(KEYWRD,'PM3')+INDEX(KEYWRD,'AM1') .NE. 0)
-            ITYPE=2
-         ENDIF
+      IF(ICALCN.NE.NUMCAL)THEN
+         ICALCN=NUMCAL
          ANALYT=(INDEX(KEYWRD,'ANALYT') .NE. 0)
          IF(ANALYT)THEN
             OPEN(UNIT=2,STATUS='SCRATCH',FORM='UNFORMATTED')
@@ -81,7 +76,7 @@ C
       X(2)=XI(2)-XJ(2)
       X(3)=XI(3)-XJ(3)
       RIJ=X(1)*X(1)+X(2)*X(2)+X(3)*X(3)
-      IF (RIJ.LT.0.002D0) THEN
+      IF (RIJ.LT.0.00002D0) THEN
 C
 C     SMALL RIJ CASE
 C
@@ -92,7 +87,7 @@ C
          W(KR)=0.D0
          ENUC=0.D0
 C
-      ELSE IF (ITYPE.EQ.1) THEN
+      ELSE IF (ITYPE.EQ.4) THEN
 C
 C     MINDO CASE
 C
@@ -685,23 +680,23 @@ C
          ENDIF
          ENUC = TORE(NI)*TORE(NJ)*GAM
          SCALE=ABS(SCALE*ENUC)
-         IF( AM1PM3 )THEN
-         IF(AM1.AND.(NI.EQ.5.OR.NJ.EQ.5))THEN
+         IF(ITYPE.EQ.2.AND.(NI.EQ.5.OR.NJ.EQ.5))THEN
 C
 C   LOAD IN AM1 BORON GAUSSIANS
 C
-          NK=NI+NJ-5
+            NK=NI+NJ-5
 C   NK IS THE ATOMIC NUMBER OF THE NON-BORON ATOM
-          NL=1
-          IF(NK.EQ.1)NL=2
-          IF(NK.EQ.6)NL=3
-          IF(NK.EQ.9.OR.NK.EQ.17.OR.NK.EQ.35.OR.NK.EQ.53)NL=4
-          DO 25 I=1,3
-          FN1(5,I)=BORON1(I,NL)
-          FN2(5,I)=BORON2(I,NL)
-  25      FN3(5,I)=BORON3(I,NL)
-          ENDIF
-            DO 30 IG=1,10
+            NL=1
+            IF(NK.EQ.1)NL=2
+            IF(NK.EQ.6)NL=3
+            IF(NK.EQ.9.OR.NK.EQ.17.OR.NK.EQ.35.OR.NK.EQ.53)NL=4
+            DO 30 I=1,3
+               FN1(5,I)=BORON1(I,NL)
+               FN2(5,I)=BORON2(I,NL)
+   30       FN3(5,I)=BORON3(I,NL)
+         ENDIF
+         IF(ITYPE.EQ.2.OR.ITYPE.EQ.3) THEN
+            DO 40 IG=1,10
                IF(ABS(FN1(NI,IG)).GT.0.D0) THEN
                   AX = FN2(NI,IG)*(RIJ-FN3(NI,IG))**2
                   IF(AX .LE. 25.D0) THEN
@@ -716,7 +711,7 @@ C   NK IS THE ATOMIC NUMBER OF THE NON-BORON ATOM
      1AX)
                   ENDIF
                ENDIF
-   30       CONTINUE
+   40       CONTINUE
          ENDIF
          ENUC=ENUC+SCALE
 C

@@ -25,16 +25,19 @@
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,XRACT
+      COMMON /NUMCAL/ NUMCAL
       DIMENSION  IEL1(3), GG(3)
-      CHARACTER*80 KEYWRD,KOMENT,TITLE, ALPHA*2, ELEMNT*2
+      CHARACTER KEYWRD*241,KOMENT*81,TITLE*81, ALPHA*2, ELEMNT*2
+      SAVE PRTKEY, PRTKOM, PRTITL, I, DRC
       INTEGER PRTKOM, PRTITL, PRTKEY
-      LOGICAL FIRST, LARGE, DRC
-      DATA FIRST/.TRUE./
-      IF(FIRST)THEN
-         IF( INDEX(KEYWRD,'REST').EQ.0.OR.INDEX(KEYWRD,'IRC=').NE.0)THEN
+      LOGICAL LARGE, DRC
+      DATA ICALCN/0/
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
+         IF( INDEX(KEYWRD,'RESTART').EQ.0.OR.INDEX(KEYWRD,'IRC=').NE.0)
+     1THEN
             JLOOP=0
          ENDIF
-         FIRST=.FALSE.
          DO 10 I=80,1,-1
    10    IF(KEYWRD(I:I).NE.' ')GOTO 20
          I=1
@@ -48,21 +51,22 @@
          I=1
    60    PRTITL=I
          DRC=(INDEX(KEYWRD,'DRC').NE.0)
-         LARGE=(INDEX(KEYWRD,'LARGE').NE.0)
-         IF(DRC) THEN
-            WRITE(6,'(//,'' FEMTOSECONDS  POINT  POTENTIAL +''
-     1,'' KINETIC  =  TOTAL     ERROR    REF%'')')
-         ELSE
-            WRITE(6,'(//,''     POINT   POTENTIAL  +  ''
-     1,''ENERGY LOST   =   TOTAL      ERROR    REF%'')')
+         I=INDEX(KEYWRD,'LARGE')
+         IPRINT=10000
+         IF(I.NE.0)THEN
+            IPRINT=1
+            I=I+5
+            LARGE=(KEYWRD(I:I).EQ.' '.OR.KEYWRD(I+1:I+1).EQ.'-')
+            IF(KEYWRD(I:I).EQ.'=') IPRINT=ABS(READA(KEYWRD,I))
          ENDIF
-      ELSE
+      ENDIF
+      IF(JLOOP.EQ.0.OR.(JLOOP/IPRINT)*IPRINT.EQ.JLOOP) THEN
          IF(DRC) THEN
             WRITE(6,'(//,'' FEMTOSECONDS  POINT  POTENTIAL +''
-     1,'' KINETIC  =  TOTAL     ERROR    REF'')')
+     1,'' KINETIC  =  TOTAL     ERROR    REF%   MOVEMENT'')')
          ELSE
             WRITE(6,'(//,''     POINT   POTENTIAL  +  ''
-     1,''ENERGY LOST   =   TOTAL      ERROR    REF'')')
+     1,''ENERGY LOST   =   TOTAL      ERROR    REF%   MOVEMENT'')')
          ENDIF
       ENDIF
       JLOOP=JLOOP+1
@@ -70,19 +74,20 @@ C#      FRACT=0.D0
       ESCF=ESCF3(1)+ESCF3(2)*FRACT+ESCF3(3)*FRACT**2
       EKIN=EKIN3(1)+EKIN3(2)*FRACT+EKIN3(3)*FRACT**2
       ETOT=ETOT3(1)+ETOT3(2)*FRACT+ETOT3(3)*FRACT**2
-      GTOT=GTOT3(1)+GTOT3(2)*FRACT+GTOT3(3)*FRACT**2
+C#      GTOT=GTOT3(1)+GTOT3(2)*FRACT+GTOT3(3)*FRACT**2
       XTOT=XTOT3(1)+XTOT3(2)*FRACT+XTOT3(3)*FRACT**2
+      ERRR=MIN(9999.99999D0,MAX(-999.99999D0,ESCF+EKIN-ETOT))
       IF(II.NE.0)THEN
          IF(DRC) THEN
             WRITE(6,'(F10.3,I8,F12.5,F11.5,F11.5,
      1F10.5,'' '',I5,3X,''%'',A,A,I3)')TIME, ILOOP-2, ESCF, EKIN,
-     2 ESCF+EKIN,ESCF+EKIN-ETOT,JLOOP,TEXT1,TEXT2,II
+     2 ESCF+EKIN,ERRR,JLOOP,TEXT1,TEXT2,II
             WRITE(6,'(9X,A,F9.4,A)')' MOVEMENT FROM START =',XTOT,' ANGS
      1TROMS'
          ELSE
             WRITE(6,'(I8,F14.5,F13.5,F17.5,
      1F10.5,'' '',I5,3X,''%'',A,A,I3)') ILOOP-2, ESCF, EKIN,
-     2 ESCF+EKIN,ESCF+EKIN-ETOT,JLOOP,TEXT1,TEXT2,II
+     2 ESCF+EKIN,ERRR,JLOOP,TEXT1,TEXT2,II
 C#      WRITE(6,'(24X,'' INTEGRATED GRADIENT ERROR ='',G10.3,
 C#     1'' KCALS/ANGSTROM'')')GTOT
             WRITE(6,'(9X,A,F9.4,A)')' MOVEMENT FROM START =',XTOT,' ANGS
@@ -90,19 +95,25 @@ C#     1'' KCALS/ANGSTROM'')')GTOT
          ENDIF
       ELSE
          IF(DRC) THEN
-            WRITE(6,'(F10.3,I8,F12.5,F11.5,F11.5,
+            IF(TEXT1.EQ.' '.AND.TEXT2.EQ.' ')THEN
+               WRITE(6,'(F10.3,I8,F12.5,F11.5,F11.5,
+     1F10.5,'' '',I5,3X,''%'',F8.4)')TIME, ILOOP-2, ESCF, EKIN,
+     2 ESCF+EKIN,ERRR,JLOOP,XTOT
+            ELSE
+               WRITE(6,'(F10.3,I8,F12.5,F11.5,F11.5,
      1F10.5,'' '',I5,3X,''%'',A,A,I3)')TIME, ILOOP-2, ESCF, EKIN,
-     2 ESCF+EKIN,ESCF+EKIN-ETOT,JLOOP,TEXT1,TEXT2
-            WRITE(6,'(9X,A,F9.4,A)')' MOVEMENT FROM START =',XTOT,' ANGS
-     1TROMS'
+     2 ESCF+EKIN,ERRR,JLOOP,TEXT1,TEXT2
+            ENDIF
          ELSE
-            WRITE(6,'(I8,F14.5,F13.5,F17.5,
+            IF(TEXT1.EQ.' '.AND.TEXT2.EQ.' ')THEN
+               WRITE(6,'(I8,F14.5,F13.5,F17.5,
+     1F10.5,'' '',I5,3X,''%'',F8.4)') ILOOP-2, ESCF, EKIN,
+     2 ESCF+EKIN,ERRR,JLOOP,XTOT
+            ELSE
+               WRITE(6,'(I8,F14.5,F13.5,F17.5,
      1F10.5,'' '',I5,3X,''%'',A,A,I3)') ILOOP-2, ESCF, EKIN,
-     2 ESCF+EKIN,ESCF+EKIN-ETOT,JLOOP,TEXT1,TEXT2
-C#      WRITE(6,'(24X,'' INTEGRATED GRADIENT ERROR ='',F10.5,
-C#     1'' KCALS/ANGSTROM'')')GTOT
-            WRITE(6,'(9X,A,F9.4,A)')' MOVEMENT FROM START =',XTOT,' ANGS
-     1TROMS'
+     2 ESCF+EKIN,ERRR,JLOOP,TEXT1,TEXT2
+            ENDIF
          ENDIF
       ENDIF
       NATOMS=NVAR/3
@@ -113,65 +124,66 @@ C#     1'' KCALS/ANGSTROM'')')GTOT
             VEL(J,I)=VEL3(1,L)+VEL3(2,L)*FRACT+VEL3(3,L)*FRACT**2
    70    XYZ(J,I)=XYZ3(1,L)+XYZ3(2,L)*FRACT+XYZ3(3,L)*FRACT**2
    80 CONTINUE
-      IF(LARGE)THEN
+      IF(LARGE.AND.(JLOOP/IPRINT)*IPRINT.EQ.JLOOP)THEN
          WRITE(6,*)'                CARTESIAN GEOMETRY           '
      1//'VELOCITY (IN CM/SEC)'
          WRITE(6,*)'  ATOM        X          Y          Z'
      1      //'                X          Y          Z'
          DO 90 I=1,NUMAT
             LL=(I-1)*3+1
-            LU=LL+2
             WRITE(6,'(I4,3X,A2,3F11.5,2X,3F11.1)')
      1I, ELEMNT(NAT(I)),(XYZ(J,I),J=1,3),(VEL(J,I),J=1,3)
    90    CONTINUE
       ENDIF
-      IVAR=1
-      NA(1)=0
-      L=0
-      WRITE(6,'(//10X,''FINAL GEOMETRY OBTAINED'',33X,''CHARGE'')'
+      IF((JLOOP/IPRINT)*IPRINT.EQ.JLOOP)THEN
+         IVAR=1
+         NA(1)=0
+         L=0
+         WRITE(6,'(//10X,''FINAL GEOMETRY OBTAINED'',33X,''CHARGE'')'
      1)
-      WRITE(6,'(A)')KEYWRD(:PRTKEY),KOMENT(:PRTKOM),TITLE(:PRTITL)
-      LMAX=L
-      L=0
-      DO 120 I=1,NUMAT
-         J=I/26
-         ALPHA(1:1)=CHAR(ICHAR('A')+J)
-         J=I-J*26
-         ALPHA(2:2)=CHAR(ICHAR('A')+J-1)
-         DO 100 J=1,3
-  100    IEL1(J)=0
-  110    CONTINUE
-         IF(LOC(1,IVAR).EQ.I) THEN
-            IEL1(LOC(2,IVAR))=1
-            IVAR=IVAR+1
-            GOTO 110
-         ENDIF
-         IF(I.LT.4) THEN
-            IEL1(3)=0
-            IF(I.LT.3) THEN
-               IEL1(2)=0
-               IF(I.LT.2) THEN
-                  IEL1(1)=0
+         WRITE(6,'(A)')KEYWRD(:PRTKEY),KOMENT(:PRTKOM),TITLE(:PRTITL)
+         L=0
+         DO 120 I=1,NUMAT
+            J=I/26
+            ALPHA(1:1)=CHAR(ICHAR('A')+J)
+            J=I-J*26
+            ALPHA(2:2)=CHAR(ICHAR('A')+J-1)
+C$DOIT ASIS
+            DO 100 J=1,3
+  100       IEL1(J)=0
+  110       CONTINUE
+            IF(LOC(1,IVAR).EQ.I) THEN
+               IEL1(LOC(2,IVAR))=1
+               IVAR=IVAR+1
+               GOTO 110
+            ENDIF
+            IF(I.LT.4) THEN
+               IEL1(3)=0
+               IF(I.LT.3) THEN
+                  IEL1(2)=0
+                  IF(I.LT.2) THEN
+                     IEL1(1)=0
+                  ENDIF
                ENDIF
             ENDIF
-         ENDIF
-         IF(LABELS(I).LT.99)THEN
-            L=L+1
-            GG(1)=GEO3(1,I*3-2)+GEO3(2,I*3-2)*FRACT+GEO3(3,I*3-2)*FRACT*
-     1*2
-            GG(2)=GEO3(1,I*3-1)+GEO3(2,I*3-1)*FRACT+GEO3(3,I*3-1)*FRACT*
-     1*2
-            GG(3)=GEO3(1,I*3  )+GEO3(2,I*3  )*FRACT+GEO3(3,I*3  )*FRACT*
-     1*2
-            WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,F13.4,I5,A)')
+            IF(LABELS(I).LT.99)THEN
+               L=L+1
+               GG(1)=GEO3(1,I*3-2)+GEO3(2,I*3-2)*FRACT+GEO3(3,I*3-2)*FRA
+     1CT**2
+               GG(2)=GEO3(1,I*3-1)+GEO3(2,I*3-1)*FRACT+GEO3(3,I*3-1)*FRA
+     1CT**2
+               GG(3)=GEO3(1,I*3  )+GEO3(2,I*3  )*FRACT+GEO3(3,I*3  )*FRA
+     1CT**2
+               WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,F13.4,I5,A)')
      1    ELEMNT(LABELS(I)),(GG(K),IEL1(K),K=1,3),
      2    NA(I),NB(I),NC(I),CHARGE(L),JLOOP,ALPHA//'*'
-         ELSE
-            WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,13X,I5,A)')
+            ELSE
+               WRITE(6,'(2X,A2,3(F12.6,I3),I4,2I3,13X,I5,A)')
      1    ELEMNT(LABELS(I)),(GG(K),IEL1(K),K=1,3),
      2NA(I),NB(I),NC(I),JLOOP,ALPHA//'%'
-         ENDIF
-  120 CONTINUE
-      NA(1)=99
+            ENDIF
+  120    CONTINUE
+         NA(1)=99
+      ENDIF
       RETURN
       END

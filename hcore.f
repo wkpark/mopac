@@ -3,7 +3,6 @@
       LOGICAL FLDON
       INCLUDE 'SIZES'
       DIMENSION COORD(3,*),H(*), WJ(N2ELEC), WK(N2ELEC), W(N2ELEC)
-      REAL WJ, WK
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
@@ -13,6 +12,7 @@
       COMMON /MULTIP/ DD(107),QQ(107),AM(107),AD(107),AQ(107)
       COMMON /CORE  / CORE(107)
       COMMON /FIELD / EFIELD(3)
+      COMMON /NUMCAL/ NUMCAL
 ************************************************************************
 C
 C   HCORE GENERATES THE ONE-ELECTRON MATRIX AND TWO ELECTRON INTEGRALS
@@ -25,17 +25,22 @@ C  ON OUTPUT  H      = ONE-ELECTRON MATRIX.
 C             W      = TWO-ELECTRON INTEGRALS.
 C             ENUCLR = NUCLEAR ENERGY
 ************************************************************************
-      CHARACTER*80 KEYWRD
+      CHARACTER*241 KEYWRD
       LOGICAL FIRST,DEBUG
+      SAVE FIRST, IONE, CUTOFF, DEBUG
       DIMENSION E1B(10),E2A(10),DI(9,9), WJD(100), WKD(100)
-      DATA FIRST/.TRUE./
+      DATA ICALCN/0/
+      FIRST=(ICALCN.NE.NUMCAL)
+      ICALCN=NUMCAL
       IF (FIRST) THEN
          IONE=1
          CUTOFF=1.D10
          IF(ID.NE.0)CUTOFF=60.D0
          IF(ID.NE.0)IONE=0
-         FIRST=.FALSE.
          DEBUG=(INDEX(KEYWRD,'HCORE') .NE. 0)
+	 EFIELD(1)=0.D0
+	 EFIELD(2)=0.D0
+	 EFIELD(3)=0.D0
       ENDIF
       FLDON = .FALSE.
       IF ((EFIELD(1).NE.0.0D00).OR.(EFIELD(2).NE.0.0D00).OR.
@@ -44,7 +49,7 @@ C             ENUCLR = NUCLEAR ENERGY
          FLDON = .TRUE.
       ENDIF
       DO 10 I=1,(NORBS*(NORBS+1))/2
-   10 H(I)=0
+   10 H(I)=0.D0
       ENUCLR=0.D0
       KR=1
       DO 110 I=1,NUMAT

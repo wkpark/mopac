@@ -11,12 +11,19 @@
 *       THE UNITS OF INERTIA ARE 10**(-40)GRAM-CM**2,
 *       AND MOL.WEIGHT IN ATOMIC-MASS-UNITS. (AMU'S)
 ************************************************************************
+      COMMON /NUMCAL/ NUMCAL
       COMMON /ATMASS/ ATMASS(NUMATM)
       DIMENSION T(6), X(NUMATM), Y(NUMATM),
      1          Z(NUMATM), ROT(3), XYZMOM(3), EIG(3), EVEC(3,3)
       LOGICAL FIRST
-      CHARACTER*80 KEYWRD
-      DATA T /6*0.D0/, FIRST/.TRUE./
+      CHARACTER*241 KEYWRD
+      SAVE ICALCN, T, FIRST, EIG, ROT, XYZMOM
+      DATA T /6*0.D0/
+      DATA ICALCN /0/
+      IF (ICALCN.NE.NUMCAL) THEN
+         ICALCN=NUMCAL
+         FIRST=.TRUE.
+      ENDIF
 ************************************************************************
 *     CONST1 =  10**40/(N*A*A)
 *               N = AVERGADRO'S NUMBER
@@ -42,23 +49,33 @@ C
       SUMWX=0.D0
       SUMWY=0.D0
       SUMWZ=0.D0
-      WEIGHT=1.D0
-      DO 10 I=1,NUMAT
-         IF(MASS.GT.0)WEIGHT=ATMASS(I)
-         SUMW=SUMW+WEIGHT
-         SUMWX=SUMWX+WEIGHT*COORD(1,I)
-         SUMWY=SUMWY+WEIGHT*COORD(2,I)
-   10 SUMWZ=SUMWZ+WEIGHT*COORD(3,I)
+C
+      IF(MASS.GT.0) THEN
+         DO 10 I=1,NUMAT
+            SUMW=SUMW+ATMASS(I)
+            SUMWX=SUMWX+ATMASS(I)*COORD(1,I)
+            SUMWY=SUMWY+ATMASS(I)*COORD(2,I)
+            SUMWZ=SUMWZ+ATMASS(I)*COORD(3,I)
+   10    CONTINUE
+      ELSE
+         SUMW=SUMW+DBLE(NUMAT)
+         DO 20 I=1,NUMAT
+            SUMWX=SUMWX+COORD(1,I)
+            SUMWY=SUMWY+COORD(2,I)
+            SUMWZ=SUMWZ+COORD(3,I)
+   20    CONTINUE
+      ENDIF
+C
       IF(MASS.GT.0.AND.FIRST)
      1 WRITE(6,'(/10X,''MOLECULAR WEIGHT ='',F8.2,/)')
      2MIN(99999.99D0,SUMW)
       SUMWX=SUMWX/SUMW
       SUMWY=SUMWY/SUMW
       SUMWZ=SUMWZ/SUMW
-      DO 20 I=1,NUMAT
+      DO 30 I=1,NUMAT
          X(I)=COORD(1,I)-SUMWX
          Y(I)=COORD(2,I)-SUMWY
-   20 Z(I)=COORD(3,I)-SUMWZ
+   30 Z(I)=COORD(3,I)-SUMWZ
 ************************************************************************
 *
 *    MATRIX FOR MOMENTS OF INERTIA IS OF FORM
@@ -68,28 +85,44 @@ C
 *           |    -Z*X        -Z*Y       X**2+Y**2 |
 *
 ************************************************************************
-      DO 30 I=1,6
-   30 T(I)=I*1.D-10
-      DO 40 I=1,NUMAT
-         IF(MASS.GT.0)WEIGHT=ATMASS(I)
-         T(1)=T(1)+WEIGHT*(Y(I)**2+Z(I)**2)
-         T(2)=T(2)-WEIGHT*X(I)*Y(I)
-         T(3)=T(3)+WEIGHT*(Z(I)**2+X(I)**2)
-         T(4)=T(4)-WEIGHT*Z(I)*X(I)
-         T(5)=T(5)-WEIGHT*Y(I)*Z(I)
-   40 T(6)=T(6)+WEIGHT*(X(I)**2+Y(I)**2)
+C
+C$DOIT ASIS
+      DO 40 I=1,6
+   40 T(I)=DBLE(I)*1.0D-10
+C
+      IF(MASS.GT.0) THEN
+         DO 50 I=1,NUMAT
+            T(1)=T(1)+ATMASS(I)*(Y(I)**2+Z(I)**2)
+            T(2)=T(2)-ATMASS(I)*X(I)*Y(I)
+            T(3)=T(3)+ATMASS(I)*(Z(I)**2+X(I)**2)
+            T(4)=T(4)-ATMASS(I)*Z(I)*X(I)
+            T(5)=T(5)-ATMASS(I)*Y(I)*Z(I)
+            T(6)=T(6)+ATMASS(I)*(X(I)**2+Y(I)**2)
+   50    CONTINUE
+      ELSE
+         DO 60 I=1,NUMAT
+            T(1)=T(1)+(Y(I)**2+Z(I)**2)
+            T(2)=T(2)-X(I)*Y(I)
+            T(3)=T(3)+(Z(I)**2+X(I)**2)
+            T(4)=T(4)-Z(I)*X(I)
+            T(5)=T(5)-Y(I)*Z(I)
+            T(6)=T(6)+(X(I)**2+Y(I)**2)
+   60    CONTINUE
+      ENDIF
+C
       CALL RSP(T,3,3,EIG,EVEC)
       IF(MASS.GT.0.AND. FIRST.AND.INDEX(KEYWRD,'RC=').EQ.0) THEN
          WRITE(6,'(//10X,'' PRINCIPAL MOMENTS OF INERTIA IN CM(-1)'',/)'
      1)
-         DO 50 I=1,3
+C$DOIT ASIS
+         DO 70 I=1,3
             IF(EIG(I).LT.3.D-4) THEN
                EIG(I)=0.D0
                ROT(I)=0.D0
             ELSE
                ROT(I)=CONST2/EIG(I)
             ENDIF
-   50    XYZMOM(I)=EIG(I)*CONST1
+   70    XYZMOM(I)=EIG(I)*CONST1
          WRITE(6,'(10X,''A ='',F12.6,''   B ='',F12.6,
      1''   C ='',F12.6,/)')(ROT(I),I=1,3)
          IF(INDEX(KEYWRD,'RC=').EQ.0)
@@ -104,30 +137,18 @@ C
 C
 C   NOW TO ORIENT THE MOLECULE SO THE CHIRALITY IS PRESERVED
 C
-      DO 2 J=1,3
-      SUM=0.D0
-      DO 1 I=1,3
-      IF(ABS(EVEC(J,I)).GT.SUM)THEN
-      SUM=ABS(EVEC(J,I))
-      K=I
-      ENDIF
-   1  CONTINUE
-      IF(EVEC(J,K).LT.0.D0)THEN
-      DO 3 I=1,3
-   3  EVEC(J,I)=-EVEC(J,I)
-      ENDIF
-   2  CONTINUE
       SUM=EVEC(1,1)*(EVEC(2,2)*EVEC(3,3)-EVEC(3,2)*EVEC(2,3)) +
      1    EVEC(1,2)*(EVEC(2,3)*EVEC(3,1)-EVEC(2,1)*EVEC(3,3)) +
      2    EVEC(1,3)*(EVEC(2,1)*EVEC(3,2)-EVEC(2,2)*EVEC(3,1))
       IF( SUM .LT. 0) THEN
-         DO 60 J=1,3
-   60    EVEC(J,1)=-EVEC(J,1)
+C$DOIT ASIS
+         DO 80 J=1,3
+   80    EVEC(J,1)=-EVEC(J,1)
       ENDIF
-      DO 70 I=1,NUMAT
+      DO 90 I=1,NUMAT
          COORD(1,I)=X(I)
          COORD(2,I)=Y(I)
          COORD(3,I)=Z(I)
-   70 CONTINUE
+   90 CONTINUE
       IF(MASS.GT.0)FIRST=.FALSE.
       END

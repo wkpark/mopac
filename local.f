@@ -28,6 +28,7 @@ C**********************************************************************
       COMMON /SCRACH/ COLD(MAXORB,MAXORB),XDUMY(MAXPAR**2-MAXORB*MAXORB)
       DIMENSION EIG1(MAXORB),PSI1(MAXORB),PSI2(MAXORB),
      1          CII(MAXORB), REFEIG(MAXORB),IEL(20)
+      SAVE ELEMNT
       CHARACTER*2 ELEMNT(99)
       DATA ELEMNT/'H','HE',
      1 'LI','BE','B','C','N','O','F','NE',
@@ -69,6 +70,7 @@ C NOW FOLLOWS THE RATE-DETERMINING STEP FOR THE CALCULATION
                DIJ=0.D0
                DII=0.D0
                DJJ=0.D0
+C$DOIT ASIS
                DO 40 K=KL,KU
                   DIJ=DIJ+PSI1(K)*PSI2(K)
                   DII=DII+PSI1(K)*PSI1(K)
@@ -103,6 +105,7 @@ C NOW FOLLOWS THE RATE-DETERMINING STEP FOR THE CALCULATION
             IL=NFIRST(J)
             IU=NLAST(J)
             X=0.0
+C$DOIT ASIS
             DO 90 K=IL,IU
    90       X=X+C(K,I)**2
   100 SUM1=SUM1+X*X

@@ -8,12 +8,12 @@ C   PROPERTIES BY FFHPOL.
 C
 C**********************************************************************
       CHARACTER*2 ELEMNT
-      COMMON /TITLES/ KOMENT,TITLE
       COMMON /POLVOL/ POLVOL(107)
       COMMON /KEYWRD/ KEYWRD
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR),IDUMY,XPARAM(MAXPAR)
+      COMMON /SCFTYP/ EMIN,LIMSCF
       COMMON /TIME  / TIME0
       COMMON /ELEMTS/ ELEMNT(107)
       COMMON /CORE  / CORE(107)
@@ -29,15 +29,16 @@ C**********************************************************************
       COMMON /SCRACH/ RXYZ(MPACK),XDUMY(MAXPAR**2-MPACK)
       DIMENSION GRAD(MAXPAR),ROTVEC(3,3),DIPVEC(3),
      1          TEMPV(3,3)
-      CHARACTER  KEYWRD*80, TYPE*7, KOMENT*80, TITLE*80
-      LOGICAL LET
-      TYPE=' MNDO  '
+      CHARACTER  KEYWRD*241
+      LOGICAL LET, LIMSCF
+      LIMSCF=.FALSE.
       LET=(INDEX(KEYWRD,'LET').NE.0)
-      IF(INDEX(KEYWRD,'MINDO') .NE. 0) TYPE='MINDO/3'
-      IF(INDEX(KEYWRD,'AM1') .NE. 0)    TYPE='  AM1  '
       WRITE (6,10)
    10 FORMAT ('1',20('*'),' FINITE-FIELD POLARIZABILITIES ',
-     1        20('*'),//)
+     1        20('*'),//,
+     2      '    THE F-F METHOD IS PERFORMED USING BOTH AN ENERGY',/,
+     3      '    AND DIPOLE MOMENT EXPANSION.  THESE RESULTS ARE',/,
+     4      '    LISTED BELOW AS "E4" AND "DIP", RESPECTIVELY.')
       CALL GMETRY(GEO,COORD)
 C
 C  Orient the molecule with the moments of inertia.
@@ -82,6 +83,7 @@ C
   100    CONTINUE
 C
 C  IF POLYMER, ROTATE TVEC
+C  (BEWARE:  THE POLYMER SECTIONS MAY NOT WORK YET)
 C
          IF (IDTVEC.GT.0) THEN
             DO 130 I = 1,IDTVEC
