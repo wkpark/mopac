@@ -20,8 +20,9 @@ C             NAT = ARRAY OF ATOMIC NUMBERS OF ATOMS.
 C
 C
 C***********************************************************************
-      CHARACTER*2 ELEMNT, ATORBS(9), ITEXT(MAXORB), JTEXT(MAXORB)
-      DIMENSION NATOM(MAXORB)
+      CHARACTER*2 ELEMNT, ATORBS(9), ITEXT(4*MAXHEV+3*MAXLIT),
+     + JTEXT(4*MAXHEV+3*MAXLIT)
+      DIMENSION NATOM(4*MAXHEV+3*MAXLIT )
       SAVE ATORBS
       DATA ATORBS/' S','PX','PY','PZ','X2','XZ','Z2','YZ','XY'/
       IF(NUMAT.EQ.0)GOTO 30

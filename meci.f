@@ -326,6 +326,8 @@ C
       IF(LAB.LT.LROOT)THEN
          WRITE(6,'(//10X,''C.I. IS OF SIZE LESS THAN ROOT SPECIFIED'')')
          WRITE(6,'(10X,''MODIFY SIZE OF C.I. OR ROOT NUMBER'')')
+         WRITE(6,'(A,I4,A,I4)')' SIZE OF C.I.:',LAB,' ROOT REQUIRED:',
+     +LROOT
          STOP
       ENDIF
       IF(PRNT)THEN
@@ -364,7 +366,7 @@ C
          WRITE(6,'(//20X,''STATE VECTORS'',//)')
          I=MIN(LAB,NORBS)
          J=MIN(LABSIZ,NORBS)
-         CALL MATOUT(CONF,EIG,J,I,LAB)
+         CALL MATOUT(CONF,EIG,J,-I,LAB)
       ENDIF
       IF(PRNT)THEN
          WRITE(6,380)
@@ -426,7 +428,7 @@ C#  570 COEFF(J,I+NELEC)=COEFF(J,I+NELEC)**2
      1''STATE EIGENFUNCTION'',I3)')IUJ
          WRITE(6,'(5F13.6)')(CONF(I+IOFSET),I=1,LAB)
          DO 480 I=1,LAB
-  480    CONF(I)=CONF(I+IOFSET)**2
+  480    CONF(I)=VECTCI(I+IOFSET)**2
 C                                             SECOND VECTOR!
          DO 500 I=1,NMOS
             SUM=0.D0
@@ -449,7 +451,7 @@ C                                             SECOND VECTOR!
                L=L+1
                SUM=0.D0
                DO 510 J=1,NMOS
-  510          SUM=SUM+COEFF(K,J+NELEC)*EIGA(J)
+  510          SUM=SUM+COEFF(K,J+NELEC)**2*EIGA(J)
                SUMM=SUMM+SUM
   520       EIGS(L)=SUM
             IF(L.EQ.4)THEN

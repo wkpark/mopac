@@ -1,6 +1,7 @@
       SUBROUTINE FMAT(FMATRX, NREAL, TSCF, TDER, DELDIP, HEAT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
+      COMMON /SYMOPS/ R(14,120), NSYM, IPO(NUMATM,120)
       DIMENSION FMATRX(*), DELDIP(3,*)
 ***********************************************************************
 *
@@ -39,7 +40,7 @@
      3 FCONST(MAXPAR)
       CHARACTER*241 KEYWRD
       SAVE  FACT
-      LOGICAL DEBUG, RESTRT, PRNT, RESFIL, PRECIS, BIG, LOG
+      LOGICAL DEBUG, RESTRT, PRNT, RESFIL, PRECIS, BIG, LOG, GROUP
       EQUIVALENCE (COORD(1,1),COORDL(1))
       DATA FACT/6.95125D-3/
 C
@@ -81,6 +82,7 @@ C
       LOG    =(INDEX(KEYWRD,'NOLOG') .EQ. 0)
       PRECIS =(INDEX(KEYWRD,'PREC') .NE. 0)
       RESTRT =(INDEX(KEYWRD,'RESTART') .NE. 0)
+      GROUP  =(INDEX(KEYWRD,' GROUP').NE.0)
       IF(INDEX(KEYWRD,'NLLSQ') .NE. 0) RESTRT=.FALSE.
       DEBUG =(INDEX(KEYWRD,'FMAT') .NE. 0)
       BIG    =(INDEX(KEYWRD,'LARGE') .NE. 0 .AND. DEBUG)
@@ -120,9 +122,29 @@ C CALCULATE FMATRX
       ENDIF
       LU=KOUNTF
       NUMAT=NVAR/3
-      DO 50 I=1,NVAR
-   50 EIGS(I)=0.D0
-      DO 120 I=ISTART,NVAR
+      DO 40 I=1,NVAR
+   40 EIGS(I)=0.D0
+C
+C  READ IN THE SYMMETRY OPERATIONS, IF PRESENT
+C
+      IF(GROUP) CALL SYMR
+      ISKIP=0
+      DO 110 I=ISTART,NVAR
+         IF(GROUP .AND. ((I-1)/3)*3.EQ.I-1)THEN
+C
+C  START OF A NEW ATOM.  DOES A SYMMETRY OPERATION RELATE AN ALREADY
+C  CALCULATED ATOM TO THIS ONE
+C
+            J=(I+2)/3
+            CALL SYMPOP(FMATRX, J, ISKIP, DELDIP)
+         ENDIF
+         IF(ISKIP.GT.0) THEN
+            WRITE(6,'('' STEP:'',I4,''       '',9X,  ''       INTEGRAL =
+     1'',F10.2,'' TIME LEFT:'',F10.2)')I,TOTIME,TLEFT
+            ISKIP=ISKIP-1
+            LU=LU+I
+            GOTO 110
+         ENDIF
          TIME2 = SECOND()
          DELTA=1.D0/120.D0
          IF(PRECIS)THEN
@@ -161,8 +183,8 @@ C
          IF(DEBUG)WRITE(6,'(A,F12.5)')' GNORM +0.5*DELTA',
      1SQRT(DOT(GROLD,GROLD,NVAR))
          CALL CHRGE(P,Q)
-         DO 60 II=1,NUMAT
-   60    Q(II)=CORE(LABELS(II))-Q(II)
+         DO 50 II=1,NUMAT
+   50    Q(II)=CORE(LABELS(II))-Q(II)
          SUM = DIPOLE(P,Q,COORDL,DELDIP(1,I),0)
          COORDL(I)=COORDL(I)-DELTA
          GRAD(1)=100.D0
@@ -170,8 +192,8 @@ C
          IF(DEBUG)WRITE(6,'(A,F12.5)')' GNORM -0.5*DELTA',
      1SQRT(DOT(GRAD,GRAD,NVAR))
          CALL CHRGE(P,Q)
-         DO 70 II=1,NUMAT
-   70    Q(II)=CORE(LABELS(II))-Q(II)
+         DO 60 II=1,NUMAT
+   60    Q(II)=CORE(LABELS(II))-Q(II)
          SUM = DIPOLE(P,Q,COORDL,DEL2,0)
          COORDL(I)=COORDL(I)+DELTA*0.5D0
          DELDIP(1,I)=(DELDIP(1,I)-DEL2(1))*0.5D0/DELTA
@@ -181,7 +203,7 @@ C
          LU=LL+I-1
          L=0
          IF(PRECIS)THEN
-            DO 80 KOUNTF=LL,LU
+            DO 70 KOUNTF=LL,LU
                L=L+1
 C
 C       G2OLD = X + 1.0*DELTA
@@ -199,9 +221,9 @@ C
 C#             CORR=MIN(ABS(DUMY(L)),ABS(EIGS(L))*0.0001D0)
 C#             DUMY(L)=DUMY(L)-SIGN(CORR,DUMY(L))
                FMATRX(KOUNTF)=FMATRX(KOUNTF)+DUMY(L)
-   80       CONTINUE
+   70       CONTINUE
             L=L-1
-            DO 90 K=I,NVAR
+            DO 80 K=I,NVAR
                L=L+1
                KK=(K*(K-1))/2+I
                DUMY(L)=(8.D0*(GROLD(L)-GRAD(L))-(G2OLD(L)-G2RAD(L)))
@@ -214,20 +236,20 @@ C
 C#             CORR=MIN(ABS(DUMY(L)),ABS(EIGS(L))*0.0001D0)
 C#             DUMY(L)=DUMY(L)-SIGN(CORR,DUMY(L))
                FMATRX(KK)=FMATRX(KK)+DUMY(L)
-   90       CONTINUE
+   80       CONTINUE
          ELSE
-            DO 100 KOUNTF=LL,LU
+            DO 90 KOUNTF=LL,LU
                L=L+1
                DUMY(L)=((GROLD(L)-GRAD(L)))*0.25D0/DELTA*FACT
                FMATRX(KOUNTF)=FMATRX(KOUNTF)+DUMY(L)
-  100       CONTINUE
+   90       CONTINUE
             L=L-1
-            DO 110 K=I,NVAR
+            DO 100 K=I,NVAR
                L=L+1
                KK=(K*(K-1))/2+I
                DUMY(L)=((GROLD(L)-GRAD(L)))*0.25D0/DELTA*FACT
                FMATRX(KK)=FMATRX(KK)+DUMY(L)
-  110       CONTINUE
+  100       CONTINUE
          ENDIF
          IF(BIG)THEN
             WRITE(6,'(A)')' CONTRIBUTIONS TO F-MATRIX'
@@ -244,14 +266,15 @@ C#             DUMY(L)=DUMY(L)-SIGN(CORR,DUMY(L))
          IF(RESFIL)THEN
             WRITE(6,'('' STEP:'',I4,'' RESTART FILE WRITTEN, INTEGRAL ='
      1',F10.2,'' TIME LEFT:'',F10.2)')I,TOTIME,TLEFT
-         IF(LOG)WRITE(11,'('' STEP:'',I4,'' RESTART FILE WRITTEN, '',
-     +''INTEGRAL ='',F10.2,'' TIME LEFT:'',F10.2)')I,TOTIME,TLEFT
+            IF(LOG)WRITE(11,'('' STEP:'',I4,'' RESTART FILE WRITTEN, '',
+     1''INTEGRAL ='',F10.2,'' TIME LEFT:'',F10.2)')I,TOTIME,TLEFT
             RESFIL=.FALSE.
          ELSE
             WRITE(6,'('' STEP:'',I4,'' TIME ='',F9.2,'' SECS, INTEGRAL =
      1'',F10.2,'' TIME LEFT:'',F10.2)')I,TSTEP,TOTIME,TLEFT
-        IF(LOG) WRITE(11,'('' STEP:'',I4,'' TIME ='',F9.2,'' SECS, '',
-     +''INTEGRAL ='',F10.2,'' TIME LEFT:'',F10.2)')I,TSTEP,TOTIME,TLEFT
+            IF(LOG) WRITE(11,'('' STEP:'',I4,'' TIME ='',F9.2,'' SECS, '
+     1',''INTEGRAL ='',F10.2,'' TIME LEFT:'',F10.2)')I,TSTEP,TOTIME,TLEF
+     2T
          ENDIF
          ESTIM = TOTIME/I
          IF(TLAST-TLEFT.GT.TDUMP)THEN
@@ -277,8 +300,8 @@ C#             DUMY(L)=DUMY(L)-SIGN(CORR,DUMY(L))
             NREAL=-1
             RETURN
          ENDIF
-  120 CONTINUE
-      DO 130 I=1,NATOMS
+  110 CONTINUE
+      DO 120 I=1,NATOMS
          IF(ATMASS(I).LT.1.D-20.AND.LABELS(I).LT.99)THEN
             CALL FORSAV(TOTIME,DELDIP,NVAR,FMATRX, COORD,NVAR,HEAT,
      1                EVECS,ILOOP,FCONST)
@@ -287,7 +310,7 @@ C#             DUMY(L)=DUMY(L)-SIGN(CORR,DUMY(L))
             WRITE(6,'(A)')' FILE HAS BEEN WRITTEN AND THE JOB STOPPED'
             STOP
          ENDIF
-  130 CONTINUE
+  120 CONTINUE
       IF(ISTART.LE.NVAR .AND. INDEX(KEYWRD,'ISOT') .NE. 0)
      1CALL FORSAV(TOTIME,DELDIP,NVAR,FMATRX, COORD,NVAR,HEAT,
      2                EVECS,ILOOP,FCONST)

@@ -107,7 +107,7 @@ C          CAN BE USED BY THE PATH OPTION)
          CALTYP=' MNDO  '
       ENDIF
       UHF=(IUHF.EQ.2)
-      CALL DATE(IDATE)
+      CALL FDATE(IDATE)
       DEGREE=57.29577951D0
       IF(NA(1).EQ.99)THEN
          DEGREE=1.D0

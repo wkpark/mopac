@@ -25,7 +25,7 @@ C  ON OUTPUT  H      = ONE-ELECTRON MATRIX.
 C             W      = TWO-ELECTRON INTEGRALS.
 C             ENUCLR = NUCLEAR ENERGY
 ************************************************************************
-      CHARACTER*241 KEYWRD
+      CHARACTER*241 KEYWRD, TMPKEY
       LOGICAL FIRST,DEBUG
       SAVE FIRST, IONE, CUTOFF, DEBUG
       DIMENSION E1B(10),E2A(10),DI(9,9), WJD(100), WKD(100)
@@ -38,9 +38,38 @@ C             ENUCLR = NUCLEAR ENERGY
          IF(ID.NE.0)CUTOFF=60.D0
          IF(ID.NE.0)IONE=0
          DEBUG=(INDEX(KEYWRD,'HCORE') .NE. 0)
-	 EFIELD(1)=0.D0
-	 EFIELD(2)=0.D0
-	 EFIELD(3)=0.D0
+*******************************************************************
+         XF=0.D0
+         YF=0.D0
+         ZF=0.D0
+         TMPKEY=KEYWRD
+         I=INDEX(TMPKEY,' FIELD(')
+         IF(I.EQ.0) GOTO 6 
+C
+C   ERASE ALL TEXT FROM TMPKEY EXCEPT FIELD DATA
+C
+         TMPKEY(:I)=' '
+         TMPKEY(INDEX(TMPKEY,')'):)=' '
+C
+C   READ IN THE EFFECTIVE FIELD IN X,Y,Z COORDINATES
+C
+         XF=READA(TMPKEY,I)
+         I=INDEX(TMPKEY,',')
+         IF(I.EQ.0) GOTO 5 
+         TMPKEY(I:I)=' '
+         YF=READA(TMPKEY,I)
+         I=INDEX(TMPKEY,',')
+         IF(I.EQ.0) GOTO 5 
+         TMPKEY(I:I)=' '
+         ZF=READA(TMPKEY,I)
+    5    CONTINUE
+         WRITE(6,'(/10X,''THE ELECTRIC FIELD IS'',3F10.5)')XF,YF,ZF
+         WRITE(6,'(10X,''IN 8*A.U. (8*27.21/0.529 VOLTS/ANGSTROM)'',/)')
+    6    CONTINUE
+         EFIELD(1)=XF
+         EFIELD(2)=YF
+         EFIELD(3)=ZF
+C**********************************************************************
       ENDIF
       FLDON = .FALSE.
       IF ((EFIELD(1).NE.0.0D00).OR.(EFIELD(2).NE.0.0D00).OR.

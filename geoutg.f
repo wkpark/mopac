@@ -5,7 +5,6 @@
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR),IDUMY,DUMY(MAXPAR)
       COMMON /SIMBOL/ SIMBOL(MAXPAR)
-      COMMON /COORD / COORD(3,NUMATM)
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)
       COMMON /ATOMTX/ LTXT, TXTATM(NUMATM)
       COMMON /GEOM  / GEO(3,NUMATM)
@@ -30,37 +29,25 @@
      1 'Fr','Ra','Ac','Th','Pa',' U','Np','Pu','Am','Cm','Bk','Cf','XX',
      2 'Fm','Md','Cb','++',' +','--',' -','Tv'/
       DATA TYPE/'r','a','d'/
-      IF(NA(1).EQ.99)THEN
-         DO 10 I=1,NATOMS
-            DO 10 J=1,3
-   10    COORD(J,I)=GEO(J,I)
-         CALL XYZINT(COORD,NATOMS,NA,NB,NC,1.D0,GEO)
-         NVAR=0
-         DO 20 I=1,NATOMS
-            DO 20 J=1,MIN(3,I-1)
-               NVAR=NVAR+1
-               LOC(1,NVAR)=I
-   20    LOC(2,NVAR)=J
-      ENDIF
-      DO 30 I=1,NATOMS
-         DO 30 J=1,3
-   30 IGEO(J,I)=-1
-      DO 40 I=1,NVAR
-   40 IGEO(LOC(2,I),LOC(1,I))=-2
-      DO 50 I=1,NDEP
+      DO 10 I=1,NATOMS
+         DO 10 J=1,3
+   10 IGEO(J,I)=-1
+      DO 20 I=1,NVAR
+   20 IGEO(LOC(2,I),LOC(1,I))=-2
+      DO 30 I=1,NDEP
          IF(IDEPFN(I).EQ.14)THEN
             IGEO(3,LOCDEP(I))=-LOCPAR(I)
          ELSE
-            IF(IDEPFN(I).GT.3) GOTO 50
+            IF(IDEPFN(I).GT.3) GOTO 30
             IGEO(IDEPFN(I),LOCDEP(I))=LOCPAR(I)
          ENDIF
-   50 CONTINUE
+   30 CONTINUE
       OPEN(UNIT=21,STATUS='SCRATCH')
       DEGREE=90.D0/ASIN(1.D0)
       MAXTXT=ICHAR(LTXT)
       NOPT=0
-      DO 70 I=1,NATOMS
-         DO 60 J=1,3
+      DO 50 I=1,NATOMS
+         DO 40 J=1,3
             LINE(J,I)=' '
             IF(IGEO(J,I).EQ.-1)THEN
                REWIND 21
@@ -74,11 +61,11 @@
             ELSEIF(IGEO(J,I).EQ.-2)THEN
                NOPT=NOPT+1
                IF(SIMBOL(NOPT).NE.'---')THEN
-                  IF(SIMBOL(NOPT)(1:1).EQ.'-') THEN
-                     LINE(J,I)(4:)=SIMBOL(NOPT)(2:)
-                  ELSE
-                     LINE(J,I)(4:)=SIMBOL(NOPT)
-                  ENDIF
+               IF(SIMBOL(NOPT)(1:1).EQ.'-') THEN
+                 LINE(J,I)(4:)=SIMBOL(NOPT)(2:)
+               ELSE
+                 LINE(J,I)(4:)=SIMBOL(NOPT)
+               ENDIF
                ELSE
                   NBI=NB(I)
                   NCI=NC(I)
@@ -93,7 +80,7 @@
             ELSE
                LINE(J,I)=LINE(J,IGEO(J,I))
             ENDIF
-   60    CONTINUE
+   40    CONTINUE
          BLANK=ELEMNT(LABELS(I))//TXTATM(I)//'  '
          IF(LABELS(I).EQ.99)BLANK(1:1)=' '
          J=MAX(4,MAXTXT+2)
@@ -110,10 +97,10 @@
             WRITE(IPRT,'(1X,A,I4,A,I4,A,I4,A,I4)')BLANK(:J),
      1NA(I),LINE(1,I),NB(I), LINE(2,I), NC(I), LINE(3,I), L
          ENDIF
-   70 CONTINUE
+   50 CONTINUE
       WRITE(IPRT,*)
-      DO 90 L=1,3
-         DO 80 I=1,NOPT
+      DO 70 L=1,3
+         DO 60 I=1,NOPT
             IF(LOC(2,I).EQ.L)THEN
                IF(LOC(2,I).NE.1)THEN
                   WRITE(IPRT,'(A,F12.6)')OPTDAT(I),GEO(LOC(2,I),LOC(1,I)
@@ -123,8 +110,8 @@
      1)
                ENDIF
             ENDIF
-   80    CONTINUE
-   90 CONTINUE
+   60    CONTINUE
+   70 CONTINUE
       END
       SUBROUTINE XXX(TYPE,I,J,K,L,R)
       CHARACTER TYPE*1, R*(*)

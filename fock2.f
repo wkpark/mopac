@@ -2,8 +2,8 @@
      1NMIDLE, NLAST)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      DIMENSION F(*), PTOT(*), WJ(*), WK(*), NFIRST(*), NMIDLE(*),
-     1          NLAST(*), P(*), W(*)
+      DIMENSION F(1000), PTOT(1000), WJ(1000), WK(1000), NFIRST(10000), 
+     1 NMIDLE(10000), NLAST(*), P(1000), W(1000)
       DOUBLE PRECISION WJ,WK
 C***********************************************************************
 C
@@ -491,7 +491,7 @@ CVECTOR                  DO 130 J1=IA,IA+3
 CVECTOR                  J=(J1*(J1-1))/2
 CVECTOR                  DO 130 J2=JA,JA+3
 CVECTOR                  M=M+1
-CVECTOR                  IF(IA.GT.JA) THEN
+CVECTOR                  IF(IA.GT.JA)THEN
 CVECTOR                  J3=J+J2
 CVECTOR                  ELSE
 CVECTOR                  J3=J1+(J2*(J2-1))/2
