@@ -10,7 +10,7 @@ C
 C ON OUTPUT P      = NEW DENSITY MATRIX
 C           P1     = DIAGONAL OF OLD DENSITY MATRIX
 C           PL     = LARGEST DIFFERENCE BETWEEN OLD AND NEW DENSITY
-C                    MATRICES
+C                    MATRIX DIAGONAL ELEMENTS
 C***********************************************************************
       COMMON/KEYWRD/ KEYWRD
       CHARACTER*80 KEYWRD

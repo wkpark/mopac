@@ -3,6 +3,7 @@
       INCLUDE 'SIZES'
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
+      COMMON /MOLMEC/ HTYPE(4),NHCO(4,20),NNHCO,ITYPE,USEMM
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
      2                NCLOSE,NOPEN,NDUMY,FRACT
@@ -18,14 +19,20 @@
      2       /MULTIP/ DD(107),QQ(107),AM(107),AD(107),AQ(107)
      3       /TWOELE/ GSS(107),GSP(107),GPP(107),GP2(107),HSP(107)
      4                ,GSD(107),GPD(107),GDD(107)
+     5       /IDEAS / GUESS1(107,10),GUESS2(107,10),GUESS3(107,10)
+     6       /IDEAP / GUESP1(107,10),GUESP2(107,10),GUESP3(107,10)
       COMMON /ALPHA / ALP(107)
-     1       /REFS/ ALLREF(107,3)
-      COMMON /GAUSS / FN1(107),FN2(107)
+     1       /REFS/ ALLREF(107,4)
       COMMON /MNDO/  USSM(107), UPPM(107), UDDM(107), ZSM(107),
      1ZPM(107), ZDM(107), BETASM(107), BETAPM(107), BETADM(107),
      2ALPM(107), EISOLM(107), DDM(107), QQM(107), AMM(107),
      3ADM(107), AQM(107), GSSM(107), GSPM(107), GPPM(107),
      4GP2M(107), HSPM(107), POLVOM(107)
+      COMMON /PM3 /  USSPM3(107), UPPPM3(107), UDDPM3(107), ZSPM3(107),
+     1ZPPM3(107), ZDPM3(107), BETASP(107), BETAPP(107), BETADP(107),
+     2ALPPM3(107), EISOLP(107), DDPM3(107), QQPM3(107), AMPM3(107),
+     3ADPM3(107), AQPM3(107) ,GSSPM3(107), GSPPM3(107), GPPPM3(107),
+     4GP2PM3(107), HSPPM3(107),POLVOP(107)
       COMMON /GEOM  / GEO(3,NUMATM)
       PARAMETER (MDUMY=MAXPAR**2-MPACK)
       COMMON /SCRACH/ RXYZ(MPACK), XDUMY(MDUMY)
@@ -42,8 +49,10 @@
       COMMON /ATOMIC/ EISOL(107),EHEAT(107)
       DIMENSION COORD(3,NUMATM), ISWAP(2,20)
       CHARACTER*80 KEYWRD, OLDE(20)*6, ALLREF
-      LOGICAL DEBUG, UHF,EXCI, TRIP, MINDO3, BIRAD, AM1, OPEN
+      LOGICAL DEBUG, UHF,EXCI, TRIP, MINDO3, BIRAD, AM1, OPEN, LPM3,
+     1USEMM
       DEBUG = (INDEX(KEYWRD,'MOLDAT').NE.0)
+      LPM3  = (INDEX(KEYWRD,'PM3').NE.0)
       MINDO3= (INDEX(KEYWRD,'MINDO').NE.0)
       UHF=(INDEX(KEYWRD,'UHF') .NE. 0)
       AM1= (INDEX(KEYWRD,'AM1').NE.0)
@@ -55,13 +64,17 @@
       ATHEAT=0.D0
       EAT=0.D0
       NUMAT=0
-      IF (   .NOT.   AM1   ) THEN
+      IF (   .NOT.   AM1  .AND. .NOT. LPM3 ) THEN
 *
 *    SWITCH IN MNDO PARAMETERS
 *
+C
+C       ZERO OUT GAUSSIAN 1 FOR CARBON.  THIS WILL BE USED IN
+C       ROTATE TO DECIDE WHETHER OR NOT TO USE AM1-TYPE GAUSSIANS
+C
+         GUESS1(6,1)=0.D0
          DO 10 I=1,107
             IF(.NOT.MINDO3) POLVOL(I)=POLVOM(I)
-            FN1(I)=0.D0
             ZS(I)=ZSM(I)
             ZP(I)=ZPM(I)
             ZD(I)=ZDM(I)
@@ -84,6 +97,38 @@
             GP2(I)=GP2M(I)
             HSP(I)=HSPM(I)
    10    CONTINUE
+      ELSEIF( .NOT. AM1 .AND. LPM3) THEN
+*
+*    SWITCH IN MNDO-PM3 PARAMETERS
+*
+         DO 30 I=1,107
+            DO 20 J=1,10
+               GUESS1(I,J)=GUESP1(I,J)
+               GUESS2(I,J)=GUESP2(I,J)
+   20       GUESS3(I,J)=GUESP3(I,J)
+            POLVOL(I)=POLVOP(I)
+            ZS(I)=ZSPM3(I)
+            ZP(I)=ZPPM3(I)
+            ZD(I)=ZDPM3(I)
+            USS(I)=USSPM3(I)
+            UPP(I)=UPPPM3(I)
+            UDD(I)=UDDPM3(I)
+            BETAS(I)=BETASP(I)
+            BETAP(I)=BETAPP(I)
+            BETAD(I)=BETADP(I)
+            ALP(I)=ALPPM3(I)
+            EISOL(I)=EISOLP(I)
+            DD(I)=DDPM3(I)
+            QQ(I)=QQPM3(I)
+            AM(I)=AMPM3(I)
+            AD(I)=ADPM3(I)
+            AQ(I)=AQPM3(I)
+            GSS(I)=GSSPM3(I)
+            GPP(I)=GPPPM3(I)
+            GSP(I)=GSPPM3(I)
+            GP2(I)=GP2PM3(I)
+            HSP(I)=HSPPM3(I)
+   30    CONTINUE
       ENDIF
 C
 C        SWAP IN OLD PARAMETERS FOR ELEMENTS.  OLDE CONTAINS THE
@@ -98,7 +143,7 @@ C
       OLDE(2)='SI1978'
       ISWAP(1,2)=14
       ISWAP(2,2)=90
-      DO 20 K=1,NEWELE
+      DO 40 K=1,NEWELE
          IF(INDEX(KEYWRD,OLDE(K)).NE.0)THEN
             I=ISWAP(1,K)
             J=ISWAP(2,K)
@@ -126,17 +171,17 @@ C
             IF(GP2(J).NE.0)GP2(I)=GP2(J)
             IF(HSP(J).NE.0)HSP(I)=HSP(J)
          ENDIF
-   20 CONTINUE
+   40 CONTINUE
       IF( MINDO3 ) THEN
-         DO 30 I=1,17
-            IF(I.EQ.2.OR.I.EQ.10)GOTO 30
+         DO 50 I=1,17
+            IF(I.EQ.2.OR.I.EQ.10)GOTO 50
             USS(I)=USS3(I)
             UPP(I)=UPP3(I)
             EISOL(I)=EISOL3(I)
             EHEAT(I)=EHEAT3(I)
             ZS(I)=ZS3(I)
             ZP(I)=ZP3(I)
-   30    CONTINUE
+   50    CONTINUE
       ENDIF
       IF(USS(1) .GT. -1.D0) THEN
          WRITE(6,'(''  THE HAMILTONIAN REQUESTED IS NOT AVAILABLE IN''
@@ -146,8 +191,8 @@ C
       IA=1
       IB=0
       NHEAVY=0
-      DO 80 II=1,NATOMS
-         IF(LABELS(II).EQ.99.OR.LABELS(II).EQ.107) GOTO 80
+      DO 100 II=1,NATOMS
+         IF(LABELS(II).EQ.99.OR.LABELS(II).EQ.107) GOTO 100
          NUMAT=NUMAT+1
          NAT(NUMAT)=LABELS(II)
          NFIRST(NUMAT)=IA
@@ -160,22 +205,22 @@ C
          IF(NATORB(NI).EQ.9)NDORBS=NDORBS+5
          IF(NATORB(NI).EQ.9)NMIDLE(NUMAT)=IA+3
          NLAST(NUMAT)=IB
-         IF(IA.GT.MAXORB) GOTO 170
+         IF(IA.GT.MAXORB) GOTO 240
          USPD(IA)=USS(NI)
-         IF(IA.EQ.IB) GOTO 70
+         IF(IA.EQ.IB) GOTO 90
          K=IA+1
          K1=IA+3
-         DO 40 J=K,K1
-            IF(J.GT.MAXORB) GOTO 170
+         DO 60 J=K,K1
+            IF(J.GT.MAXORB) GOTO 240
             USPD(J)=UPP(NI)
-   40    CONTINUE
+   60    CONTINUE
          NHEAVY=NHEAVY+1
-   50    IF(K1.EQ.IB)GOTO 70
+   70    IF(K1.EQ.IB)GOTO 90
          K=K1+1
-         DO 60 J=K,IB
-   60    USPD(J)=UDD(NI)
-   70    CONTINUE
-   80 IA=IB+1
+         DO 80 J=K,IB
+   80    USPD(J)=UDD(NI)
+   90    CONTINUE
+  100 IA=IB+1
       CALL REFER
       ATHEAT=ATHEAT-EAT*23.061D0
       NORBS=NLAST(NUMAT)
@@ -226,6 +271,36 @@ C
                STOP
             ELSE
                WRITE(6,'(//'' TRIPLET STATE CALCULATION'')')
+               NBETA=NBETA-1
+            ENDIF
+         ENDIF
+         IF(INDEX(KEYWRD,'QUART').NE.0) THEN
+            IF(NBETA*2 .EQ. NELECS) THEN
+               WRITE(6,'(//10X,''QUARTET SPECIFIED WITH EVEN NUMBER'',
+     1            '' OF ELECTRONS, CORRECT FAULT '')')
+               STOP
+            ELSE
+               WRITE(6,'(//'' QUARTET STATE CALCULATION'')')
+               NBETA=NBETA-1
+            ENDIF
+         ENDIF
+         IF(INDEX(KEYWRD,'QUINT').NE.0) THEN
+            IF(NBETA*2 .NE. NELECS) THEN
+               WRITE(6,'(//10X,''QUINTET SPECIFIED WITH ODD NUMBER'',
+     1            '' OF ELECTRONS, CORRECT FAULT '')')
+               STOP
+            ELSE
+               WRITE(6,'(//'' QUINTET STATE CALCULATION'')')
+               NBETA=NBETA-2
+            ENDIF
+         ENDIF
+         IF(INDEX(KEYWRD,'SEXT').NE.0) THEN
+            IF(NBETA*2 .EQ. NELECS) THEN
+               WRITE(6,'(//10X,''SEXTET SPECIFIED WITH EVEN NUMBER'',
+     1            '' OF ELECTRONS, CORRECT FAULT '')')
+               STOP
+            ELSE
+               WRITE(6,'(//'' SEXTET STATE CALCULATION'')')
                NBETA=NBETA-1
             ENDIF
          ENDIF
@@ -302,28 +377,28 @@ C#      WRITE(6,'(''  NOPEN,NCLOSE,NALPHA,NBETA,FRACT'',4I4,F12.5)')
 C#     1 NOPEN, NCLOSE, NLAPHA, NBETA, FRACT
       YY=FLOAT(KHARGE)/(NORBS+1.D-10)
       L=0
-      DO 110 I=1,NUMAT
+      DO 130 I=1,NUMAT
          NI=NAT(I)
          XX=1.D0/(NLAST(I)-NFIRST(I)+1+1.D-10)
          W=CORE(NI)*XX-YY
          IA=NFIRST(I)
          IC=NMIDLE(I)
          IB=NLAST(I)
-         DO 90 J=IA,IC
+         DO 110 J=IA,IC
             L=L+1
-   90    PSPD(L)=W
-         DO 100 J=IC+1,IB
+  110    PSPD(L)=W
+         DO 120 J=IC+1,IB
             L=L+1
-  100    PSPD(L)=0.D0
-  110 CONTINUE
+  120    PSPD(L)=0.D0
+  130 CONTINUE
 C
 C   WRITE OUT THE INTERATOMIC DISTANCES
 C
       CALL GMETRY(GEO,COORD)
       RMIN=100.D0
       L=0
-      DO 120 I=1,NUMAT
-         DO 120 J=1,I
+      DO 140 I=1,NUMAT
+         DO 140 J=1,I
             L=L+1
             RXYZ(L)=SQRT((COORD(1,I)-COORD(1,J))**2+
      1                     (COORD(2,I)-COORD(2,J))**2+
@@ -334,29 +409,100 @@ C
                JMINR=J
                RMIN=RXYZ(L)
             ENDIF
-  120 CONTINUE
+  140 CONTINUE
+      NNHCO=0
+C
+C   SET UP MOLECULAR-MECHANICS CORRECTION TO -(C=O)-(NH)- LINKAGE
+C   THIS WILL BE USED IF MMOK HAS BEEN SPECIFIED.
+C
+         ITYPE=1
+         IF(INDEX(KEYWRD,'AM1').NE.0)ITYPE=2
+         IF(INDEX(KEYWRD,'PM3').NE.0)ITYPE=3
+         IF(INDEX(KEYWRD,'MINDO').NE.0)ITYPE=4
+C
+C   IDENTIFY O=C-N-H SYSTEMS VIA THE INTERATOMIC DISTANCES MATRIX
+         DO 190 I=1,NUMAT
+            IF(NAT(I).NE.8) GOTO 190
+            DO 180 J=1,NUMAT
+               IF(NAT(J).NE.6) GOTO 180
+               IJ=MAX(I,J)
+               JI=I+J-IJ
+               IF(RXYZ((IJ*(IJ-1))/2+JI).GT.1.3)GOTO 180
+               DO 170 K=1,NUMAT
+                  IF(NAT(K).NE.7) GOTO 170
+                  JK=MAX(J,K)
+                  KJ=J+K-JK
+                  IF(RXYZ((JK*(JK-1))/2+KJ).GT.1.6)GOTO 170
+                  DO 160 L=1,NUMAT
+                     IF(NAT(L).NE.1) GOTO 160
+                     KL=MAX(K,L)
+                     LK=K+L-KL
+                     IF(RXYZ((KL*(KL-1))/2+LK).GT.1.3)GOTO 160
+C
+C   WE HAVE A H-N-C=O SYSTEM.  THE ATOM NUMBERS ARE L-K-J-I
+C   NOW SEARCH OUT ATOM ATTACHED TO NITROGEN, THIS SPECIFIES
+C   THE SYSTEM X-N-C=O
+C
+                     DO 150 M=1,NUMAT
+                        IF(M.EQ.K.OR.M.EQ.L.OR.M.EQ.J) GOTO 150
+                        MK=MAX(M,K)
+                        KM=M+K-MK
+                        IF(RXYZ((MK*(MK-1))/2+KM).GT.1.7)GOTO 150
+                        NNHCO=NNHCO+1
+                        NHCO(1,NNHCO)=I
+                        NHCO(2,NNHCO)=J
+                        NHCO(3,NNHCO)=K
+                        NHCO(4,NNHCO)=M
+                        NNHCO=NNHCO+1
+                        NHCO(1,NNHCO)=I
+                        NHCO(2,NNHCO)=J
+                        NHCO(3,NNHCO)=K
+                        NHCO(4,NNHCO)=L
+                        GOTO 160
+  150                CONTINUE
+  160             CONTINUE
+  170          CONTINUE
+  180       CONTINUE
+  190    CONTINUE
+      IF(NNHCO.NE.0)THEN
+      IF(INDEX(KEYWRD,'MMOK').NE.0) THEN
+      WRITE(6,'(A)')' MOLECULAR MECHANICS CORRECTION APPLIED TO PEPTIDE 
+     +LINKAGE'
+      ELSEIF(INDEX(KEYWRD,'NOMM').NE.0)THEN
+      WRITE(6,'(A,I2,2A)')' THERE ARE ',NNHCO/2,' PEPTIDE LINKAGES',
+     1' IDENTIFIED IN THIS SYSTEM'
+      WRITE(6,'(A)')' IF YOU WANT MM CORRECTION TO THE CONH BARRIER, ADD
+     + THE KEY-WORD "MMOK"'
+      NNHCO=0
+      ELSE
+      WRITE(6,'(A)')' THIS SYSTEM CONTAINS -HNCO- GROUPS.'
+      WRITE(6,'(A)')' YOU MUST SPECIFY "NOMM" OR "MMOK" REGARDING MOLECU
+     +LAR MECHANICS CORRECTION'
+      STOP
+      ENDIF
+      ENDIF
       IF (INDEX(KEYWRD,'NOINTER') .EQ. 0) THEN
          WRITE(6,'(//10X,''  INTERATOMIC DISTANCES'')')
          CALL VECPRT(RXYZ,NUMAT)
       ENDIF
       IF(RMIN.LT.0.8D0.AND.INDEX(KEYWRD,'GEO-OK') .EQ.0) THEN
-         WRITE(6,130)IMINR,JMINR,RMIN
-  130    FORMAT(//,'   ATOMS',I3,' AND',I3,' ARE SEPARATED BY',F8.4,
+         WRITE(6,200)IMINR,JMINR,RMIN
+  200    FORMAT(//,'   ATOMS',I3,' AND',I3,' ARE SEPARATED BY',F8.4,
      1' ANGSTROMS.',/'   TO CONTINUE CALCULATION SPECIFY "GEO-OK"')
          STOP
       ENDIF
       IF(.NOT. DEBUG) RETURN
-      WRITE(6,140)NUMAT,NORBS,NDORBS,NATOMS
-  140 FORMAT('   NUMBER OF REAL ATOMS:',I4,/
+      WRITE(6,210)NUMAT,NORBS,NDORBS,NATOMS
+  210 FORMAT('   NUMBER OF REAL ATOMS:',I4,/
      1      ,'   NUMBER OF ORBITALS:  ',I4,/
      2      ,'   NUMBER OF D ORBITALS:',I4,/
      3      ,'   TOTAL NO. OF ATOMS:  ',I4)
-      WRITE(6,150)(USPD(I),I=1,NORBS)
-  150 FORMAT('   ONE-ELECTRON DIAGONAL TERMS',/,10(/,10F8.3))
-      WRITE(6,160)(PSPD(I),I=1,NORBS)
-  160 FORMAT('   INITIAL P FOR ALL ATOMIC ORBITALS',/,10(/,10F8.3))
+      WRITE(6,220)(USPD(I),I=1,NORBS)
+  220 FORMAT('   ONE-ELECTRON DIAGONAL TERMS',/,10(/,10F8.3))
+      WRITE(6,230)(PSPD(I),I=1,NORBS)
+  230 FORMAT('   INITIAL P FOR ALL ATOMIC ORBITALS',/,10(/,10F8.3))
       RETURN
-  170 WRITE(6,'(//10X,'' MAXIMUM NUMBER OF ATOMIC ORBITALS EXCEEDED'')')
+  240 WRITE(6,'(//10X,'' MAXIMUM NUMBER OF ATOMIC ORBITALS EXCEEDED'')')
       WRITE(6,'(  10X,'' MAXIMUM ALLOWED ='',I4)')MAXORB
       STOP
       END

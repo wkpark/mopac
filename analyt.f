@@ -20,7 +20,7 @@ C
       COMMON /ALPHA3/ ALP3(153)
       COMMON /IDEAS / FN1(107,10),FN2(107,10),FN3(107,10)
       COMMON /WMATRX/ W(N2ELEC)
-      COMMON /NATYPE/ NZTYPE(107),MTYPE(10),LTYPE
+      COMMON /NATYPE/ NZTYPE(107),MTYPE(30),LTYPE
       COMMON /BETA3 / BETA3(153)
       COMMON /VSIPS / VS(107),VP(107),VD(107)
       COMMON /KEYWRD/ KEYWRD
@@ -38,7 +38,7 @@ C
       LOGICAL FIRST, AM1, MINDO3
       DATA FIRST/.TRUE./
       IF( FIRST ) THEN
-         AM1=(INDEX(KEYWRD,'AM1').NE.0)
+         AM1=(INDEX(KEYWRD,'AM1')+INDEX(KEYWRD,'PM3').NE.0)
          MINDO3=(INDEX(KEYWRD,'MINDO').NE.0)
          FIRST=.FALSE.
       ENDIF
@@ -124,7 +124,7 @@ C        CALCULATE OVERLAP DERIVATIVES, STORE RESULTS IN DS
 C
    20          CALL DERS(KG,LG,RR,DEL1,DEL2,DEL3,IS,IOL)
    30    CONTINUE
-         IF(IX.EQ.1) READ (2) (G(I22),I22=1,22)
+         IF(.NOT.MINDO3.AND.IX.EQ.1) READ (2) (G(I22),I22=1,22)
          IF(.NOT.MINDO3) CALL DELRI(DG,NI,NJ,R0,DEL1)
          CALL DELMOL(COORD,I,J,NI,NJ,IA,ID,JA,JD,IX,RIJ,DEL1,ISP)
 C
@@ -136,19 +136,35 @@ C   THE FIRST DERIVATIVE OF NUCLEAR REPULSION TERM
             IF(NBOND.LT.154)THEN
                ALPHA=ALP3(NBOND)
             ELSE
-               IF(NATORB(NI).EQ.0)ALPHA=ALPA(NI)
-               IF(NATORB(NJ).EQ.0)ALPHA=ALPHA+ALPA(NJ)
+            ALPH1=100
+            ALPH2=100
+               IF(NATORB(NI).EQ.0)ALPH1=ALPA(NI)
+               IF(NATORB(NJ).EQ.0)ALPH2=ALPA(NJ)
             ENDIF
             C2=(7.1995D0/F03(NI)+7.1995D0/F03(NJ))**2
             C1=DEL1/RIJ*CORE(NI)*CORE(NJ)*14.399D0
+            C3=DEL1/RIJ*ABS(CORE(NI)*CORE(NJ))*14.399D0
             IF(NBOND.EQ.22.OR.NBOND.EQ.29)THEN
                TERMNC=-C1*ALPHA*(1.D0/RIJ**2 - RIJ*(RIJ**2+C2)**(-1.5D0)
      1 +  1.D0/RIJ - 1.D0/SQRT(RIJ**2+C2)) * EXP(-RIJ) -
      2C1*RIJ*(RIJ**2+C2)**(-1.5D0)
-            ELSEIF(RIJ.LT.1.D0.AND.ALPHA.NE.0.D0)THEN
+            ELSEIF (RIJ.LT.1.D0.AND.NATORB(NI)*NATORB(NJ).EQ.0) THEN
                TERMNC=0.D0
+            ELSEIF(NBOND.GE.154) THEN
+C
+C  SPECIAL CASE INVOLVING SPARKLES
+C
+            EXP1=EXP(-MIN(ALPH1*RIJ,20.D0))
+            EXP2=EXP(-MIN(ALPH2*RIJ,20.D0))
+            PART1=-C3*(1.D0/RIJ**2 - RIJ*(RIJ**2+C2)**(-1.5D0))
+     +*(EXP1+EXP2)
+            PART2=-C3*(1.D0/RIJ -1.D0/SQRT(RIJ**2+C2))
+     +*(ALPH1*EXP1 + ALPH2*EXP2)
+            PART3=-C1*RIJ*(RIJ**2+C2)**(-1.5D0)
+               TERMNC=PART1+PART2+PART3
+C#            WRITE(6,'(4F13.6)')PART1,PART2,PART3,TERMNC
             ELSE
-               TERMNC=-C1*(1.D0/RIJ**2 - RIJ*(RIJ**2+C2)**(-1.5D0) +
+              TERMNC=-C1*(1.D0/RIJ**2 - RIJ*(RIJ**2+C2)**(-1.5D0) +
      1ALPHA/RIJ - ALPHA/SQRT(RIJ**2+C2)) * EXP(-ALPHA*RIJ) -
      2C1*RIJ*(RIJ**2+C2)**(-1.5D0)
             ENDIF
@@ -164,20 +180,35 @@ C
                TERMNC=0.D0
                GOTO 50
             ENDIF
+            C1=CORE(NI)*CORE(NJ)
             IF(NI.EQ.1.AND.(NJ.EQ.7.OR.NJ.EQ.8)) THEN
                F3=1.0D0+EXP(-ALPA(1)*RIJ)+RIJ*EXP(-ALPA(NJ)*RIJ)
-               DD=DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(1)*EXP(-ALPA(1)*RIJ)
-     1 +(ALPA(NJ)*RIJ-1.0D0)*EXP(-ALPA(NJ)*RIJ))
+               DD=(DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(1)*EXP(-ALPA(1)*RIJ)
+     1 +(ALPA(NJ)*RIJ-1.0D0)*EXP(-ALPA(NJ)*RIJ)))*C1
             ELSEIF((NI.EQ.7.OR.NI.EQ.8).AND.NJ.EQ.1) THEN
                F3=1.0D0+EXP(-ALPA(1)*RIJ)+RIJ*EXP(-ALPA(NI)*RIJ)
-               DD=DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(1)*EXP(-ALPA(1)*RIJ)
-     1 +(ALPA(NI)*RIJ-1.0D0)*EXP(-ALPA(NI)*RIJ))
-            ELSE
-               F3=1.0D0+EXP(-ALPA(NI)*RIJ)+EXP(-ALPA(NJ)*RIJ)
-               DD=DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(NI)*EXP(-ALPA(NI)*RI
-     1J) +ALPA(NJ)*EXP(-ALPA(NJ)*RIJ))
+               DD=(DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(1)*EXP(-ALPA(1)*RIJ)
+     1 +(ALPA(NI)*RIJ-1.0D0)*EXP(-ALPA(NI)*RIJ)))*C1
+         ELSE
+C#            ELSEIF(NATORB(NI)+NATORB(NJ).EQ.0) THEN
+C
+C  SPECIAL CASE OF TWO SPARKLES
+C
+               PART1=DG(1)*C1
+               PART2=-(G(1)*(DEL1/RIJ)*(ALPA(NI)*EXP(-ALPA(NI)*RI
+     1J) +ALPA(NJ)*EXP(-ALPA(NJ)*RIJ)))*ABS(C1)
+             PART3=DG(1)*(EXP(-ALPA(NI)*RIJ)+EXP(-ALPA(NJ)*RIJ))*ABS(C1)
+            DD=PART1+PART2+PART3
+C#            WRITE(6,'(4F13.6)')PART1,PART2,PART3,DD
+C#            ELSE
+C
+C   THE GENERAL CASE
+C
+C#               F3=1.0D0+EXP(-ALPA(NI)*RIJ)+EXP(-ALPA(NJ)*RIJ)
+C#               DD=(DG(1)*F3-G(1)*(DEL1/RIJ)*(ALPA(NI)*EXP(-ALPA(NI)*RI
+C#     1J) +ALPA(NJ)*EXP(-ALPA(NJ)*RIJ)))*C1
             ENDIF
-            TERMNC=CORE(NI)*CORE(NJ)*DD
+            TERMNC=DD
          ENDIF
 C
 C   ****   START OF THE AM1 SPECIFIC DERIVATIVE CODE   ***

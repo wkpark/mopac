@@ -13,7 +13,7 @@
 ************************************************************************
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      COMMON /NATYPE/ NZTYPE(107), MTYPE(10),LTYPE
+      COMMON /NATYPE/ NZTYPE(107), MTYPE(30),LTYPE
       COMMON /TEMP/  C(60,6), Z(60,6)
       COMMON /NATORB/ NATORB(107)
       DIMENSION S(6,6), XI(3),XJ(3), SG(9,9)

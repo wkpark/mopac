@@ -61,6 +61,15 @@ C     **********
 C*
       M=N
 C*
+      TOL2=4.D-1
+      IF(INDEX(KEYWRD,'GNORM') .NE. 0) THEN
+         TOL2=READA(KEYWRD,INDEX(KEYWRD,'GNORM'))
+         IF(TOL2.LT.0.001D0.AND.INDEX(KEYWRD,'LET').EQ.0)THEN
+            WRITE(6,'(/,A)')'  GNORM HAS BEEN SET TOO LOW, RESET TO 0
+     1.001'
+            TOL2=0.001D0
+         ENDIF
+      ENDIF
       LAST=0
       MXCYCL=100
       I=INDEX(KEYWRD,'CYCLES')
@@ -80,10 +89,11 @@ C*
       IF(I.NE.0) THEN
          TIM=READA(KEYWRD,I)
          DO 10 J=I+3,80
-            CH=KEYWRD(J:J)
-            IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE)) TH
-     1EN
+            IF( KEYWRD(J+1:J+1).EQ.' ') THEN
+               CH=KEYWRD(J:J)
                IF( CH .EQ. 'M') TIM=TIM*60
+               IF( CH .EQ. 'H') TIM=TIM*3600
+               IF( CH .EQ. 'D') TIM=TIM*86400
                GOTO 20
             ENDIF
    10    CONTINUE
@@ -94,11 +104,12 @@ C*
       I=INDEX(KEYWRD,' DUMP')
       IF(I.NE.0) THEN
          TDUMP=READA(KEYWRD,I)
-         DO 30 J=I+7,80
-            CH=KEYWRD(J:J)
-            IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE))
-     1 THEN
+         DO 30 J=I+6,80
+            IF( KEYWRD(J+1:J+1).EQ.' ') THEN
+               CH=KEYWRD(J:J)
                IF( CH .EQ. 'M') TDUMP=TDUMP*60
+               IF( CH .EQ. 'H') TDUMP=TDUMP*3600
+               IF( CH .EQ. 'D') TDUMP=TDUMP*86400
                GOTO 40
             ENDIF
    30    CONTINUE
@@ -449,11 +460,11 @@ C     **********
       DO 620 I=1,N
 C*****
 C     The stopping criterion is that no individual gradient be
-C         greater than 0.2
+C         greater than TOL2
 C*****
-         IF(ABS(EFSLST(I)).GE.0.2D0) GO TO 630
+         IF(ABS(EFSLST(I)).GE.TOL2) GO TO 630
   620 CONTINUE
-      WRITE(6,730) SSQ
+C#      WRITE(6,730) SSQ
       GO TO 700
   630 CONTINUE
       IF (ICYC .GE. MXCYCL)  THEN
@@ -498,7 +509,7 @@ C*****
   720 FORMAT(1H ,5X,'ATTEMPT TO GO DOWNHILL IS UNSUCCESSFUL AFTER',I5,5X
      1,'ORTHOGONAL SEARCHES')
       GOTO 920
-  730 FORMAT(1H ,'SSQ =',F15.7)
+C#  730 FORMAT(1H ,'FINAL GRADIENT =',F15.7)
   740 FORMAT(1H ,3X,'ALF =',E12.4)
   750 FORMAT(1H ,3X,'NCOUNT =',I5)
   760 FORMAT(3X,'TIME LEFT:',F7.1,' CYCLE',I5,3X,'GNORM SQUARED IS'

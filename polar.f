@@ -1,23 +1,13 @@
       SUBROUTINE POLAR
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-***********************************************************************
-*
-*   POLAR CALCULATES THE POLARIZATION VOLUME IN CUBIC ANGSTROMS
-*         OF A MOLECULE.
-*         A SHAPED ELECTRIC FIELD IS CONSTRUCTED, THE FIELD IS PRODUCED
-*         BY POINT CHARGES IN THE LAYOUT
-*
-*    CHARGE   LOCATION
-*
-*     +Q       A  Z          THIS IS THE LAYOUT FOR THE DIAGONAL TERMS,
-*     +Q/2     AB Z          THE OFF-DIAGONALS, OF COURSE, CONTAIN
-*     -Q/2    -AB Z          TWICE AS MANY TERMS. THE RESULTING FIELD
-*     -Q      -A  Z          IS RECTILINEAR TO A GOOD APPROXIMATION
-*                            IN THE VOLUME OF ALL "NORMAL" MOLECULES
-*  "A" IS PROGRAM-DEFINED AND IS HERE SET TO 160 ANGSTROMS
-*  "B" IS THE INVERSE CUBE ROOT OF TWO.
-***********************************************************************
+C**********************************************************************
+C
+C   POLAR SETS UP THE CALCULATION OF THE MOLECULAR ELECTRIC RESPONSE
+C   PROPERTIES BY FFHPOL.
+C
+C**********************************************************************
+      CHARACTER*2 ELEMNT
       COMMON /TITLES/ KOMENT,TITLE
       COMMON /POLVOL/ POLVOL(107)
       COMMON /KEYWRD/ KEYWRD
@@ -25,6 +15,7 @@
      1                NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR),IDUMY,XPARAM(MAXPAR)
       COMMON /TIME  / TIME0
+      COMMON /ELEMTS/ ELEMNT(107)
       COMMON /CORE  / CORE(107)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -34,18 +25,85 @@
       COMMON /GEOM  / GEO(3,NUMATM)
       COMMON /LAST  / LAST
       COMMON /COORD / COORD(3,NUMATM)
-      DIMENSION GRAD(MAXPAR), HEATS(5), PHASE(2,4),
-     1          POLMAT(6), VECTRS(9), EIGS(3)
+      COMMON /EULER / TVEC(3,3),IDTVEC
+      COMMON /SCRACH/ RXYZ(MPACK),XDUMY(MAXPAR**2-MPACK)
+      DIMENSION GRAD(MAXPAR),ROTVEC(3,3),DIPVEC(3),
+     1          TEMPV(3,3)
       CHARACTER  KEYWRD*80, TYPE*7, KOMENT*80, TITLE*80
-      LOGICAL HYPER
-      DATA PHASE/3*1.D0,4*-1.D0,1.D0/
+      LOGICAL LET
       TYPE=' MNDO  '
-      HYPER=(INDEX(KEYWRD,'HYPER').NE.0)
-      FACTA=300
-C#      READ(7,*)FACTA
+      LET=(INDEX(KEYWRD,'LET').NE.0)
       IF(INDEX(KEYWRD,'MINDO') .NE. 0) TYPE='MINDO/3'
       IF(INDEX(KEYWRD,'AM1') .NE. 0)    TYPE='  AM1  '
+      WRITE (6,10)
+   10 FORMAT ('1',20('*'),' FINITE-FIELD POLARIZABILITIES ',
+     1        20('*'),//)
       CALL GMETRY(GEO,COORD)
+C
+C  Orient the molecule with the moments of inertia.
+C  This is done to ensure a unique, reproduceable set of directions.
+C  If LET is specified, the input orientation will be used.
+C
+      IF (.NOT.LET) THEN
+         MASS = 1.0D00
+         CALL AXIS (COORD,NUMAT,A,B,C,SUMW,MASS,ROTVEC)
+         WRITE (6,20)
+   20    FORMAT (/' ROTATION MATRIX FOR ORIENTATION OF MOLECULE:'/)
+         DO 40 I = 1,3
+            WRITE (6,30) (ROTVEC(I,J),J=1,3)
+   30       FORMAT (5X,3F12.6)
+   40    CONTINUE
+C
+C  ROTATE ATOMS
+C
+         DO 70 I = 1,NUMAT
+            DO 60 J = 1,3
+               SUM = 0.0D00
+               DO 50 K = 1,3
+                  SUM = SUM + COORD(K,I)*ROTVEC(K,J)
+   50          CONTINUE
+               GEO(J,I) = SUM
+   60       CONTINUE
+   70    CONTINUE
+         DO 90 I = 1,NUMAT
+            DO 80 J = 1,3
+               COORD(J,I) = GEO(J,I)
+   80       CONTINUE
+   90    CONTINUE
+         WRITE(6,'(//10X,''CARTESIAN COORDINATES '',/)')
+         WRITE(6,'(4X,''NO.'',7X,''ATOM'',9X,''X'',
+     1  9X,''Y'',9X,''Z'',/)')
+         L=0
+         DO 100 I=1,NUMAT
+            IF(NAT(I).EQ.99.OR.NAT(I).EQ.107) GOTO 100
+            L=L+1
+            WRITE(6,'(I6,8X,A2,4X,3F10.4)')
+     1           L,ELEMNT(NAT(I)),(COORD(J,L),J=1,3)
+  100    CONTINUE
+C
+C  IF POLYMER, ROTATE TVEC
+C
+         IF (IDTVEC.GT.0) THEN
+            DO 130 I = 1,IDTVEC
+               DO 120 J = 1,3
+                  SUM = 0.0D00
+                  DO 110 K = 1,3
+                     SUM = SUM + TVEC(K,I)*ROTVEC(K,J)
+  110             CONTINUE
+                  TEMPV(J,I) = SUM
+  120          CONTINUE
+  130       CONTINUE
+            DO 150 I = 1,3
+               DO 140 J = 1,IDTVEC
+                  TVEC(I,J) = TEMPV(I,J)
+  140          CONTINUE
+  150       CONTINUE
+            WRITE (6,160) ((TVEC(J,I),J=1,3),I=1,IDTVEC)
+  160       FORMAT (/' NEW TRANSLATION VECTOR:'/,
+     1           ' ',3(3F15.5))
+         ENDIF
+      ENDIF
+C
       LAST=1
       NA(1)=99
 C
@@ -53,154 +111,46 @@ C  SET UP THE VARIABLES IN XPARAM AND LOC, THESE ARE IN CARTESIAN
 C  COORDINATES.
 C
       NDEP=0
-C
-C   XX ANGSTROMS WAS FOUND TO BE THE BEST DISTANCE.
-C
-      FACT1=0.5D0**(1.D0/3.D0)
-      FACT3=1.D0-FACT1
-      FACT2=1.D0/FACT3**2
-C
-C   2 * PI * E(0) / (23.061 * (Q=CHARGE ON THE ELECTRON)) =0.0015056931
-C   IN CUBIC ANGSTROMS, Q   = 1.60219D-19 COULOMBS
-C                       E(0)=8.854188D-12(JOULES**(-2).C**(-2).M**(-1))
-C                       E(0)=8.854188D-22 (CONVERTED TO ANGSTROMS)
       NUMAT=0
       SUMX=0.D0
       SUMY=0.D0
       SUMZ=0.D0
-      DO 20 I=1,NATOMS
-         IF(LABELS(I).NE.99) THEN
+      DO 180 I=1,NATOMS
+         IF((LABELS(I).NE.99).AND.(LABELS(I).NE.107)) THEN
             NUMAT=NUMAT+1
             LABELS(NUMAT)=LABELS(I)
             SUMX=SUMX+COORD(1,NUMAT)
             SUMY=SUMY+COORD(2,NUMAT)
             SUMZ=SUMZ+COORD(3,NUMAT)
-            DO 10 J=1,3
-   10       GEO(J,NUMAT)=COORD(J,NUMAT)
+            DO 170 J=1,3
+  170       GEO(J,NUMAT)=COORD(J,NUMAT)
          ENDIF
-   20 CONTINUE
+  180 CONTINUE
       SUMX=SUMX/NUMAT
       SUMY=SUMY/NUMAT
       SUMZ=SUMZ/NUMAT
       SUMMAX=0.D0
       ATPOL=0.D0
-      DO 30 I=1,NUMAT
-         ATPOL=ATPOL+POLVOL(NAT(I))
+      DO 190 I=1,NUMAT
+         IF (LABELS(I).NE.107) THEN
+            ATPOL=ATPOL+POLVOL(LABELS(I))
+         ENDIF
          GEO(1,I)=GEO(1,I)-SUMX
          IF(SUMMAX.LT.ABS(GEO(1,I))) SUMMAX=ABS(GEO(1,I))
          GEO(2,I)=GEO(2,I)-SUMY
          IF(SUMMAX.LT.ABS(GEO(2,I))) SUMMAX=ABS(GEO(2,I))
          GEO(3,I)=GEO(3,I)-SUMZ
          IF(SUMMAX.LT.ABS(GEO(3,I))) SUMMAX=ABS(GEO(3,I))
-   30 CONTINUE
+  190 CONTINUE
 C
-C   THE ELECTRIC FIELD ACROSS ANY MOLECULE SHOULD BE ROUGHLY THE SAME,
-C   THEREFORE:
-      DELTA=25*SUMMAX
-      IF(DELTA.LT.160)DELTA=160
-      CONST=DELTA**4*0.0015056931D0
-      CONST=CONST*FACT2
-C
-C  INCREASE THE CHARGE ON THE SPARKLES
-C
-      CORE(105)= FACTA
-      CORE(106)=-CORE(105)
-      CORE(103) = CORE(105)*0.5D0
-      CORE(104)=-CORE(103)
-      CONST=CONST/CORE(105)**2
-      LABELS(NUMAT+1)=105
-      LABELS(NUMAT+2)=104
-      LABELS(NUMAT+3)=103
-      LABELS(NUMAT+4)=106
-      NAT(NUMAT+1)=105
-      NAT(NUMAT+2)=104
-      NAT(NUMAT+3)=103
-      NAT(NUMAT+4)=106
-      NFIRST(NUMAT+1)=NORBS+4
-      NFIRST(NUMAT+2)=NORBS+4
-      NFIRST(NUMAT+3)=NORBS+4
-      NFIRST(NUMAT+4)=NORBS+4
-      NMIDLE(NUMAT+1)=NORBS+3
-      NMIDLE(NUMAT+2)=NORBS+3
-      NMIDLE(NUMAT+3)=NORBS+3
-      NMIDLE(NUMAT+4)=NORBS+3
-      NLAST(NUMAT+1)=NORBS
-      NLAST(NUMAT+2)=NORBS
-      NLAST(NUMAT+3)=NORBS
-      NLAST(NUMAT+4)=NORBS
       NVAR=0
-      NUMAT=NUMAT+4
-      NATOMS=NUMAT
-      NUMA1=NUMAT-3
-      NUMA2=NUMAT-2
-      NUMA3=NUMAT-1
-      GEO(1,NUMA1)=DELTA
-      GEO(2,NUMA1)=0.D0
-      GEO(3,NUMA1)=1.D8
-      GEO(1,NUMA2)=DELTA*FACT1
-      GEO(2,NUMA2)=0.D0
-      GEO(3,NUMA2)=1.D8
-      GEO(1,NUMA3)=-DELTA*FACT1
-      GEO(2,NUMA3)=0.D0
-      GEO(3,NUMA3)=1.D8
-      GEO(1,NUMAT)=-DELTA
-      GEO(2,NUMAT)=0.D0
-      GEO(3,NUMAT)=1.D8
-C#      I=NVAR
-C#      NVAR=0
-      CALL COMPFG(GEO, .TRUE., HEATS(5), .TRUE., GRAD, .FALSE.)
-C#      NVAR=I
-      IJ=0
-      DO 70 I=1,3
-         IM1=I-1
-         DO 50 J=1,IM1
-            IJ=IJ+1
-            K=6-I-J
-            L=0
-            DO 40 LL=1,4
-               L=L+1
-               GEO(I,NUMA1)= DELTA*PHASE(1,LL)
-               GEO(I,NUMA2)= DELTA*PHASE(1,LL)*FACT1
-               GEO(I,NUMA3)=-DELTA*PHASE(1,LL)*FACT1
-               GEO(I,NUMAT)=-DELTA*PHASE(1,LL)
-               GEO(J,NUMA1)= DELTA*PHASE(2,LL)
-               GEO(J,NUMA2)= DELTA*PHASE(2,LL)*FACT1
-               GEO(J,NUMA3)=-DELTA*PHASE(2,LL)*FACT1
-               GEO(J,NUMAT)=-DELTA*PHASE(2,LL)
-               GEO(K,NUMA1)= 0.D0
-               GEO(K,NUMA2)= 0.D0
-               GEO(K,NUMA3)= 0.D0
-               GEO(K,NUMAT)= 0.D0
-               CALL COMPFG(GEO, .TRUE., HEATS(L), .TRUE., GRAD, .FALSE.)
-   40       CONTINUE
-            POLMAT(IJ)=(HEATS(2)+HEATS(4)-HEATS(1)-HEATS(3))*CONST
-   50    CONTINUE
-         IJ=(I*(I+1))/2
-         DO 60 K=NUMA1,NUMAT
-            DO 60 J=1,3
-   60    GEO(J,K)= 0.D0
-         GEO(I,NUMA1)= DELTA
-         GEO(I,NUMA2)= DELTA*FACT1
-         GEO(I,NUMA3)=-DELTA*FACT1
-         GEO(I,NUMAT)=-DELTA
-         CALL COMPFG(GEO, .TRUE., HEATS(2), .TRUE., GRAD, .FALSE.)
-         GEO(I,NUMA1)=-DELTA
-         GEO(I,NUMA2)=-DELTA*FACT1
-         GEO(I,NUMA3)= DELTA*FACT1
-         GEO(I,NUMAT)= DELTA
-         CALL COMPFG(GEO, .TRUE., HEATS(3), .TRUE., GRAD, .FALSE.)
-         POLMAT(IJ)=0.5D0*(HEATS(5)+HEATS(5)-HEATS(2)-HEATS(3))*CONST+AT
-     1POL
-   70 CONTINUE
-      WRITE(6,'(A)')KOMENT, TITLE
-      WRITE(6,'(//10X,A,'' POLARIZATION MATRIX, FIELD='',F10.4,
-     1'' VOLTS PER ANGSTROM'')')
-     2TYPE,CORE(105)*2.D0*FACT3*14.399/DELTA**2
-      I3=3
-      CALL VECPRT(POLMAT,I3)
-      CALL RSP(POLMAT,3,3,EIGS,VECTRS)
-      WRITE(6,'(//4X,''  POLARIZATION VOLUMES (IN CUBIC ANGSTROMS)'',
-     1'' AND VECTORS, AVERAGE='',F10.3)')(EIGS(1)+EIGS(2)+EIGS(3))/3.D0
-      CALL MATOUT(VECTRS,EIGS,I3,I3,I3)
+      NATOMS = NUMAT
+      CALL COMPFG(GEO, .TRUE., HEAT0, .TRUE., GRAD, .FALSE.)
+      WRITE (6,200) HEAT0
+  200 FORMAT (//' ENERGY OF "REORIENTED" SYSTEM WITHOUT FIELD:',
+     1        F20.10)
+C
+      CALL FFHPOL (HEAT0,ATPOL,DIPVEC)
+C
       RETURN
       END

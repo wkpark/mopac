@@ -33,8 +33,7 @@
      2COORD(3,NUMATM), GROLD2(MAXPAR),
      3GROLD(MAXPAR), PAROLD(MAXPAR), GEOREF(3,NUMATM),
      4 SQRTMS(MAXPAR)
-      LOGICAL INT, ADDK, LETOT, LET,
-     1PRTMAX, IRCDRC
+      LOGICAL INT, ADDK, LETOT, LET, VELRED,PRTMAX, IRCDRC
       DATA VELO0/MAXPAR*0.D0/, INT/.TRUE./
       DATA SPACE,CHDOT,ZERO,NINE /' ','.','0','9'/
       DATA ADDK/.TRUE./
@@ -50,6 +49,12 @@
          ACCU=1.D0
       ENDIF
       LPOINT=0
+      VELRED=(INDEX(KEYWRD,'VELOC').NE.0)
+C
+C     PRINT OUT INITIAL VELOCITIES
+C
+C#      WRITE(6,'(A)')' INITIAL VELOCITY IN DRC'
+C#      WRITE(6,'(3F13.5)')(STARTV(I),I=1,NUMAT*3)
       LET=(INDEX(KEYWRD,' GEO-OK').NE.0)
       IF(INDEX(KEYWRD,' SYMME').NE.0)THEN
          WRITE(6,*)'  SYMMETRY SPECIFIED, BUT CANNOT BE USED IN DRC'
@@ -140,10 +145,11 @@ C
       IF(I.NE.0) THEN
          TIM=READA(KEYWRD,I)
          DO 50 J=I+3,80
-            CH=KEYWRD(J:J)
-            IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE))
-     1 THEN
+            IF( KEYWRD(J+1:J+1).EQ.' ') THEN
+               CH=KEYWRD(J:J)
                IF( CH .EQ. 'M') TIM=TIM*60
+               IF( CH .EQ. 'H') TIM=TIM*3600
+               IF( CH .EQ. 'D') TIM=TIM*86400
                GOTO 60
             ENDIF
    50    CONTINUE
@@ -175,8 +181,12 @@ C
          GOTO 110
       ELSE
          ILOOP=1
-         IF(INDEX(KEYWRD,'IRC=').NE.0)THEN
-            K=READA(KEYWRD,INDEX(KEYWRD,'IRC='))
+         IF(INDEX(KEYWRD,'IRC=').NE.0.OR.VELRED)THEN
+            IF(INDEX(KEYWRD,'IRC=').NE.0)THEN
+               K=READA(KEYWRD,INDEX(KEYWRD,'IRC='))
+            ELSE
+               K=1
+            ENDIF
             IF(K.LT.0)THEN
                K=-K
                ONE=-1.D0
@@ -188,9 +198,6 @@ C
             VELO1(1)=0
             VELO1(2)=0
             VELO1(3)=0
-C
-C     WEIGH EIGENVECTOR COEFFICIENTS SO THAT CENTER OF MASS IS CONSTANT
-C
             SUMMAS=0.D0
             I=0
             DO 70 II=1,NUMAT
@@ -209,9 +216,11 @@ C
                AMS=ATMASS(II)
                DO 90 I1=1,3
                   I=I+1
-                  VELO0(I)=VELO0(I)+VELO1(I1)
+                  IF(ADDONK.GT.1.D-5.OR..NOT.VELRED)VELO0(I)=VELO0(I)+VE
+     1LO1(I1)
    90       SUMM=SUMM+VELO0(I)**2*AMS
-            IF(ADDONK.LT.1.D-5)THEN
+            IF(ADDONK.LT.1.D-5.AND.VELRED)ADDONK=0.5D0*SUMM/4.184D10
+            IF(ADDONK.LT.1.D-5.AND..NOT.VELRED)THEN
                IF(ABS(HALF).GT.1.D-3.AND.STARTK(K).GT.105.D0)THEN
                   WRITE(6,'(A,F10.3,A,/,A)')' BY DEFAULT, ONE QUANTUM OF
      1 ENERGY,'//' EQUIVALENT TO',STARTK(K),' CM(-1)',
@@ -240,8 +249,10 @@ C                              OR ADDONK IF KINETIC=NN SUPPLIED
 C
             SUMM=SQRT(ADDONK/(0.5D0*SUMM/4.184D10))
             ADDK=.FALSE.
-            DO  100 I=1,NVAR
-  100       VELO0(I)=VELO0(I)*SUMM
+            IF(SUMM.GT.1.D-10)THEN
+               DO  100 I=1,NVAR
+  100          VELO0(I)=VELO0(I)*SUMM
+            ENDIF
          ENDIF
       ENDIF
   110 CONTINUE
@@ -292,7 +303,7 @@ C
 C  IF DAMPING IS USED, CALCULATE THE NEW TOTAL ENERGY AND
 C  THE RATIO FOR REDUCING THE KINETIC ENERGY
 C
-         CONST=MAX(1.D-36,0.5D0**(DELTAT*1.D14/HALF))
+         CONST=MAX(1.D-36,0.5D0**(DELTAT*1.D15/HALF))
          CONST=SQRT(CONST)
          VELVEC=0.D0
          EKIN=0.D0
@@ -433,7 +444,6 @@ C#          (ILOOP/400)*400.EQ.ILOOP)DELTAT=-DELTAT
 ************************************************************************
          ENDIF
          DELTAT=MAX(1.D-16,DELTAT)
-C#         DELTAT=3.D-16
          IF(ABS(HALF).LT.0.00001D0)THEN
             CALL PRTDRC(ESCF,DELTAT,XPARAM,GEOREF,
      1ELOST1,GTOT,ETOT,VELO0,NVAR)
@@ -441,7 +451,6 @@ C#         DELTAT=3.D-16
             CALL PRTDRC(ESCF,DELTAT,XPARAM,GEOREF,
      1EKIN,ELOST,ETOT,VELO0,NVAR)
          ENDIF
-C#         ETOT=ESCF+EKIN
          TNOW=SECOND()
          TCYCLE=TNOW-OLDTIM
          OLDTIM=TNOW

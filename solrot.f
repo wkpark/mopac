@@ -45,8 +45,6 @@
                KB=1
                CALL ROTATE (NI,NJ,XI,XJUC,WBITS,KB,E1BITS,E2BITS,
      1ENUBIT,CUTOFF)
-C#      WRITE(6,'(3I4,3F14.7)')I,J,K,(XJUC(L)-XI(L),L=1,3)
-C#      CALL VECPRT(E1BITS,4)
                KB=KB-1
                DO 60 II=1,KB
    60          WSUM(II)=WSUM(II)+WBITS(II)

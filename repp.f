@@ -1,10 +1,8 @@
       SUBROUTINE REPP(NI,NJ,RIJ,RI,CORE)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DIMENSION RI(22),CORE(4,2)
-      COMMON /MULTIP/ DD(107),QQ(107),ADD(107,3)
-      COMMON /CORE/ TORE(107)
-      COMMON /NATORB/ NATORB(107)
 C***********************************************************************
+C
+C..VECTOR VERSION WRITTEN BY ERNEST R. DAVIDSON, INDIANA UNIVERSITY
+C
 C
 C  REPP CALCULATES THE TWO-ELECTRON REPULSION INTEGRALS AND THE
 C       NUCLEAR ATTRACTION INTEGRALS.
@@ -24,12 +22,6 @@ C    ON OUTPUT RI      = ARRAY OF TWO-ELECTRON REPULSION INTEGRALS
 C              CORE    = 4 X 2 ARRAY OF ELECTRON-CORE ATTRACTION
 C                        INTEGRALS
 C
-C***********************************************************************
-      R=RIJ/0.529167D00
-      PP=2.0D00
-      P2=4.0D00
-      P3=8.0D00
-      P4=16.0D00
 C
 C *** THIS ROUTINE COMPUTES THE TWO-CENTRE REPULSION INTEGRALS AND THE
 C *** NUCLEAR ATTRACTION INTEGRALS.
@@ -45,165 +37,350 @@ C     (SS/)=1,   (SO/)=2,   (OO/)=3,   (PP/)=4
 C     WHERE IJ=1 IF THE ORBITALS CENTRED ON ATOM I,  =2 IF ON ATOM J.
 C *** NI AND NJ ARE THE ATOMIC NUMBERS OF THE TWO ELEMENTS.
 C
-      DO 10 I=1,22
-   10 RI(I)=0.0D00
-      DO 20 I=1,4
-         CORE(I,1)=0.0D00
-   20 CORE(I,2)=0.0D00
+C***********************************************************************
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      LOGICAL SI,SJ
+      COMMON /MULTIP/ DD(107),QQ(107),ADD(107,3)
+      COMMON /CORE/ TORE(107)
+      COMMON /NATORB/ NATORB(107)
+      DIMENSION RI(22),CORE(4,2)
+      DIMENSION ARG(72),SQR(72)
+      DATA  OD/1.D00/, TD/2.D00/, FD/4.D00/, ED/8.D0/
+      DATA PP/0.5D00/, P2/0.25D00/, P3/0.125D00/, P4/0.0625D00/
+      DATA A0/0.529167D0/ ,EV/27.21D0/, EV1/13.605D0/, EV2/6.8025D0/,
+     1 EV3/3.40125D0/, EV4/1.700625D0/
 C
-C     ATOMIC UNITS ARE USED IN THE CALCULATION
-C     DEFINE CHARGE SEPARATIONS.
+C     ATOMIC UNITS ARE USED IN THE CALCULATION,
+C     FINAL RESULTS ARE CONVERTED TO EV
 C
-      DA=DD(NI)
-      DB=DD(NJ)
-      QA=QQ(NI)
-      QB=QQ(NJ)
-      TD = 2.D00
-      OD = 1.D00
-      FD = 4.D00
+      R=RIJ/A0
 C
-C     HYDROGEN - HYDROGEN
+      SI = (NATORB(NI).GE.3)
+      SJ = (NATORB(NJ).GE.3)
 C
-      AEE=0.25D00*(OD/ADD(NI,1)+OD/ADD(NJ,1))**2
-      EE=OD/SQRT(R**2+AEE)
-      RI(1)=EE*27.21D00
-      CORE(1,1)=TORE(NJ)*RI(1)
-      CORE(1,2)=TORE(NI)*RI(1)
-      IF (NATORB(NI).LT.3.AND.NATORB(NJ).LT.3) RETURN
-      IF (NATORB(NI).LT.3) GO TO 30
+      IF ((.NOT.SI) .AND. (.NOT.SJ)) THEN
+C
+C     HYDROGEN - HYDROGEN  (SS/SS)
+C
+         AEE = PP/ADD(NI,1) + PP/ADD(NJ,1)
+         AEE = AEE * AEE
+         RI(1) = EV/SQRT(R*R+AEE)
+         CORE(1,1 )= TORE(NJ)*RI(1)
+         CORE(1,2) = TORE(NI)*RI(1)
+C
+      ELSE IF (SI .AND. (.NOT.SJ)) THEN
 C
 C     HEAVY ATOM - HYDROGEN
 C
-      ADE=0.25D00*(OD/ADD(NI,2)+OD/ADD(NJ,1))**2
-      AQE=0.25D00*(OD/ADD(NI,3)+OD/ADD(NJ,1))**2
-      DZE=-OD/SQRT((R+DA)**2+ADE)+OD/SQRT((R-DA)**2+ADE)
-      QZZE=OD/SQRT((R-TD*QA)**2+AQE)-TD/SQRT(R**2+AQE)+OD/
-     1SQRT((R+TD*QA)**2+AQE)
-      QXXE=TD/SQRT(R**2+FD*QA**2+AQE)-TD/SQRT(R**2+AQE)
-      DZE=DZE/PP
-      QXXE=QXXE/P2
-      QZZE=QZZE/P2
-      RI(2)=-DZE
-      RI(3)=EE+QZZE
-      RI(4)=EE+QXXE
-      IF (NATORB(NJ).LT.3) GO TO 40
+         AEE = PP/ADD(NI,1) + PP/ADD(NJ,1)
+         AEE = AEE * AEE
+         DA=DD(NI)
+         QA=QQ(NI) * TD
+         ADE = PP/ADD(NI,2) + PP/ADD(NJ,1)
+         ADE = ADE * ADE
+         AQE = PP/ADD(NI,3) + PP/ADD(NJ,1)
+         AQE = AQE * AQE
+         RSQ = R*R
+         ARG(1) = RSQ + AEE
+         XXX = R+DA
+         ARG(2) = XXX*XXX + ADE
+         XXX = R-DA
+         ARG(3) = XXX*XXX + ADE
+         XXX = R+QA
+         ARG(4) = XXX*XXX + AQE
+         XXX = R-QA
+         ARG(5) = XXX*XXX + AQE
+         ARG(6) = RSQ + AQE
+         ARG(7) = ARG(6) + QA*QA
+         DO 10 I = 1,7
+            SQR(I) = SQRT(ARG(I))
+   10    CONTINUE
+         EE = EV/SQR(1)
+         RI(1) = EE
+         RI(2) = EV1/SQR(2) - EV1/SQR(3)
+         RI(3) = EE + EV2/SQR(4) + EV2/SQR(5) - EV1/SQR(6)
+         RI(4) = EE + EV1/SQR(7) - EV1/SQR(6)
+         CORE(1,1) = TORE(NJ)*RI(1)
+         CORE(1,2) = TORE(NI)*RI(1)
+         CORE(2,1) = TORE(NJ)*RI(2)
+         CORE(3,1) = TORE(NJ)*RI(3)
+         CORE(4,1) = TORE(NJ)*RI(4)
+C
+      ELSE IF ((.NOT.SI).AND.SJ) THEN
 C
 C     HYDROGEN - HEAVY ATOM
 C
-   30 CONTINUE
-      AED=0.25D00*(OD/ADD(NI,1)+OD/ADD(NJ,2))**2
-      AEQ=0.25D00*(OD/ADD(NI,1)+OD/ADD(NJ,3))**2
-      EDZ=-OD/SQRT((R-DB)**2+AED)+OD/SQRT((R+DB)**2+AED)
-      EQZZ=OD/SQRT((R-TD*QB)**2+AEQ)-TD/SQRT(R**2+AEQ)+OD/
-     1SQRT((R+TD*QB)**2+AEQ)
-      EQXX=TD/SQRT(R**2+FD*QB**2+AEQ)-TD/SQRT(R**2+AEQ)
-      EDZ=EDZ/PP
-      EQXX=EQXX/P2
-      EQZZ=EQZZ/P2
-      RI(5)=-EDZ
-      RI(11)=EE+EQZZ
-      RI(12)=EE+EQXX
-      IF (NATORB(NI).LT.3) GO TO 40
+         AEE = PP/ADD(NI,1) + PP/ADD(NJ,1)
+         AEE = AEE * AEE
+         DB=DD(NJ)
+         QB=QQ(NJ) * TD
+         AED = PP/ADD(NI,1) + PP/ADD(NJ,2)
+         AED = AED * AED
+         AEQ = PP/ADD(NI,1) + PP/ADD(NJ,3)
+         AEQ = AEQ * AEQ
+         RSQ = R*R
+         ARG(1) = RSQ + AEE
+         XXX = R-DB
+         ARG(2) = XXX*XXX + AED
+         XXX = R+DB
+         ARG(3) = XXX*XXX + AED
+         XXX = R-QB
+         ARG(4) = XXX*XXX + AEQ
+         XXX = R+QB
+         ARG(5) = XXX*XXX + AEQ
+         ARG(6) = RSQ + AEQ
+         ARG(7) = ARG(6) + QB*QB
+         DO 20 I = 1,7
+            SQR(I) = SQRT(ARG(I))
+   20    CONTINUE
+         EE = EV/SQR(1)
+         RI(1) = EE
+         RI(5) = EV1/SQR(2)  - EV1/SQR(3)
+         RI(11) = EE + EV2/SQR(4) + EV2/SQR(5) - EV1/SQR(6)
+         RI(12) = EE + EV1/SQR(7) - EV1/SQR(6)
+         CORE(1,1) = TORE(NJ)*RI(1)
+         CORE(1,2) = TORE(NI)*RI(1)
+         CORE(2,2) = TORE(NI)*RI(5)
+         CORE(3,2) = TORE(NI)*RI(11)
+         CORE(4,2) = TORE(NI)*RI(12)
+C
+      ELSE
 C
 C     HEAVY ATOM - HEAVY ATOM
-C     CAUTION. ADD REPLACES ADD(1,1) IN /MULTIP/ AND MUST BE RESET.
 C
-      ADD(1,1)=0.25D00*(OD/ADD(NI,2)+OD/ADD(NJ,2))**2
-      ADQ=0.25D00*(OD/ADD(NI,2)+OD/ADD(NJ,3))**2
-      AQD=0.25D00*(OD/ADD(NI,3)+OD/ADD(NJ,2))**2
-      AQQ=0.25D00*(OD/ADD(NI,3)+OD/ADD(NJ,3))**2
-      DXDX=TD/SQRT(R**2+(DA-DB)**2+ADD(1,1))
-     1-TD/SQRT(R**2+(DA+DB)**2+ADD(1,1))
-      DZDZ=OD/SQRT((R+DA-DB)**2+ADD(1,1))
-     1+OD/SQRT((R-DA+DB)**2+ADD(1,1))-OD/SQRT((
-     2R-DA-DB)**2+ADD(1,1))-OD/SQRT((R+DA+DB)**2+ADD(1,1))
-      DZQXX=-TD/SQRT((R+DA)**2+FD*QB**2+ADQ)+TD/SQRT((R-DA)**2
-     1+FD*QB**2+
-     2ADQ)+TD/SQRT((R+DA)**2+ADQ)-TD/SQRT((R-DA)**2+ADQ)
-      QXXDZ=-TD/SQRT((R-DB)**2+FD*QA**2+AQD)+TD/SQRT((R+DB)**2
-     1+FD*QA**2+
-     2AQD)+TD/SQRT((R-DB)**2+AQD)-TD/SQRT((R+DB)**2+AQD)
-      DZQZZ=-OD/SQRT((R+DA-TD*QB)**2+ADQ)+OD/SQRT((R-DA-TD*
-     1QB)**2+ADQ)-OD/SQRT((R+DA+TD*QB)**2+ADQ)+OD/SQRT((R-DA+TD*QB)
-     2**2+ADQ)-TD/SQRT((R-DA)**2+ADQ)+TD/SQRT((R+DA)**2+ADQ)
-      QZZDZ=-OD/SQRT((R+TD*QA-DB)**2+AQD)+OD/SQRT((R+TD*QA+
-     1DB)**2+AQD)-OD/SQRT((R-TD*QA-DB)**2+AQD)+OD/SQRT((R-2.D
-     200*QA+DB)**2+AQD)+TD/SQRT((R-DB)**2+AQD)-TD/SQRT((R+DB)**2
-     3+AQD)
-      QXXQXX=TD/SQRT(R**2+FD*(QA-QB)**2+AQQ)+TD/SQRT(R**2+FD*(QA+QB)**2+
-     1AQQ)-FD/SQRT(R**2+FD*QA**2+AQQ)-FD/SQRT(R**2+FD*QB**2+AQQ)+FD/SQRT
-     2(R**2+AQQ)
-      QXXQYY=FD/SQRT(R**2+FD*QA**2+FD*QB**2+AQQ)-FD/SQRT(R**2+FD*QA**2+A
-     1QQ)-FD/SQRT(R**2+FD*QB**2+AQQ)+FD/SQRT(R**2+AQQ)
-      QXXQZZ=TD/SQRT((R-TD*QB)**2+FD*QA**2+AQQ)+TD/SQRT((R+TD*QB)**2+FD*
-     1QA**2+AQQ)-TD/SQRT((R-TD*QB)**2+AQQ)-TD/SQRT((R+TD*QB)**2+AQQ)-FD/
-     2SQRT(R**2+FD*QA**2+AQQ)+FD/SQRT(R**2+AQQ)
-      QZZQXX=TD/SQRT((R+TD*QA)**2+FD*QB**2+AQQ)+TD/SQRT((R-TD*QA)**2+FD*
-     1QB**2+AQQ)-TD/SQRT((R+TD*QA)**2+AQQ)-TD/SQRT((R-TD*QA)**2+AQQ)-FD/
-     2SQRT(R**2+FD*QB**2+AQQ)+FD/SQRT(R**2+AQQ)
-      QZZQZZ=OD/SQRT((R+TD*QA-TD*QB)**2+AQQ)+OD/SQRT((R+TD*QA+TD*QB)**2+
-     1AQQ)+OD/SQRT((R-TD*QA-TD*QB)**2+AQQ)+OD/SQRT((R-TD*QA+TD*QB)**2+AQ
-     2Q)-TD/SQRT((R-TD*QA)**2+AQQ)-TD/SQRT((R+TD*QA)**2+AQQ)-TD/SQRT((R-
-     3TD*QB)**2+AQQ)-TD/SQRT((R+TD*QB)**2+AQQ)+FD/SQRT(R**2+AQQ)
-      DXQXZ=-TD/SQRT((R-QB)**2+(DA-QB)**2+ADQ)+TD/SQRT((R+QB)**2+(DA-QB)
-     1**2+ADQ)+TD/SQRT((R-QB)**2+(DA+QB)**2+ADQ)-TD/SQRT((R+QB)**2+(DA+Q
-     2B)**2+ADQ)
-      QXZDX=-TD/SQRT((R+QA)**2+(QA-DB)**2+AQD)+TD/SQRT((R-QA)**2+(QA-DB)
-     1**2+AQD)+TD/SQRT((R+QA)**2+(QA+DB)**2+AQD)-TD/SQRT((R-QA)**2+(QA+D
-     2B)**2+AQD)
-      QXYQXY=FD/SQRT(R**2+TD*(QA-QB)**2+AQQ)+FD/SQRT(R**2+TD*(QA+QB)**2+
-     1AQQ)-8.D00/SQRT(R**2+TD*(QA**2+QB**2)+AQQ)
-      QXZQXZ=TD/SQRT((R+QA-QB)**2+(QA-QB)**2+AQQ)-TD/SQRT((R+QA+QB)**2+(
-     1QA-QB)**2+AQQ)-TD/SQRT((R-QA-QB)**2+(QA-QB)**2+AQQ)+TD/SQRT((R-QA+
-     2QB)**2+(QA-QB)**2+AQQ)-TD/SQRT((R+QA-QB)**2+(QA+QB)**2+AQQ)+TD/SQR
-     3T((R+QA+QB)**2+(QA+QB)**2+AQQ)+TD/SQRT((R-QA-QB)**2+(QA+QB)**2+AQQ
-     4)-TD/SQRT((R-QA+QB)**2+(QA+QB)**2+AQQ)
-      DXDX=DXDX/P2
-      DZDZ=DZDZ/P2
-      DZQXX=DZQXX/P3
-      QXXDZ=QXXDZ/P3
-      DZQZZ=DZQZZ/P3
-      QZZDZ=QZZDZ/P3
-      DXQXZ=DXQXZ/P3
-      QXZDX=QXZDX/P3
-      QXXQXX=QXXQXX/P4
-      QXXQYY=QXXQYY/P4
-      QXXQZZ=QXXQZZ/P4
-      QZZQXX=QZZQXX/P4
-      QZZQZZ=QZZQZZ/P4
-      QXZQXZ=QXZQXZ/P4
-      QXYQXY=QXYQXY/P4
-      RI(6)=DZDZ
-      RI(7)=DXDX
-      RI(8)=-EDZ-QZZDZ
-      RI(9)=-EDZ-QXXDZ
-      RI(10)=-QXZDX
-      RI(13)=-DZE-DZQZZ
-      RI(14)=-DZE-DZQXX
-      RI(15)=-DXQXZ
-      RI(16)=EE+EQZZ+QZZE+QZZQZZ
-      RI(17)=EE+EQZZ+QXXE+QXXQZZ
-      RI(18)=EE+EQXX+QZZE+QZZQXX
-      RI(19)=EE+EQXX+QXXE+QXXQXX
-      RI(20)=QXZQXZ
-      RI(21)=EE+EQXX+QXXE+QXXQYY
-      RI(22)=0.5D0*(QXXQXX-QXXQYY)
-      ADD(1,1)=ADD(1,2)
-   40 CONTINUE
+C     DEFINE CHARGE SEPARATIONS.
+         DA=DD(NI)
+         DB=DD(NJ)
+         QA=QQ(NI) * TD
+         QB=QQ(NJ) * TD
 C
-C     CONVERT INTO EV.
+         AEE = PP/ADD(NI,1) + PP/ADD(NJ,1)
+         AEE = AEE * AEE
 C
-      DO 50 I=2,22
-   50 RI(I)=RI(I)*27.21D00
+         ADE = PP/ADD(NI,2) + PP/ADD(NJ,1)
+         ADE = ADE * ADE
+         AQE = PP/ADD(NI,3) + PP/ADD(NJ,1)
+         AQE = AQE * AQE
+         AED = PP/ADD(NI,1) + PP/ADD(NJ,2)
+         AED = AED * AED
+         AEQ = PP/ADD(NI,1) + PP/ADD(NJ,3)
+         AEQ = AEQ * AEQ
+         AXX = PP/ADD(NI,2) + PP/ADD(NJ,2)
+         AXX = AXX * AXX
+         ADQ = PP/ADD(NI,2) + PP/ADD(NJ,3)
+         ADQ = ADQ * ADQ
+         AQD = PP/ADD(NI,3) + PP/ADD(NJ,2)
+         AQD = AQD * AQD
+         AQQ = PP/ADD(NI,3) + PP/ADD(NJ,3)
+         AQQ = AQQ * AQQ
+         RSQ = R * R
+         ARG(1) = RSQ + AEE
+         XXX = R + DA
+         ARG(2) = XXX * XXX + ADE
+         XXX = R - DA
+         ARG(3) = XXX*XXX + ADE
+         XXX = R - QA
+         ARG(4) = XXX*XXX + AQE
+         XXX = R + QA
+         ARG(5) = XXX*XXX + AQE
+         ARG(6) = RSQ + AQE
+         ARG(7) = ARG(6) + QA*QA
+         XXX = R-DB
+         ARG(8) = XXX*XXX + AED
+         XXX = R+DB
+         ARG(9) = XXX*XXX + AED
+         XXX = R - QB
+         ARG(10) = XXX*XXX + AEQ
+         XXX = R + QB
+         ARG(11) = XXX*XXX + AEQ
+         ARG(12) = RSQ + AEQ
+         ARG(13) = ARG(12) + QB*QB
+         XXX = DA-DB
+         ARG(14) = RSQ + AXX + XXX*XXX
+         XXX = DA+DB
+         ARG(15) = RSQ + AXX + XXX*XXX
+         XXX = R + DA - DB
+         ARG(16) = XXX*XXX + AXX
+         XXX = R - DA + DB
+         ARG(17) = XXX*XXX + AXX
+         XXX = R - DA - DB
+         ARG(18) = XXX*XXX + AXX
+         XXX = R + DA + DB
+         ARG(19) = XXX*XXX + AXX
+         XXX = R + DA
+         ARG(20) = XXX*XXX + ADQ
+         ARG(21) = ARG(20) + QB*QB
+         XXX = R - DA
+         ARG(22) = XXX*XXX + ADQ
+         ARG(23) = ARG(22) + QB*QB
+         XXX = R - DB
+         ARG(24) = XXX*XXX + AQD
+         ARG(25) = ARG(24) + QA*QA
+         XXX = R + DB
+         ARG(26) = XXX*XXX + AQD
+         ARG(27) = ARG(26) + QA*QA
+         XXX = R + DA - QB
+         ARG(28) = XXX*XXX + ADQ
+         XXX = R - DA - QB
+         ARG(29) = XXX*XXX + ADQ
+         XXX = R + DA + QB
+         ARG(30) = XXX*XXX + ADQ
+         XXX = R - DA + QB
+         ARG(31) = XXX*XXX + ADQ
+         XXX = R + QA - DB
+         ARG(32) = XXX*XXX + AQD
+         XXX = R + QA + DB
+         ARG(33) = XXX*XXX + AQD
+         XXX = R - QA - DB
+         ARG(34) = XXX*XXX + AQD
+         XXX = R - QA + DB
+         ARG(35) = XXX*XXX + AQD
+         ARG(36) = RSQ + AQQ
+         XXX = QA - QB
+         ARG(37) = ARG(36) + XXX*XXX
+         XXX = QA + QB
+         ARG(38) = ARG(36) + XXX*XXX
+         ARG(39) = ARG(36) + QA*QA
+         ARG(40) = ARG(36) + QB*QB
+         ARG(41) = ARG(39) + QB*QB
+         XXX = R - QB
+         ARG(42) = XXX*XXX + AQQ
+         ARG(43) = ARG(42) + QA*QA
+         XXX = R + QB
+         ARG(44) = XXX*XXX + AQQ
+         ARG(45) = ARG(44) + QA*QA
+         XXX = R + QA
+         ARG(46) = XXX*XXX + AQQ
+         ARG(47) = ARG(46) + QB*QB
+         XXX = R - QA
+         ARG(48) = XXX*XXX + AQQ
+         ARG(49) = ARG(48) + QB*QB
+         XXX = R + QA - QB
+         ARG(50) = XXX*XXX + AQQ
+         XXX = R + QA + QB
+         ARG(51) = XXX*XXX + AQQ
+         XXX = R - QA - QB
+         ARG(52) = XXX*XXX + AQQ
+         XXX = R - QA + QB
+         ARG(53) = XXX*XXX + AQQ
+         QA=QQ(NI)
+         QB=QQ(NJ)
+         XXX = DA - QB
+         XXX = XXX*XXX
+         YYY = R - QB
+         YYY = YYY*YYY
+         ZZZ = DA + QB
+         ZZZ = ZZZ*ZZZ
+         WWW = R + QB
+         WWW = WWW*WWW
+         ARG(54) = XXX + YYY + ADQ
+         ARG(55) = XXX + WWW + ADQ
+         ARG(56) = ZZZ + YYY + ADQ
+         ARG(57) = ZZZ + WWW + ADQ
+         XXX = QA - DB
+         XXX = XXX*XXX
+         YYY = QA + DB
+         YYY = YYY*YYY
+         ZZZ = R + QA
+         ZZZ = ZZZ*ZZZ
+         WWW = R - QA
+         WWW = WWW*WWW
+         ARG(58) = ZZZ + XXX + AQD
+         ARG(59) = WWW + XXX + AQD
+         ARG(60) = ZZZ + YYY + AQD
+         ARG(61) = WWW + YYY + AQD
+         XXX = QA - QB
+         XXX = XXX*XXX
+         ARG(62) = ARG(36) + TD*XXX
+         YYY = QA + QB
+         YYY = YYY*YYY
+         ARG(63) = ARG(36) + TD*YYY
+         ARG(64) = ARG(36) + TD*(QA*QA+QB*QB)
+         ZZZ = R + QA - QB
+         ZZZ = ZZZ*ZZZ
+         ARG(65) = ZZZ + XXX + AQQ
+         ARG(66) = ZZZ + YYY + AQQ
+         ZZZ = R + QA + QB
+         ZZZ = ZZZ*ZZZ
+         ARG(67) = ZZZ + XXX + AQQ
+         ARG(68) = ZZZ + YYY + AQQ
+         ZZZ = R - QA - QB
+         ZZZ = ZZZ*ZZZ
+         ARG(69) = ZZZ + XXX + AQQ
+         ARG(70) = ZZZ + YYY + AQQ
+         ZZZ = R - QA + QB
+         ZZZ = ZZZ*ZZZ
+         ARG(71) = ZZZ + XXX + AQQ
+         ARG(72) = ZZZ + YYY + AQQ
+         DO 30 I = 1,72
+            SQR(I) = SQRT(ARG(I))
+   30    CONTINUE
+         EE = EV/SQR(1)
+         DZE = -EV1/SQR(2) + EV1/SQR(3)
+         QZZE = EV2/SQR(4) + EV2/SQR(5) - EV1/SQR(6)
+         QXXE = EV1/SQR(7) - EV1/SQR(6)
+         EDZ = - EV1/SQR(8) + EV1/SQR(9)
+         EQZZ  = EV2/SQR(10) + EV2/SQR(11) - EV1/SQR(12)
+         EQXX  = EV1/SQR(13) - EV1/SQR(12)
+         DXDX  = EV1/SQR(14) - EV1/SQR(15)
+         DZDZ  = EV2/SQR(16) + EV2/SQR(17) - EV2/SQR(18) - EV2/SQR(19)
+         DZQXX =  EV2/SQR(20) - EV2/SQR(21) - EV2/SQR(22) + EV2/SQR(23)
+         QXXDZ =  EV2/SQR(24) - EV2/SQR(25) - EV2/SQR(26) + EV2/SQR(27)
+         DZQZZ = -EV3/SQR(28) + EV3/SQR(29) - EV3/SQR(30) + EV3/SQR(31)
+     1       - EV2/SQR(22) + EV2/SQR(20)
+         QZZDZ = -EV3/SQR(32) + EV3/SQR(33) - EV3/SQR(34) + EV3/SQR(35)
+     1       + EV2/SQR(24) - EV2/SQR(26)
+         QXXQXX = EV3/SQR(37) + EV3/SQR(38) - EV2/SQR(39) - EV2/SQR(40)
+     1       + EV2/SQR(36)
+         QXXQYY = EV2/SQR(41) - EV2/SQR(39) - EV2/SQR(40) + EV2/SQR(36)
+         QXXQZZ = EV3/SQR(43) + EV3/SQR(45) - EV3/SQR(42) - EV3/SQR(44)
+     1       - EV2/SQR(39) + EV2/SQR(36)
+         QZZQXX = EV3/SQR(47) + EV3/SQR(49) - EV3/SQR(46) - EV3/SQR(48)
+     1       - EV2/SQR(40) + EV2/SQR(36)
+         QZZQZZ = EV4/SQR(50) + EV4/SQR(51) + EV4/SQR(52) + EV4/SQR(53)
+     1       - EV3/SQR(48) - EV3/SQR(46) - EV3/SQR(42) - EV3/SQR(44)
+     2       + EV2/SQR(36)
+         DXQXZ = -EV2/SQR(54) + EV2/SQR(55) + EV2/SQR(56) - EV2/SQR(57)
+         QXZDX = -EV2/SQR(58) + EV2/SQR(59) + EV2/SQR(60) - EV2/SQR(61)
+         QXYQXY = EV2/SQR(62) + EV2/SQR(63) - EV1/SQR(64)
+         QXZQXZ = EV3/SQR(65) - EV3/SQR(67) - EV3/SQR(69) + EV3/SQR(71)
+     1       - EV3/SQR(66) + EV3/SQR(68) + EV3/SQR(70) - EV3/SQR(72)
+         RI(1) = EE
+         RI(2) = -DZE
+         RI(3) = EE + QZZE
+         RI(4) = EE + QXXE
+         RI(5) = -EDZ
+         RI(6) = DZDZ
+         RI(7) = DXDX
+         RI(8) = -EDZ -QZZDZ
+         RI(9) = -EDZ -QXXDZ
+         RI(10) = -QXZDX
+         RI(11) =  EE + EQZZ
+         RI(12) =  EE + EQXX
+         RI(13) = -DZE -DZQZZ
+         RI(14) = -DZE -DZQXX
+         RI(15) = -DXQXZ
+         RI(16) = EE +EQZZ +QZZE +QZZQZZ
+         RI(17) = EE +EQZZ +QXXE +QXXQZZ
+         RI(18) = EE +EQXX +QZZE +QZZQXX
+         RI(19) = EE +EQXX +QXXE +QXXQXX
+         RI(20) = QXZQXZ
+         RI(21) = EE +EQXX +QXXE +QXXQYY
+         RI(22) = PP * (QXXQXX -QXXQYY)
 C
 C     CALCULATE CORE-ELECTRON ATTRACTIONS.
 C
-      CORE(2,1)=TORE(NJ)*RI(2)
-      CORE(3,1)=TORE(NJ)*RI(3)
-      CORE(4,1)=TORE(NJ)*RI(4)
-      CORE(2,2)=TORE(NI)*RI(5)
-      CORE(3,2)=TORE(NI)*RI(11)
-      CORE(4,2)=TORE(NI)*RI(12)
+         CORE(1,1) = TORE(NJ)*RI(1)
+         CORE(2,1) = TORE(NJ)*RI(2)
+         CORE(3,1) = TORE(NJ)*RI(3)
+         CORE(4,1) = TORE(NJ)*RI(4)
+         CORE(1,2) = TORE(NI)*RI(1)
+         CORE(2,2) = TORE(NI)*RI(5)
+         CORE(3,2) = TORE(NI)*RI(11)
+         CORE(4,2) = TORE(NI)*RI(12)
+C
+      END IF
+C
       RETURN
 C
       END

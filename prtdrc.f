@@ -369,7 +369,7 @@ C
      2=',SUM1,'   LAST V(0)',SUM,'   HALF-LIFE =',
      3-0.6931472D0*TIME/LOG(SUM1),' FEMTOSECS'
                ENDIF
-               WRITE(6,'(A,F7.3,A)')' HALF-CYCLE TIME ='
+               WRITE(6,'(//,A,F11.3,A)')' HALF-CYCLE TIME ='
      1,TIME-TLAST,' FEMTOSECONDS'
                TLAST=TIME
                DO 150 I=1,NVAR

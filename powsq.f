@@ -68,15 +68,18 @@ C
          IF(I.NE.0) THEN
             TIM=READA(KEYWRD,I)
             DO 10 J=I+3,80
-               CH=KEYWRD(J:J)
-               IF( CH .NE. CHDOT .AND. (CH .LT. ZERO .OR. CH .GT. NINE))
-     1 THEN
+               CH=KEYWRD(J+1:J+1)
+               IF( CH .EQ.' ') THEN
+                  CH=KEYWRD(J:J)
                   IF( CH .EQ. 'M') TIM=TIM*60
+                  IF( CH .EQ. 'H') TIM=TIM*3600
+                  IF( CH .EQ. 'D') TIM=TIM*86400
                   GOTO 20
                ENDIF
    10       CONTINUE
    20       TOTIME=TIM
-            WRITE(6,'(//10X,'' TIME FOR THIS STEP ='',F8.2)')TOTIME
+            WRITE(6,'(//10X,'' TIME FOR THIS STEP ='',F10.2,
+     1'' SECONDS'')')TOTIME
          ENDIF
          TLEFT=TOTIME
          TLAST=TOTIME
@@ -103,6 +106,14 @@ C
          RHO2=1.D-4
          TOL2=4.D-1
          IF(INDEX(KEYWRD,'PREC') .NE. 0) TOL2=1.D-2
+         IF(INDEX(KEYWRD,'GNORM') .NE. 0) THEN
+            TOL2=READA(KEYWRD,INDEX(KEYWRD,'GNORM'))
+            IF(TOL2.LT.0.001.AND.INDEX(KEYWRD,'LET').EQ.0)THEN
+               WRITE(6,'(/,A)')'  GNORM HAS BEEN SET TOO LOW, RESET TO 0
+     1.001'
+               TOL2=0.001D0
+            ENDIF
+         ENDIF
          DEBUG = (INDEX(KEYWRD,'POWSQ') .NE. 0)
          IF(RESTRT) THEN
 C

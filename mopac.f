@@ -1,5 +1,17 @@
       PROGRAM MAIN
 C
+C         Notice of Public Domain nature of MOPAC
+C
+C      'This computer program is a work of the United States 
+C       Government and as such is not subject to protection by 
+C       copyright (17 U.S.C. # 105.)  Any person who fraudulently 
+C       places a copyright notice or does any other act contrary 
+C       to the provisions of 17 U.S. Code 506(c) shall be subject 
+C       to the penalties provided therein.  This notice shall not 
+C       be altered or removed from this software and is to be on 
+C       all reproductions.'
+C
+C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       COMMON /KEYWRD/ KEYWRD
@@ -31,40 +43,41 @@ C
 C
 C INITIALIZE CALCULATION AND WRITE CALCULATION INDEPENDENT INFO
 C
-      IF(INDEX(KEYWRD,'0SCF') .NE. 0) STOP
+      IF(INDEX(KEYWRD,'0SCF') .NE. 0) GOTO 70
       IF(INDEX(KEYWRD,'EXTERNAL') .NE. 0) THEN
          CALL AM1
       ELSE
          CALL MOLDAT
       ENDIF
-      IF (INDEX(KEYWRD,'RESTART').EQ.0)THEN
-         IF (INDEX(KEYWRD,' XYZ') .NE. 0.AND.NVAR.NE.0) THEN
+      IF (INDEX(KEYWRD,' XYZ') .NE. 0.AND.NVAR.NE.0) THEN
 C
 C   SET ALL OPTIMIZATION FLAGS TO 1.  IT IS POSSIBLE TO SPECIFY " XYZ"
 C   AND HAVE 3N-6 FLAGS SET AND STILL NOT HAVE EVERY ATOM MARKED FOR
 C   OPTIMIZATION.  THIS CAN HAPPEN IF DUMMY ATOMS ARE PRESENT
 C   TO PREVENT THIS, WE EXPLICITELY SET ALL FLAGS.
 C
-            NVAR=0
-            DO 30 I=1,NATOMS
+         NVAR=0
+         DO 30 I=1,NATOMS
 C
 C  I DON'T THINK THE FOLLOWING LOGICAL WILL EVER BE TRUE, BUT I'M NOT
 C  TAKING IT OUT IN THIS VERSION, JUST IN CASE.
 C
-               IF(LABELS(I).EQ.99) GOTO 30
-               DO 20 J=1,3
-                  NVAR=NVAR+1
-                  LOC(1,NVAR)=I
-                  LOC(2,NVAR)=J
-   20          XPARAM(NVAR)=GEO(J,I)
-   30       CONTINUE
-         ENDIF
+            IF(LABELS(I).EQ.99) GOTO 30
+            DO 20 J=1,3
+               NVAR=NVAR+1
+               LOC(1,NVAR)=I
+               LOC(2,NVAR)=J
+   20       XPARAM(NVAR)=GEO(J,I)
+   30    CONTINUE
+      ENDIF
+      IF (INDEX(KEYWRD,'RESTART').EQ.0)THEN
          IF (INDEX(KEYWRD,'1SCF') .NE. 0) THEN
-         IF(LATOM.NE.0)THEN
-         WRITE(6,'(//,10X,A)')'1SCF SPECIFIED WITH PATH.  THIS PAIR OF'
-         WRITE(6,'(   10X,A)')'OPTIONS IS NOT ALLOWED'
-         STOP
-         ENDIF
+            IF(LATOM.NE.0)THEN
+               WRITE(6,'(//,10X,A)')'1SCF SPECIFIED WITH PATH.  THIS PAI
+     1R OF'
+               WRITE(6,'(   10X,A)')'OPTIONS IS NOT ALLOWED'
+               GOTO 70
+            ENDIF
             NVAR=0
             IF(INDEX(KEYWRD,'GRAD').NE.0) THEN
                NVAR=0
@@ -93,28 +106,28 @@ C
       CLOSE (5)
       IF(INDEX(KEYWRD,'STEP1') .NE. 0) THEN
          CALL GRID
-         STOP
+         GOTO 70
       ENDIF
       IF (LATOM .NE. 0) THEN
 C
 C       DO PATH
 C
          CALL PATHS
-         STOP
+         GOTO 70
       ENDIF
       IF (INDEX(KEYWRD,'FORCE') + INDEX(KEYWRD,'IRC=') .NE. 0 ) THEN
 C
 C FORCE CALCULATION IF DESIRED
 C
          CALL FORCE
-         STOP
+         GOTO 70
       ENDIF
       IF(INDEX(KEYWRD,' DRC') + INDEX(KEYWRD,' IRC') .NE. 0) THEN
 C
-C   REACT IS USED AS A DUMMY ARGUMENT - NOT USED BY DRC.
+C   IN THIS CONTEXT, "REACT" HOLDS INITIAL VELOCITY VECTOR COMPONENTS.
 C
          CALL DRC(REACT,REACT)
-         STOP
+         GOTO 70
       ENDIF
 C
       IF(INDEX(KEYWRD,'NLLSQ') .NE. 0) THEN
@@ -135,4 +148,8 @@ C
       IF(INDEX(KEYWRD,'POLAR') .NE. 0) THEN
          CALL POLAR
       ENDIF
+   70 TIM=SECOND()-TIME0
+      WRITE(6,'(///,'' TOTAL CPU TIME: '',F16.2,'' SECONDS'')') TIM
+      WRITE(6,'(/,'' == MOPAC DONE =='')')
+      STOP
       END

@@ -28,7 +28,7 @@
 *     MORB2          SQUARE OF THE MAXIMUM NUMBER OF ORBITALS ALLOWED.    *
 *     MAXHES         AREA OF HESSIAN MATRIX                               *
 ***************************************************************************
-      PARAMETER (VERSON=4.00D0)
+      PARAMETER (VERSON=5.00D0)
       PARAMETER (NUMATM=MAXHEV+MAXLIT)
       PARAMETER (MAXORB=4*MAXHEV+MAXLIT)
       PARAMETER (MAXPAR=3*NUMATM)

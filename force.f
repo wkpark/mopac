@@ -372,7 +372,7 @@ C
             I=1
             J=NVIB
          ENDIF
-         CALL THERMO(A,B,C,LINEAR,SYM,WTMOL,FREQ(I),J)
+         CALL THERMO(A,B,C,LINEAR,SYM,WTMOL,FREQ(I),J,ESCF)
       ENDIF
       RETURN
       END

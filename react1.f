@@ -9,7 +9,6 @@
      1                NA(NUMATM), NB(NUMATM), NC(NUMATM)
       COMMON /DENSTY/ P(MPACK),PA(MPACK),PB(MPACK)
       COMMON /GEOSYM/ NDEP,LOCPAR(MAXPAR),IDEPFN(MAXPAR),LOCDEP(MAXPAR)
-     1       /MOLORB/ USPD(MAXORB),PSPD(MAXORB)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /ISTOPE/ AMS(107)
@@ -37,10 +36,14 @@
 *   TRANSITION STATE.
 *
 ************************************************************************
-      DIMENSION IDUM1(NUMATM), IDUM2(3,NUMATM), XSTORE(MAXPAR),
-     1COORD(3,NUMATM), IROT(2,3)
+      DIMENSION IDUM1(NUMATM), IDUM2(NUMATM), XSTORE(MAXPAR), 
+     +IDUM3(NUMATM), COORD(3,NUMATM), IROT(2,3)
+      DIMENSION IDUMMY(3*NUMATM)
       CHARACTER*80 KEYWRD
+      EQUIVALENCE (IDUMMY,COORD)
       DATA IROT/1,2,1,3,2,3/
+      GOLD=0.D0
+      LINEAR=0
       GOK(1)=.FALSE.
       GOK(2)=.FALSE.
       XYZ=(INDEX(KEYWRD,' XYZ') .NE. 0)
@@ -55,8 +58,34 @@ C
       IF(XYZ) THEN
          CALL GETGEO(5,LABELS,GEOA,LOC,NA,NB,NC,AMS,NATOMS,INT)
       ELSE
-         CALL GETGEO(5,IDUM1,GEOA,IDUM2,
-     1         IDUM1,IDUM1,IDUM1,AMS,NATOMS,INT)
+         CALL GETGEO(5,IDUM1,GEOA,IDUMMY,
+     1         IDUM1,IDUM2,IDUM3,AMS,NATOMS,INT)
+C
+C  IF INTERNAL COORDINATES ARE TO BE USED, CHECK THE CONNECTIVITY
+C
+      L=0
+      DO 8 I=1,NATOMS
+      IF(IDUM1(I).NE.NA(I))THEN
+      L=L+1
+      IF(L.EQ.1)WRITE(6,'(10X,''ERRORS DETECTED IN CONNECTIVITY'')')
+      WRITE(6,'(A,I3,A,I3,A,I3,A)')' FOR ATOM',I,' THE BOND LABELS ARE D
+     +IFFERENT:      ',IDUM1(I),' AND',NA(I)
+      ENDIF
+      IF(IDUM2(I).NE.NB(I))THEN
+      L=L+1
+      IF(L.EQ.1)WRITE(6,'(10X,''ERRORS DETECTED IN CONNECTIVITY'')')
+      WRITE(6,'(A,I3,A,I3,A,I3,A)')' FOR ATOM',I,' THE BOND ANGLE LABELS
+     + ARE DIFFERENT:',IDUM2(I),' AND',NB(I)
+      ENDIF
+      IF(IDUM3(I).NE.NC(I))THEN
+      L=L+1
+      IF(L.EQ.1)WRITE(6,'(10X,''ERRORS DETECTED IN CONNECTIVITY'')')
+      WRITE(6,'(A,I3,A,I3,A,I3,A)')' FOR ATOM',I,' THE DIHEDRAL LABELS A
+     +RE DIFFERENT:  ',IDUM3(I),' AND',NC(I)
+      ENDIF
+  8   CONTINUE
+      IF(L.NE.0)WRITE(6,'(10X,A)')' CORRECT BEFORE RESUBMISSION'
+      IF(L.NE.0)STOP
       ENDIF
       CLOSE (5)
       TIME0= SECOND()
@@ -64,9 +93,9 @@ C
 C  SWAP FIRST AND SECOND GEOMETRIES AROUND
 C  SO THAT GEOUT CAN OUTPUT DATA ON SECOND GEOMETRY.
 C
-      NUMAT=0
+      NUMAT2=0
       DO 10 I=1,NATOMS
-         IF(LABELS(I).NE.99) NUMAT=NUMAT+1
+         IF(LABELS(I).NE.99) NUMAT2=NUMAT2+1
          CONST=1.D0
          DO 10 J=1,3
             X=GEOA(J,I)*CONST
@@ -74,6 +103,13 @@ C
             GEOA(J,I)=GEO(J,I)
             GEO(J,I)=X
    10 CONTINUE
+      IF(NUMAT2.NE.NUMAT) THEN
+         WRITE(6,'(//10X,'' NUMBER OF ATOMS IN SECOND SYSTEM IS '',
+     1''INCORRECT'',/)')
+         WRITE(6,'('' NUMBER OF ATOMS IN FIRST  SYSTEM ='',I4)')NUMAT
+         WRITE(6,'('' NUMBER OF ATOMS IN SECOND SYSTEM ='',I4)')NUMAT2
+         GOTO 270
+      ENDIF
       WRITE(6,'(//10X,'' GEOMETRY OF SECOND SYSTEM'',/)')
       IF(NDEP.NE.0) CALL SYMTRY
       CALL GEOUT
@@ -98,14 +134,10 @@ C
    30    GEO(3,J)=COORD(3,J)-SUMZ
          WRITE(6,'(//,''  CARTESIAN GEOMETRY OF FIRST SYSTEM'',//)')
          WRITE(6,'(3F14.5)')((GEO(J,I),J=1,3),I=1,NUMAT)
-         SUM=0.D0
          SUMX=0.D0
          SUMY=0.D0
          SUMZ=0.D0
          DO 40 J=1,NUMAT
-            SUM=SUM+(GEO(1,J)-GEOA(1,J))**2
-     1           +(GEO(2,J)-GEOA(2,J))**2
-     2           +(GEO(3,J)-GEOA(3,J))**2
             SUMX=SUMX+GEOA(1,J)
             SUMY=SUMY+GEOA(2,J)
    40    SUMZ=SUMZ+GEOA(3,J)
@@ -172,8 +204,8 @@ C
   110          LOC(1,NVAR)=J
                LABELS(J)=LABELS(I)
             ENDIF
-            NATOMS=NUMAT
   120    CONTINUE
+         NATOMS=NUMAT
       ENDIF
 C
 C   XPARAM HOLDS THE VARIABLE PARAMETERS FOR GEOMETRY IN GEO
@@ -196,11 +228,6 @@ C
       EOLD=-2000.D0
       TIME1=SECOND()
       SWAP=0
-      DO 140 I=1,NORBS
-         J=(I*(I+1))/2
-         P1STOR(J)=PSPD(I)
-         P2STOR(J)=PSPD(I)*0.5D0
-  140 P3STOR(J)=PSPD(I)*0.5D0
       DO 230 ILOOP=1,MAXSTP
          TIME2=SECOND()
          WRITE(6,'('' TIME='',F9.2)')TIME2-TIME1
@@ -221,6 +248,13 @@ C
          DO 150 I=1,NVAR
   150    XSTORE(I)=XPARAM(I)
          CALL FLEPO(XPARAM, NVAR, ESCF)
+         IF(LINEAR.EQ.0)THEN
+         LINEAR=(NORBS*(NORBS+1))/2
+         DO 140 I=1,LINEAR
+         P1STOR(I)=P(I)
+         P2STOR(I)=PA(I)
+  140 P3STOR(I)=PB(I)
+         ENDIF
          DO 160 I=1,NVAR
   160    XPARAM(I)=GEO(LOC(2,I),LOC(1,I))
          WRITE(6,'(//10X,''FOR POINT'',I3)')ILOOP
@@ -275,7 +309,7 @@ C
             I=1.7+ONE*0.5
             IF(GNORM.GT.10.D0)GOK(I)=.TRUE.
             GNORM=SUM
-            DO 200 I=1,NATOMS
+            DO 200 I=1,NUMAT
                DO 200 J=1,3
                   X=GEO(J,I)
                   GEO(J,I)=GEOA(J,I)
@@ -288,7 +322,7 @@ C
 C
 C    SWAP AROUND THE DENSITY MATRICES.
 C
-            DO 220 I=1,MPACK
+            DO 220 I=1,LINEAR
                X=P1STOR(I)
                P1STOR(I)=P(I)
                P(I)=X
@@ -327,5 +361,5 @@ C
       STEP=0.D0
       CALL COMPFG (XPARAM, .TRUE., FUNCT1,.TRUE.,GRAD,.TRUE.)
       CALL WRITE(TIME0,FUNCT1)
-      STOP
+  270 STOP
       END

@@ -1,4 +1,4 @@
-      FUNCTION MECI(EIGS,COEFF,COEFFS,EIGA,N,NMOS,IDUMMY,FINISH)
+      FUNCTION MECI(EIGS,COEFF,COEFFS,EIGA,N,NMOS,IRESET,FINISH)
 ***********************************************************************
 *
 *                 PROGRAM MECI
@@ -49,7 +49,6 @@ C
      1                NLAST(NUMATM), NORBS, NELECS,
      2                NDUMMY(2), NCLOSE, NOPEN, NDUMY, FRACT
       COMMON /SPQR/ ISPQR(NMECI**2,NMECI),IS,I,K
-C#      COMMON /LAST  / LAST
       COMMON /DENSTY/ P(MPACK), PA(MPACK), PB(MPACK)
       COMMON /KEYWRD/ KEYWRD
       COMMON /BASEOC/ OCCA(NMECI)
@@ -111,6 +110,12 @@ C#      WRITE(6,'(I40,I6)')(NFIRST(I),NLAST(I),I=1,NUMAT)
          NELEC=(NELECS-NE+1)/2
          NLEFT=NORBS-NMOS-NELEC
       ENDIF
+      IF(IRESET.EQ.1)THEN
+         ONE=-1.D0
+         GOTO 520
+      ELSE
+         ONE=1.D0
+      ENDIF
       PRNT=(DEBUG.OR.FINISH.AND.PRNT2)
       BIGPRT=(PRNT.AND.LARGE)
       LAST1=(LAST1.OR.FINISH)
@@ -137,11 +142,11 @@ C
      1ABS(EIGS(NELEC+1+NMOS)-EIGS(NELEC+NMOS)).LT.1.D-1)THEN
             WRITE(6,'(///10X,A)')'DEGENERATE ENERGY LEVELS DETECTED IN M
      1ECI'
-            WRITE(6,'(10X,A)')'SOME OF THESE LEVELS WOULD BE TREATED BY
-     1MECI,'
+            WRITE(6,'(10X,A)')'SOME OF THESE LEVELS WOULD BE TREATED BY'
+     1//'MECI,'
             WRITE(6,'(10X,A)')'WHILE OTHERS WOULD NOT.  THIS WOULD RESUL
      1T IN'
-            WRITE(6,'(10X,A)')'NON-REPRODUCABLE ELECTRONIC ENERGIES.'
+            WRITE(6,'(10X,A)')'NON-REPRODUCIBLE ELECTRONIC ENERGIES.'
             WRITE(6,'(10X,A)')'  JOB STOPPED.  TO CONTINUE, SPECIFY "GEO
      1-OK"'
             STOP
@@ -333,6 +338,14 @@ C     ..........
       GOTO 340
   380 CONTINUE
 C
+C   BEFORE STARTING, CHECK THAT THE ROOT WANTED CAN EXIST
+C
+      IF(LAB.LT.LROOT)THEN
+         WRITE(6,'(//10X,''C.I. IS OF SIZE LESS THAN ROOT SPECIFIED'')')
+         WRITE(6,'(10X,''MODIFY SIZE OF C.I. OR ROOT NUMBER'')')
+         STOP
+      ENDIF
+C
 C  MAIN LOOP TO FILL SECULAR DETERMINANT
 C
       IK=0
@@ -389,7 +402,7 @@ C
   430 CONTINUE
       IF(BIGPRT)THEN
          WRITE(6,'(//,'' C.I. MATRIX'')')
-         CALL VECPRT(CIMAT,LAB)
+         CALL VECPRT(CIMAT,-LAB)
       ELSE
          IF(PRNT)WRITE(6,'(//,'' DIAGONAL OF C.I. MATRIX'')')
          IF(PRNT)WRITE(6,'(5F13.6)')(CIMAT((I*(I+1))/2),I=1,LAB)
@@ -399,7 +412,7 @@ C
 C   DECIDE WHICH ROOT TO EXTRACT
 C
       KROOT=0
-      IF(SMULT.LT.0.1D0)THEN
+      IF(SMULT.LT.-0.1D0)THEN
          MECI=EIG(LROOT)
          KROOT=LROOT
       ENDIF
@@ -413,30 +426,43 @@ C
      1,' EXPECTATION VALUE OF S**2  S FROM S**2=S(S+1)',//)
       ENDIF
       IROOT=0
-      DO 480 I=1,LAB
+      DO 450 I=1,9
+  450 CIMAT(I)=0.1D0
+      DO 490 I=1,LAB
          X=0.5D0*XX
          II=(I-1)*LAB
-         DO 470 J=1,LAB
+         DO 480 J=1,LAB
             JI=J+II
             X=X-CONF(JI)*CONF(JI)*SPIN(J)*0.25D0
             K=ISPQR(J,1)
-            IF(K.EQ.1)  GOTO  460
-            DO 450 K=2,K
+            IF(K.EQ.1)  GOTO  470
+            DO 460 K=2,K
                LI=ISPQR(J,K)+II
-  450       X=X+CONF(JI)*CONF(LI)*2.D0
-  460       CONTINUE
-  470    CONTINUE
+  460       X=X+CONF(JI)*CONF(LI)*2.D0
+  470       CONTINUE
+  480    CONTINUE
          Y=(-1.D0+SQRT(1.D0+4.D0*X))*0.5D0
          IF(ABS(SMULT-X).LT.0.01)THEN
             IROOT=IROOT+1
             IF(IROOT.EQ.LROOT) THEN
-               IF(KROOT.EQ.0)KROOT=I
+               KROOT=I
                MECI=EIG(I)
             ENDIF
          ENDIF
          J=Y*2.D0+1.5D0
-  480 IF(PRNT)WRITE(6,490) I,EIG(I),TSPIN(J),X,Y
-  490 FORMAT(I5,F12.6,3X,A8,F15.5,F10.5)
+         CIMAT(J)=CIMAT(J)+1
+  490 IF(PRNT)WRITE(6,510) I,EIG(I),TSPIN(J),X,Y
+      IF(KROOT.EQ.0)THEN
+         WRITE(6,'(//10X,''THE STATE REQUIRED IS NOT PRESENT IN THE'')')
+         WRITE(6,'(10X,  ''    SET OF CONFIGURATIONS AVAILABLE'')')
+         WRITE(6,'(/ 4X,''NUMBER OF STATES ACCESSIBLE USING CURRENT KEY-
+     1WORDS'',/)')
+         DO 500 I=1,7
+  500    IF(CIMAT(I).GT.0.5D0)
+     1WRITE(6,'((24X,A8,I4))')TSPIN(I),NINT(CIMAT(I))
+         STOP
+      ENDIF
+  510 FORMAT(I5,F12.6,3X,A8,F15.5,F10.5)
 C#      M=0
 C#      DO 440 I=1,NMOS
 C#         WRITE(6,*)
@@ -444,46 +470,47 @@ C#         DO 440 J=1,NMOS
 C#            WRITE(6,*)
 C#            DO 440 K=1,NMOS
 C#  440 WRITE(6,'(4I2,8F12.6)')I,J,K,M,(XY(I,J,K,L),L=1,NMOS)
+  520 CONTINUE
       IF(FORCE.OR.LAST1)THEN
 C
 C   REFORM DENSITY MATRIX
 C
          K=(KROOT-1)*LAB
-         DO 510 I=1,NMOS
+         DO 540 I=1,NMOS
             SUM=0.D0
-            DO 500 J=1,LAB
-  500       SUM=SUM+(MICROA(I,J)+MICROB(I,J))*CONF(J+K)**2
-  510    EIGA(I)=SUM-OCCA(I)*2.D0
+            DO 530 J=1,LAB
+  530       SUM=SUM+(MICROA(I,J)+MICROB(I,J))*CONF(J+K)**2
+  540    EIGA(I)=SUM-OCCA(I)*2.D0
          L=0
-         DO 530 I=1,NORBS
-            DO 530 J=1,I
+         DO 560 I=1,NORBS
+            DO 560 J=1,I
                SUM=0.D0
-               DO 520 K=1,NMOS
-  520          SUM=SUM+EIGA(K)*COEFFS(I,K)*COEFFS(J,K)
+               DO 550 K=1,NMOS
+  550          SUM=SUM+EIGA(K)*COEFFS(I,K)*COEFFS(J,K)
                L=L+1
-  530    P(L)=P(L)+SUM
+  560    P(L)=P(L)+SUM*ONE
       ENDIF
       MAXVEC=0
       IF(LSPIN)MAXVEC=MIN(4,LAB)
       IF(LSPIN.AND.(NE/2)*2.EQ.NE) THEN
          WRITE(6,'(''   ESR SPECIFIED FOR AN EVEN-ELECTRON SYSTEM'')')
       ENDIF
-      DO 540 I=1,NMOS
-         DO 540 J=1,NORBS
-  540 COEFFS(J,I)=COEFFS(J,I)**2
-      DO 610 IUJ=1,MAXVEC
+      DO 570 I=1,NMOS
+         DO 570 J=1,NORBS
+  570 COEFFS(J,I)=COEFFS(J,I)**2
+      DO 640 IUJ=1,MAXVEC
          IOFSET=(IUJ-1)*LAB
          WRITE(6,'(//,''      MICROSTATE CONTRIBUTIONS TO '',
      1''STATE EIGENFUNCTION'',I3)')IUJ
          WRITE(6,'(5F13.6)')(CONF(I+IOFSET),I=1,LAB)
-         DO 550 I=1,LAB
-  550    CONF(I)=CONF(I+IOFSET)**2
+         DO 580 I=1,LAB
+  580    CONF(I)=CONF(I+IOFSET)**2
 C                                             SECOND VECTOR!
-         DO 570 I=1,NMOS
+         DO 600 I=1,NMOS
             SUM=0.D0
-            DO 560 J=1,LAB
-  560       SUM=SUM+(MICROA(I,J)-MICROB(I,J))*CONF(J)
-  570    EIGA(I)=SUM
+            DO 590 J=1,LAB
+  590       SUM=SUM+(MICROA(I,J)-MICROB(I,J))*CONF(J)
+  600    EIGA(I)=SUM
          WRITE(6,'(/,''    SPIN DENSITIES FROM EACH M.O., ENERGY:''
      1,F7.3)')EIG(IUJ)
          WRITE(6,'(5F12.6)') (EIGA(I),I=1,NMOS)
@@ -491,18 +518,18 @@ C                                             SECOND VECTOR!
          WRITE(6,*)'     SPIN DENSITIES FROM EACH ATOMIC ORBITAL'
          WRITE(6,*)'                              S        PX        '//
      1'PY        PZ        TOTAL'
-         DO 600 I=1,NATOMS
+         DO 630 I=1,NATOMS
             IL=NFIRST(I)
             IU=NLAST(I)
             L=0
             SUMM=0.D0
-            DO 590 K=IL,IU
+            DO 620 K=IL,IU
                L=L+1
                SUM=0.D0
-               DO 580 J=1,NMOS
-  580          SUM=SUM+COEFFS(K,J)*EIGA(J)
+               DO 610 J=1,NMOS
+  610          SUM=SUM+COEFFS(K,J)*EIGA(J)
                SUMM=SUMM+SUM
-  590       EIGS(L)=SUM
+  620       EIGS(L)=SUM
             IF(L.EQ.4)THEN
                WRITE(6,'(''  ATOM'',I4,''    SPIN DENSITY  '',5F10.7)')
      1I,(EIGS(K),K=1,L),SUMM
@@ -510,7 +537,7 @@ C                                             SECOND VECTOR!
                WRITE(6,'(''  ATOM'',I4,''    SPIN DENSITY  '',F10.7,30X,
      1F10.7)')I,EIGS(1),SUMM
             ENDIF
-  600    CONTINUE
-  610 CONTINUE
+  630    CONTINUE
+  640 CONTINUE
       RETURN
       END

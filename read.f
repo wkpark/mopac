@@ -49,9 +49,9 @@ C
 ************************************************************************
 C
       DIMENSION LOPT(3,NUMATM)
-      CHARACTER*80 KEYWRD,KOMENT,TITLE,LINE
+      CHARACTER*80 KEYWRD,KOMENT,TITLE,LINE, BANNER
       CHARACTER KEYS(80)*1, SPACE*1, SPACE2*2, CH*1, CH2*2
-      CHARACTER ELEMNT*2
+      CHARACTER ELEMNT*2, IDATE*24
       COMMON /KEYWRD/ KEYWRD
       COMMON /TITLES/ KOMENT,TITLE
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), IDUMY, XPARAM(MAXPAR)
@@ -160,21 +160,27 @@ C
 C OUTPUT FILE TO UNIT 6
 C
 C    WRITE HEADER
+      IDATE=' '
+      CALL FDATE(IDATE)
       WRITE(6,'(1X,15(''*****''),''****'')')
-      WRITE(6,'('' ** FRANK J. SEILER RES. LAB., U.S. '',
-     1''AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **'')')
-      IF(INDEX(KEYWRD,'MINDO') .NE. 0) THEN
-         WRITE(6,'(1X,15(''*****''),''****'',//29X,
-     1''MINDO/3 CALCULATION RESULTS'',28X,///1X,15(''*****'')
-     2,''****'' )')
-      ELSEIF(INDEX(KEYWRD,'AM1') .NE. 0) THEN
-         WRITE(6,'(1X,15(''*****''),''****'',//29X,
-     1''AM1 CALCULATION RESULTS'',28X,///1X,15(''*****''),''****'' )')
-      ELSE
-         WRITE(6,'(1X,15(''*****''),''****'',//29X,
-     1''MNDO CALCULATION RESULTS'',28X,///1X,15(''*****''),''****'' )')
-      ENDIF
-      WRITE(6,'('' *'',20X,''VERSION '',F5.2)')VERSON
+C
+C     CHANGE THE FOLLOWING LINE TO SUIT LOCAL ENVIRONMENT, IF DESIRED
+C
+      BANNER=' ** FRANK J. SEILER RES. LAB., U.S. AIR FORCE '//
+     1'ACADEMY, COLO. SPGS., CO. 80840 **'
+      WRITE(6,'(A)')BANNER
+C
+C    THE BANNER DOES NOT APPEAR ANYWHERE ELSE.
+C
+      WRITE(6,'(1X,79(''*''))')
+      LINE='   MNDO'
+      IF(INDEX(KEYWRD,'MINDO') .NE. 0) LINE='MINDO/3'
+      IF(INDEX(KEYWRD,'AM1')   .NE. 0) LINE='    AM1'
+      IF(INDEX(KEYWRD,'PM3')   .NE. 0) LINE='    PM3'
+      WRITE(6,'(/29X,A,'' CALCULATION RESULTS'',28X,///1X,15(''*****'')
+     1,''****'' )')LINE(:7)
+      WRITE(6,'('' *'',10X,''MOPAC:  VERSION '',F5.2,
+     115X,''CALC''''D. '',A24)') VERSON, IDATE
 C
 C CHECK DATA
 C
@@ -194,7 +200,7 @@ C
 C
 C WRITE KEYWORDS BACK TO USER AS FEEDBACK
       CALL WRTKEY(KEYWRD)
-      WRITE(6,'(1X,79(''*''))')
+      WRITE(6,'(1X,14(''*****''),''*'',I3.3,''BY'',I3.3)')MAXHEV,MAXLIT
 C
 C CONVERT ANGLES TO RADIANS
       DO 130 I=1,NATOMS
@@ -269,8 +275,11 @@ C READ IN PATH VALUES
          ENDIF
          REACT(IJ)=VALUE(I)*CONVRT
          IF(ABS(REACT(IJ)-REACT(IJ-1)).LT.1.D-5)THEN
-            WRITE(6,'(///,'' TWO ADJACENT POINTS ARE IDENTICAL'',/,
-     1'' THIS IS NOT ALLOWED IN A PATH CALCULATION'')')
+            DUM1 = REACT(IJ)/CONVRT
+            DUM2 = REACT(IJ-1)/CONVRT
+            WRITE(6,'(///,'' TWO ADJACENT POINTS ARE IDENTICAL:  '',
+     1 F7.3,2X,F7.3,/,'' THIS IS NOT ALLOWED IN A PATH CALCULATION'')')
+     2 DUM1,DUM2
             STOP
          ENDIF
   180 CONTINUE
@@ -308,8 +317,9 @@ C
      1  L,ELEMNT(LABELS(I)),(COORD(J,L),J=1,3)
   210    CONTINUE
       ENDIF
-      IF(   INDEX(KEYWRD,' XYZ') .NE.0)THEN
-         IF( INT.AND.(NDEP .NE. 0 .OR.  NVAR.LT.3*NUMAT-6)) THEN
+      IF(   INDEX(KEYWRD,' XYZ') .NE. 0 )THEN
+         IF( NVAR .NE. 0 .AND.
+     1 INT.AND.(NDEP .NE. 0 .OR.  NVAR.LT.3*NUMAT-6)) THEN
             IF(NDEP.NE.0)
      1WRITE(6,'(//10X,'' INTERNAL COORDINATES READ IN, AND SYMMETRY''
      2,/10X,'' SPECIFIED, BUT CALCULATION TO BE RUN IN CARTESIAN ''
@@ -361,6 +371,7 @@ C
          NVAR=NVAR-1
          NATOMS=NUMAT
       ELSE
+         IF(NVAR.EQ.0) RETURN
          IF( .NOT. INT.AND.(NDEP .NE. 0 .OR.  NVAR.LT.3*NUMAT-6)) THEN
             IF(NDEP.NE.0)
      1WRITE(6,'(//10X,'' CARTESIAN COORDINATES READ IN, AND SYMMETRY''

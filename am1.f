@@ -33,9 +33,9 @@
       WRITE(6,'(//5X,'' PARAMETER TYPE      ELEMENT    PARAMETER'')')
       OPEN(14,STATUS='OLD',FILE=FILES)
       I=0
-   10 READ(14,'(A40)',ERR=100,IOSTAT=IOS)TEXT
-      IF(TEXT.EQ.' ')GOTO 100
-      IF(INDEX(TEXT,'END').NE.0)GOTO 100
+   10 READ(14,'(A40)',ERR=90,IOSTAT=IOS)TEXT
+      IF(TEXT.EQ.' ')GOTO 90
+      IF(INDEX(TEXT,'END').NE.0)GOTO 90
       ILOWA = ICHAR('a')
       ILOWZ = ICHAR('z')
       ICAPA = ICHAR('A')
@@ -47,21 +47,20 @@
          ENDIF
    20 CONTINUE
 ************************************************************************
-      IF(INDEX(TEXT,'END') .NE. 0) GOTO 100
+      IF(INDEX(TEXT,'END') .NE. 0) GOTO 90
       DO 30 J=1,25
          IF(J.GT.21) THEN
             IT=INDEX(TEXT,'FN')
             TXTNEW = TEXT(1:IT+2)
-            IF(INDEX(TXTNEW,PARTYP(J)) .NE. 0) GOTO 50
+            IF(INDEX(TXTNEW,PARTYP(J)) .NE. 0) GOTO 40
          ENDIF
-         IF(INDEX(TEXT,PARTYP(J)) .NE. 0) GOTO 50
+         IF(INDEX(TEXT,PARTYP(J)) .NE. 0) GOTO 40
    30 CONTINUE
       WRITE(6,'(''  FAULTY LINE:'',A)')TXTNEW
       WRITE(6,'(''  FAULTY LINE:'',A)')TEXT
       WRITE(6,'(''   NAME NOT FOUND'')')
       STOP
-   40 CONTINUE
-   50 IPARAM=J
+   40 IPARAM=J
       IF(IPARAM.GT.21) THEN
          I=INDEX(TEXT,'FN')
          KFN=READA(TEXT,I+3)
@@ -72,34 +71,34 @@
       K=INDEX(TEXT(I:),' ')+1
       DUMMY=TEXT(K:)
       TEXT=DUMMY
-      DO 60 J=1,107
-   60 IF(INDEX(TEXT,' '//ELEMNT(J)) .NE. 0) GOTO 70
+      DO 50 J=1,107
+   50 IF(INDEX(TEXT,' '//ELEMNT(J)) .NE. 0) GOTO 60
       WRITE(6,'('' ELEMENT NOT FOUND '')')
       WRITE(6,*)' FAULTY LINE: "'//TEXT//'"'
       STOP
-   70 IELMNT=J
+   60 IELMNT=J
       PARAM=READA(TEXT,INDEX(TEXT,ELEMNT(J)))
-      DO 80 I=1,LPARS
+      DO 70 I=1,LPARS
          IF(IJPARS(1,I).EQ.KFN.AND.IJPARS(2,I).EQ.IELMNT.AND.
-     1IJPARS(3,I).EQ.IPARAM) GOTO 90
-   80 CONTINUE
+     1IJPARS(3,I).EQ.IPARAM) GOTO 80
+   70 CONTINUE
       LPARS=LPARS+1
       I=LPARS
-   90 IJPARS(1,I)=KFN
+   80 IJPARS(1,I)=KFN
       IJPARS(2,I)=IELMNT
       IJPARS(3,I)=IPARAM
       PARSIJ(I)=PARAM
       GOTO 10
-  100 CONTINUE
+   90 CONTINUE
       CLOSE(14)
-      DO 130 J=1,107
-         DO 120 K=1,25
-            DO 110 I=1,LPARS
+      DO 120 J=1,107
+         DO 110 K=1,25
+            DO 100 I=1,LPARS
                IPARAM=IJPARS(3,I)
                KFN=IJPARS(1,I)
                IELMNT=IJPARS(2,I)
-               IF(IPARAM.NE.K) GOTO 110
-               IF(IELMNT.NE.J) GOTO 110
+               IF(IPARAM.NE.K) GOTO 100
+               IF(IELMNT.NE.J) GOTO 100
                PARAM=PARSIJ(I)
                IF(KFN.NE.0)THEN
                   WRITE(6,'(10X,A6,11X,A2,F17.6)')
@@ -111,17 +110,17 @@
      2ELEMNT(IELMNT),PARAM
                ENDIF
                CALL UPDATE(IPARAM,IELMNT,PARAM,1,KFN)
-  110       CONTINUE
-  120    CONTINUE
-  130 CONTINUE
+  100       CONTINUE
+  110    CONTINUE
+  120 CONTINUE
       CALL MOLDAT
       CALL CALPAR
       ATHEAT=0.D0
       ETH=0.D0
-      DO 140 I=1,NUMAT
+      DO 130 I=1,NUMAT
          NI=NAT(I)
          ATHEAT=ATHEAT+EHEAT(NI)
-  140 ETH=ETH+EISOL(NI)
+  130 ETH=ETH+EISOL(NI)
       ATHEAT=ATHEAT-ETH*23.061D0
       RETURN
       END

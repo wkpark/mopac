@@ -1,5 +1,6 @@
       SUBROUTINE HCORE (COORD,H,W, WJ,WK,ENUCLR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      LOGICAL FLDON
       INCLUDE 'SIZES'
       DIMENSION COORD(3,*),H(*), WJ(N2ELEC), WK(N2ELEC), W(N2ELEC)
       REAL WJ, WK
@@ -9,6 +10,9 @@
      3       /MOLORB/ USPD(MAXORB),DUMY(MAXORB)
      4       /KEYWRD/ KEYWRD
       COMMON /EULER / TVEC(3,3), ID
+      COMMON /MULTIP/ DD(107),QQ(107),AM(107),AD(107),AQ(107)
+      COMMON /CORE  / CORE(107)
+      COMMON /FIELD / EFIELD(3)
 ************************************************************************
 C
 C   HCORE GENERATES THE ONE-ELECTRON MATRIX AND TWO ELECTRON INTEGRALS
@@ -33,6 +37,12 @@ C             ENUCLR = NUCLEAR ENERGY
          FIRST=.FALSE.
          DEBUG=(INDEX(KEYWRD,'HCORE') .NE. 0)
       ENDIF
+      FLDON = .FALSE.
+      IF ((EFIELD(1).NE.0.0D00).OR.(EFIELD(2).NE.0.0D00).OR.
+     1    (EFIELD(3).NE.0.0D00)) THEN
+         FLDCON = 51.4257D00
+         FLDON = .TRUE.
+      ENDIF
       DO 10 I=1,(NORBS*(NORBS+1))/2
    10 H(I)=0
       ENUCLR=0.D0
@@ -49,8 +59,34 @@ C
             I2=I1*(I1-1)/2+IA-1
             DO 20 J1=IA,I1
                I2=I2+1
-   20       H(I2)=0.D0
-   30    H(I2)=USPD(I1)
+               H(I2)=0.D0
+               IF (FLDON) THEN
+                  IO1 = I1 - IA
+                  JO1 = J1 - IA
+                  IF ((JO1.EQ.0).AND.(IO1.EQ.1)) THEN
+                     HTERME = -0.529177D00*DD(NI)*EFIELD(1)*FLDCON
+                     H(I2) = HTERME
+                  ENDIF
+                  IF ((JO1.EQ.0).AND.(IO1.EQ.2)) THEN
+                     HTERME = -0.529177D00*DD(NI)*EFIELD(2)*FLDCON
+                     H(I2) = HTERME
+                  ENDIF
+                  IF ((JO1.EQ.0).AND.(IO1.EQ.3)) THEN
+                     HTERME = -0.529177D00*DD(NI)*EFIELD(3)*FLDCON
+                     H(I2) = HTERME
+                  ENDIF
+               ENDIF
+   20       CONTINUE
+            H(I2) = USPD(I1)
+            IF (FLDON) THEN
+               FNUC = -(EFIELD(1)*COORD(1,I) + EFIELD(2)*COORD(2,I) +
+     1              EFIELD(3)*COORD(3,I))*FLDCON
+               H(I2) = H(I2) + FNUC
+            ENDIF
+   30    CONTINUE
+C
+C   FILL THE ATOM-OTHER ATOM ONE-ELECTRON MATRIX<PSI(LAMBDA)|PSI(SIGMA)>
+C
          IM1=I-IONE
          DO 100 J=1,IM1
             HALF=1.D0
@@ -60,9 +96,6 @@ C
             JC=NMIDLE(J)
             NJ=NAT(J)
             CALL H1ELEC(NI,NJ,COORD(1,I),COORD(1,J),DI)
-C
-C   FILL THE ATOM-OTHER ATOM ONE-ELECTRON MATRIX<PSI(LAMBDA)|PSI(SIGMA)>
-C
             I2=0
             DO 40 I1=IA,IB
                II=I1*(I1-1)/2+JA-1

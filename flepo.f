@@ -145,12 +145,13 @@ C
          IF(I.NE.0) THEN
             TIM=READA(KEYWRD,I)
             DO 10 J=I+3,80
+            IF( KEYWRD(J+1:J+1).EQ.' ') THEN
                CH=KEYWRD(J:J)
-               IF( CH .NE. 'D' .AND. CH .NE. 'E' .AND. CH .NE. CHDOT
-     1 .AND. (CH .LT. ZERO .OR. CH .GT. NINE)) THEN
-                  IF( CH .EQ. 'M') TIM=TIM*60
-                  GOTO 20
-               ENDIF
+               IF( CH .EQ. 'M') TIM=TIM*60
+               IF( CH .EQ. 'H') TIM=TIM*3600
+               IF( CH .EQ. 'D') TIM=TIM*86400
+               GOTO 20
+            ENDIF
    10       CONTINUE
 C
 C   LIMIT JOB TIME TO MAX. OF ONE YEAR, LARGE JOBTIMES STOP
@@ -164,11 +165,12 @@ C
          I=INDEX(KEYWRD,' DUMP=')
          IF(I.NE.0) THEN
             TDUMP=READA(KEYWRD,I)
-            DO 30 J=I+5,80
+            DO 30 J=I+6,80
+            IF( KEYWRD(J+1:J+1).EQ.' ') THEN
                CH=KEYWRD(J:J)
-               IF( CH .NE. 'D' .AND. CH .NE. 'E' .AND. CH .NE. CHDOT
-     1 .AND. (CH .LT. ZERO .OR. CH .GT. NINE)) THEN
-                  IF( CH .EQ. 'M') TDUMP=TDUMP*60
+               IF( CH .EQ. 'M') TDUMP=TDUMP*60
+               IF( CH .EQ. 'H') TDUMP=TDUMP*3600
+               IF( CH .EQ. 'D') TDUMP=TDUMP*86400
                   GOTO 40
                ENDIF
    30       CONTINUE
@@ -284,8 +286,12 @@ C
       IF(INDEX(KEYWRD,'1SCF') .NE. 0) RETURN
       IFLEPO=2
       IF(GNORM.LT.TOLERG.OR.NVAR.EQ.0) THEN
-         IF(RESTRT)
-     1 CALL COMPFG (XPARAM, .TRUE., FUNCT1,.TRUE.,GRAD,.TRUE.)
+         LAST=1
+         IF(RESTRT) THEN
+            CALL COMPFG (XPARAM, .TRUE., FUNCT1,.TRUE.,GRAD,.TRUE.)
+         ELSE
+            CALL COMPFG (XPARAM, .TRUE., FUNCT1,.TRUE.,GRAD,.FALSE.)
+         ENDIF
          RETURN
       ENDIF
       TX1 =  SECOND()
@@ -500,6 +506,10 @@ C
 C   DO A BINARY CHOP TO LOCATE THE MINIMUM
 C
          ALPHA=1.D0
+C
+C   SOMETIMES PNORM IS TOO LARGE,  THEREFORE TRIM ALPHA BACK
+C
+         IF(PNORM.GT.0.1D0)ALPHA=0.1D0/PNORM
          LOOP=0
   350    CONTINUE
          DO 360 I=1,NVAR
@@ -592,7 +602,7 @@ C
          ABSMIN=SMVAL
       ENDIF
       IF (PRINT) WRITE (6,440) NCOUNT,COS,TX*XN,ALPHA,-DROP,-TF,GNORM
-  440 FORMAT (/,'           NUMBER OF COUNTS ='I6,
+  440 FORMAT (/,'           NUMBER OF COUNTS =',I6,
      1'         COS    =',F11.4,/,
      2        '  ABSOLUTE  CHANGE IN X     =',F13.6,
      3'  ALPHA  =',F11.4,/,
@@ -682,14 +692,14 @@ C
       IF(RESFIL)THEN
          IF(MINPRT) WRITE(6,570)MIN(TLEFT,9999999.9D0),
      1MIN(GNORM,999999.999D0),FUNCT1
-  570    FORMAT(' RESTART FILE WRITTEN,  TIME LEFT:',F9.1,
-     1' GRAD.:',F10.3,' HEAT:',G14.7)
+  570    FORMAT(' RESTART FILE WRITTEN,   TIME LEFT:',F9.1,
+     1' GRAD.:',F10.3,' HEAT:',G13.7)
          RESFIL=.FALSE.
       ELSE
          IF(MINPRT) WRITE(6,580)JCYC,MIN(TCYCLE,9999.99D0),
      1MIN(TLEFT,9999999.9D0),MIN(GNORM,999999.999D0),FUNCT1
-  580    FORMAT(' CYCLE:',I3,' TIME:',F7.2,' TIME LEFT:',F9.1,
-     1' GRAD.:',F10.3,' HEAT:',G14.7)
+  580    FORMAT(' CYCLE:',I4,' TIME:',F7.2,' TIME LEFT:',F9.1,
+     1' GRAD.:',F10.3,' HEAT:',G13.7)
       ENDIF
       IF (TLEFT.GT.SFACT*CYCMX) GO TO 60
       WRITE(6,590)

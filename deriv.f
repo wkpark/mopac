@@ -45,7 +45,7 @@ C***********************************************************************
       IF(ICALCN.NE.NUMCAL) THEN
          I = INDEX(KEYWRD,'PRESS')
          PRESS=0.D0
-         IF(I.NE.0) PRESS=READA(KEYWRD,I)*1476.8992
+         IF(I.NE.0) PRESS=READA(KEYWRD,I)*1476.8992D0
          IDLO=NATOMS+1
          IF(LABELS(NATOMS) .EQ. 107) THEN
             IDLO=NATOMS

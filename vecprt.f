@@ -1,4 +1,4 @@
-      SUBROUTINE VECPRT (A,NUMB)
+      SUBROUTINE VECPRT (A,NUMM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       DIMENSION  A(*)
@@ -14,7 +14,7 @@ C         ARRAY "A"
 C
 C ON INPUT:
 C      A      = ARRAY TO BE PRINTED
-C      NUMB   = SIZE OF ARRAY TO BE PRINTED
+C      NUMM   = SIZE OF ARRAY TO BE PRINTED
 C(REF) NUMAT  = NUMBER OF ATOMS IN THE MOLECULE (THIS IS NEEDED TO
 C               DECIDE IF AN ATOMIC ARRAY OR ATOMIC ORBITAL ARRAY IS
 C               TO BE PRINTED
@@ -29,7 +29,7 @@ C*********************************************************************
       CHARACTER * 6 LINE(21)
       CHARACTER*2 ELEMNT,ATORBS(9), ITEXT(MAXORB), JTEXT(MAXORB)
       DATA ATORBS/' S','PX','PY','PZ','X2','XZ','Z2','YZ','XY'/
-      IF(NUMAT.NE.0.AND.NUMAT.EQ.NUMB) THEN
+      IF(NUMAT.NE.0.AND.NUMAT.EQ.NUMM) THEN
 C
 C    PRINT OVER ATOM COUNT
 C
@@ -39,7 +39,7 @@ C
             NATOM(I)=I
    10    CONTINUE
       ELSE
-         IF (NUMAT.NE.0.AND.NLAST(NUMAT) .EQ. NUMB) THEN
+         IF (NUMAT.NE.0.AND.NLAST(NUMAT) .EQ. NUMM) THEN
             DO 30 I=1,NUMAT
                JLO=NFIRST(I)
                JHI=NLAST(I)
@@ -53,14 +53,14 @@ C
    20          CONTINUE
    30       CONTINUE
          ELSE
-            NUMB=ABS(NUMB)
+            NUMB=ABS(NUMM)
             DO 40 I=1,NUMB
                ITEXT(I) = '  '
                JTEXT(I) = '  '
    40       NATOM(I)=I
          ENDIF
       ENDIF
-      NUMB=ABS(NUMB)
+      NUMB=ABS(NUMM)
       DO 50 I=1,21
    50 LINE(I)='------'
       LIMIT=(NUMB*(NUMB+1))/2
