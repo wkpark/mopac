@@ -1,21 +1,20 @@
-
       FUNCTION HELECT(N,P,H,F)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION P(*), H(*), F(*)
-************************************************************************
-*
-*    SUBROUTINE CALCULATES THE ELECTRONIC ENERGY OF THE SYSTEM IN EV.
-*
-*    ON ENTRY N = NUMBER OF ATOMIC ORBITALS.
-*             P = DENSITY MATRIX, PACKED, LOWER TRIANGLE.
-*             H = ONE-ELECTRON MATRIX, PACKED, LOWER TRIANGLE.
-*             F = TWO-ELECTRON MATRIX, PACKED, LOWER TRIANGLE.
-*    ON EXIT
-*        HELECT = ELECTRONIC ENERGY.
-*
-*    NO ARGUMENTS ARE CHANGED.
-*
-************************************************************************
+C***********************************************************************
+C
+C    SUBROUTINE CALCULATES THE ELECTRONIC ENERGY OF THE SYSTEM IN EV.
+C
+C    ON ENTRY N = NUMBER OF ATOMIC ORBITALS.
+C             P = DENSITY MATRIX, PACKED, LOWER TRIANGLE.
+C             H = ONE-ELECTRON MATRIX, PACKED, LOWER TRIANGLE.
+C             F = TWO-ELECTRON MATRIX, PACKED, LOWER TRIANGLE.
+C    ON EXIT
+C        HELECT = ELECTRONIC ENERGY.
+C
+C    NO ARGUMENTS ARE CHANGED.
+C
+C***********************************************************************
       ED=0.0D00
       EE=0.0D00
       K=0
@@ -32,5 +31,5 @@
       EE=EE+.5D00*ED
       HELECT=EE
       RETURN
-
+C
       END

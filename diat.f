@@ -1,31 +1,40 @@
       SUBROUTINE DIAT(NI,NJ,XI,XJ,DI)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)         
-***************************************************************************
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+************************************************************************
 *
 *   DIAT CALCULATES THE DI-ATOMIC OVERLAP INTEGRALS BETWEEN ATOMS
-*        CENTERED AT XI AND XJ. 
+*        CENTERED AT XI AND XJ.
 *
 *   ON INPUT NI  = ATOMIC NUMBER OF THE FIRST ATOM.
 *            NJ  = ATOMIC NUMBER OF THE SECOND ATOM.
 *            XI  = CARTESIAN COORDINATES OF THE FIRST ATOM.
 *            XJ  = CARTESIAN COORDINATES OF THE SECOND ATOM.
 *
-*  ON OUTPUT DI  = DIATOMIC OVERLAP, IN A 9 * 9 MATRIX. LAYOUT OF 
+*  ON OUTPUT DI  = DIATOMIC OVERLAP, IN A 9 * 9 MATRIX. LAYOUT OF
 *                  ATOMIC ORBITALS IN DI IS
 *                  1   2   3   4   5            6     7       8     9
-*                  S   PX  PY  PZ  D(X**2-Y**2) D(XZ) D(Z**2) D(YZ) D(XY)
+*                  S   PX  PY  PZ  D(X**2-Y**2) D(XZ) D(Z**2) D(YZ)D(XY)
 *
-*   LIMITATIONS:  IN THIS FORMULATION, NI AND NJ MUST BE LESS THAN 54
+*   LIMITATIONS:  IN THIS FORMULATION, NI AND NJ MUST BE LESS THAN 107
 *         EXPONENTS ARE ASSUMED TO BE PRESENT IN COMMON BLOCK EXPONT.
 *
-***************************************************************************
-      INTEGER PQ1,A,PQ2,B,PQA,PQB,AA,BB,PVAL1,PVAL2,YETA       
+************************************************************************
+      INTEGER A,PQ2,B,PQ1,AA,BB,YETA
       LOGICAL FIRST
-      COMMON /EXPONT/ EMUS(54),EMUP(54),EMUD(54)
-      DIMENSION DI(9,9),S(3,3,3),UL1(3),UL2(3),C(3,5,5),NPQ(54)
-     +          ,XI(3),XJ(3)
-      DATA NPQ/1,1, 2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,
-     +4,4,4,4,4,4,4,4,4,4, 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5/
+      COMMON /EXPONT/ EMUS(107),EMUP(107),EMUD(107)
+      DIMENSION DI(9,9),S(3,3,3),UL1(3),UL2(3),C(3,5,5),NPQ(107)
+     1          ,XI(3),XJ(3), SLIN(27), IVAL(3,5)
+     2, C1(3,5), C2(3,5), C3(3,5), C4(3,5), C5(3,5)
+     3, S1(3,3), S2(3,3), S3(3,3)
+      EQUIVALENCE(SLIN(1),S(1,1,1))
+      EQUIVALENCE (C1(1,1),C(1,1,1)), (C2(1,1),C(1,1,2)),
+     1            (C3(1,1),C(1,1,3)), (C4(1,1),C(1,1,4)),
+     2            (C5(1,1),C(1,1,5)), (S1(1,1),S(1,1,1)),
+     3            (S2(1,1),S(1,1,2)), (S3(1,1),S(1,1,3))
+      DATA NPQ/1,0, 2,2,2,2,2,2,2,0, 3,3,3,3,3,3,3,0, 4,4,4,4,4,4,4,4,
+     14,4,4,4,4,4,4,4,4,0, 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+     1,32*6,21*0/
+      DATA IVAL/1,0,9,1,3,8,1,4,7,1,2,6,0,0,5/
       DATA FIRST /.TRUE./
       X1=XI(1)
       X2=XJ(1)
@@ -34,303 +43,282 @@
       Z1=XI(3)
       Z2=XJ(3)
       PQ1=NPQ(NI)
-      PQA=PQ1
       PQ2=NPQ(NJ)
-      PQB=PQ2
-      UL1(1)=EMUS(NI)
-      UL2(1)=EMUS(NJ)
-      UL1(2)=EMUP(NI)
-      UL2(2)=EMUP(NJ)
-      DO 349 I=1,9  
-      DO 350 J=1,9  
-      DI(I,J)=0.0D0   
- 350  CONTINUE      
- 349  DI(I,I)=1.D0  
-      CALL COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)     
-          IF (PQ1.GT.3) GO TO 351 
-          A=PQ1-1       
-          GO TO 352     
- 351      A=2 
- 352      CONTINUE      
-          IF (PQ2.GT.3) GO TO 353 
-          B=PQ2-1       
-          GO TO 354     
- 353      B=2 
- 354      CONTINUE      
-          IA=A+1
-          IB=B+1
-       IF(PQ1.LT.4.AND.PQ2.LT.4) THEN
-          CALL DIAT2(NI,EMUS(NI),EMUP(NI),R,NJ,EMUS(NJ),EMUP(NJ),S)
-C      WRITE(6,'(3I4,F12.6)')(((I,J,K,S(I,J,K),I=1,2),J=1,2),K=1,2)
-      ELSE
-          DO 355 I=1,3  
-              DO 355 J=1,3  
-                  DO 355 K=1,3  
-                  S(I,J,K)=0.0D0  
- 355      CONTINUE      
-          DO 363 I=1,IA 
-              IB=B+1        
-              DO 363 J=1,IB 
-                  IF (A.LT.B) GO TO 357   
-                  NEWK=B        
-                  GO TO 358     
- 357              NEWK=A        
- 358              CONTINUE      
-                  NK1=NEWK+1    
-                  DO 363 K=1,NK1
-                      IF(K.GT.I.OR.K.GT.J) GOTO 363     
-                      U1=UL1(I)     
-                      U2=UL2(J)     
-                      YETA=PQA+PQB+3
-                      S(I,J,K)=SS(PQA,PQB,I,J,K,U1,U2,R,YETA,FIRST)     
-C      WRITE(6,'(3I4,F12.6)')I,J,K,S(I,J,K)
- 363      CONTINUE      
+      DO 20 I=1,9
+         DO 10 J=1,9
+            DI(I,J)=0.0D0
+   10    CONTINUE
+   20 CONTINUE
+      CALL COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)
+      IF(PQ1.EQ.0.OR.PQ2.EQ.0.OR.R.GE.10.D0) RETURN
+      IF(R.LT.0.1)THEN
+         RETURN
       ENDIF
-      DO 369 I=1,IA 
-      DO 369 J=1,IB 
-      IF (I.EQ.1) GO TO 10    
-      IF (I.EQ.2) GO TO 11    
-      KMIN=1        
-      KMAX=5        
-      GO TO 12      
- 11   KMIN=2        
-      KMAX=4        
-      GO TO 12      
- 10   KMIN=3        
-      KMAX=3        
- 12   DO 369 K=KMIN,KMAX      
-      IF (J.EQ.1) GO TO 13    
-      IF (J.EQ.2) GO TO 14    
-      LMIN=1        
-      LMAX=5        
-      GO TO 15      
- 14   LMIN=2        
-      LMAX=4        
-      GO TO 15      
- 13   LMIN=3        
-      LMAX=3        
- 15   DO 369 L=LMIN,LMAX      
-      IF (J.EQ.2) GO TO 364   
-      AA=1
-      GO TO 365     
- 364  AA=-1         
- 365  CONTINUE      
-      IF (J.GT.2) GO TO 366   
-      BB=1
-      GO TO 367     
- 366  BB=-1         
- 367  CONTINUE      
-      CALL VAL(I,K,PVAL1)     
-      CALL VAL(J,L,PVAL2)     
-      DI((PVAL1+1),(PVAL2+1))=S(I,J,1)*C(I,K,3)*C(J,L,3)*AA+(C(I,K,4)*C(        
-     1J,L,4)+C(I,K,2)*C(J,L,2))*BB*S(I,J,2)+(C(I,K,5)*C(J,L,5)+C(I,K,1)*        
-     2C(J,L,1))*S(I,J,3)      
- 369  CONTINUE      
-      RETURN        
-      END 
-      SUBROUTINE VAL(L,M,PVAL)
-      INTEGER L,M,PVAL        
-      IF (L.EQ.1) PVAL=0      
-      IF ((L.EQ.2).AND.(M.EQ.2)) PVAL=2 
-      IF ((L.EQ.2).AND.(M.EQ.3)) PVAL=3 
-      IF ((L.EQ.2).AND.(M.EQ.4)) PVAL=1 
-      IF (L.EQ.3) PVAL=12-L-M 
-      RETURN        
-      END 
-      FUNCTION SS(NA,NB,LA,LB,M,UC,UD,R1,YETA,FIRST)    
-      DOUBLE PRECISION UC,SS,UD,R1,R    
+      IA=MIN(PQ1,3)
+      IB=MIN(PQ2,3)
+      A=IA-1
+      B=IB-1
+      IF(PQ1.LT.3.AND.PQ2.LT.3) THEN
+         CALL DIAT2(NI,EMUS(NI),EMUP(NI),R,NJ,EMUS(NJ),EMUP(NJ),S)
+      ELSE
+         UL1(1)=EMUS(NI)
+         UL2(1)=EMUS(NJ)
+         UL1(2)=EMUP(NI)
+         UL2(2)=EMUP(NJ)
+         UL1(3)=EMUD(NI)
+         UL2(3)=EMUD(NJ)
+         DO 30 I=1,27
+   30    SLIN(I)=0.0D0
+         NEWK=MIN(A,B)
+         NK1=NEWK+1
+         YETA=PQ1+PQ2+3
+         DO 40 I=1,IA
+            ISS=I
+            IB=B+1
+            DO 40 J=1,IB
+               JSS=J
+               DO 40 K=1,NK1
+                  IF(K.GT.I.OR.K.GT.J) GOTO 40
+                  KSS=K
+                  S(I,J,K)=SS(PQ1,PQ2,ISS,JSS,KSS,UL1(I),UL2(J),R,YETA,F
+     1IRST)
+   40    CONTINUE
+      ENDIF
+      DO 50 I=1,IA
+         KMIN=4-I
+         KMAX=2+I
+         DO 50 J=1,IB
+            IF(J.EQ.2)THEN
+               AA=-1
+               BB=1
+            ELSE
+               AA=1
+               IF(J.EQ.3) THEN
+                  BB=-1
+               ELSE
+                  BB=1
+               ENDIF
+            ENDIF
+            LMIN=4-J
+            LMAX=2+J
+            DO 50 K=KMIN,KMAX
+               DO 50 L=LMIN,LMAX
+                  II=IVAL(I,K)
+                  JJ=IVAL(J,L)
+                  DI(II,JJ)=S1(I,J)*C3(I,K)*C3(J,L)*AA+
+     1(C4(I,K)*C4(J,L)+C2(I,K)*C2(J,L))*BB*S2(I,J)+(C5(I,K)*C5(J,L)
+     2+C1(I,K)*C1(J,L))*S3(I,J)
+   50 CONTINUE
+      RETURN
+      END
+      FUNCTION SS(NA,NB,LA,LB,M,UC,UD,R1,YETA,FIRST)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL FIRST
-      INTEGER A,C,D,PP,B,Q,YETA         
-      DOUBLE PRECISION ER,P,BA,EX,QUO,S1,S2,QQ,QEB,SUM,SUM1,X,      
-     1FA(14),BI(13,13),AFF(3,3,3),AF(20),BF(20),UA,UB,SA    
+      INTEGER A,PP,B,Q,YETA
+      DIMENSION FA(14),BI(13,13),AFF(3,3,3),AF(20),BF(20)
       DATA AFF/27*0. D0/
+      DATA FA/1.D0,1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
+     1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0/
       R=R1
-      UA=UC         
-      UB=UD         
-      IF(UA.GT.0.D0) GOTO 88  
-      SA=0.D0       
-      GO TO 99      
-   88 IF(UB.GT.0.D0) GOTO 299 
-      SA=0.D0       
-      GO TO 99      
- 299  CONTINUE      
+      UA=UC
+      UB=UD
       R=R/0.529167D0
       ER=R
-      GO TO 304     
-  300 FA(1)=1.D0
-      DO 301 I=1,13 
-      FA(I+1)=FA(I)*I         
- 301  CONTINUE      
-      FIRST=.FALSE.
-      DO 302 I=1,13 
-      BI(I,1)=1.D0  
-      BI(I,I)=1.D0  
- 302  CONTINUE      
-      DO 303 I=1,12 
-      I1=I-1        
-      DO 303 J=1,I1 
-      BI(I+1,J+1)=BI(I,J+1)+BI(I,J)     
- 303  CONTINUE      
-      AFF(1,1,1)=1.D0         
-      AFF(2,1,1)=1.D0         
-      AFF(2,2,1)=1.D0         
-      AFF(3,1,1)=1.5D0        
-      AFF(3,2,1)=1.73205D0    
-      AFF(3,3,1)=1.224745D0   
-      AFF(3,1,3)=-0.5D0       
-      GO TO 305     
-  304 IF(FIRST)GOTO 300
- 305  CONTINUE      
-      P=(UA+UB)*ER*0.5D0      
-      BA=(UA-UB)*ER*0.5D0     
-      EX=EXP(BA)   
-      QUO=1/P       
-      AF(1)=QUO*EXP(-P)      
-      NANB=NA+NB    
-      DO 306 N=1,19 
-      AF(N+1)=N*QUO*AF(N)+AF(1)         
- 306  CONTINUE      
-      NANB1=NANB+1  
-      DO 309 N=1,13 
-      IF(ABS(BA).LT.0.1D0) GOTO 308    
-      S1=0.D0       
-      S2=0.D0       
-      QQ=1.D0       
-      DO 307 I=1,N  
-      QQ=QQ*BA      
-      QEB=1.D0/(QQ*FA(N+1-I)) 
-      S1=S1+QEB     
-      INI=(N-I+1)/2 
-      S2=S2+2.D0*((INI*2-(N-1)+I)-1.5D0)*QEB      
- 307  CONTINUE      
-      BF(N)=-FA(N)*(S1/EX+S2*EX)        
-      GO TO 309     
- 308  IN=N/2        
-      BF(N)=0.D0
-      IF(N.NE.IN*2) BF(N)=2.D0/N        
- 309  CONTINUE      
-      SUM=0.D0      
-      LAM1=LA-M+1   
-      LBM1=LB-M+1   
-      DO 311 I=1,LAM1,2       
-      DO 311 J=1,LBM1,2       
-      A=NA+I-LA
-      B=NB+J-LB
-      C=LA-I-M+1
-      D=LB-J-M+1
-      SUM1=0.D0     
-      IA=A+1        
-      IB=B+1        
-      IC=C+1        
-      ID=D+1        
-      AB=A+B-1
-      DO 310 K1=1,IA
-      DO 310 K2=1,IB
-      DO 310 K3=1,IC
-      DO 310 K4=1,ID
-      DO 310 K5=1,M 
-      DO 310 K6=1,M 
-      Q=AB-K1-K2+K3+K4+2*K5
-      PP=K1+K2+K3+K4+2*K6-5
-      JX=M+K2+K4+K5+K6-5
-      IX=JX/2       
-      SUM1=SUM1+BI(IA,K1)*BI(IB,K2)*BI(IC,K3)*BI(ID,K4)*BI(M,K5)*BI(        
-     1M,K6)*2.D0*(IX*2-JX+0.5D0)*AF(Q)*BF(PP) 
- 310  CONTINUE      
-      SUM=SUM+SUM1*AFF(LA,M,I)*AFF(LB,M,J)        
- 311  CONTINUE      
-      X=R 
-      DO 312 I=1,NA 
-      X=X*R*UA      
- 312  CONTINUE      
-      DO 313 I=1,NB 
-      X=X*R*UB      
- 313  CONTINUE      
-      SA=SUM*X*SQRT(UA*UB/(FA(NA+NA+1)*FA(NB+NB+1))*((LA+LA-1        
-     1)*(LB+LB-1)))/(2.D0**M) 
- 99   CONTINUE      
-      SS=SA         
-      RETURN        
-      END 
-      SUBROUTINE COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)  
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)    
-      INTEGER PQ1,PQ2,PQ,CO        
-      DIMENSION C(3,5,5)  
-      XY=(X2-X1)**2+(Y2-Y1)**2     
-      R=SQRT(XY+(Z2-Z1)**2)       
-      XY=SQRT(XY)        
-      IF (XY.EQ.0.D0) GO TO 800     
-      CA=(X2-X1)/XY       
-      CB=(Z2-Z1)/R        
-      SA=(Y2-Y1)/XY       
-      SB=XY/R    
-      GO TO 804  
- 800  IF (Z2-Z1) 801,802,803       
- 801  CA=-1.D0    
-      CB=-1.D0    
-      SA=0.D0     
-      SB=0.D0     
-      GO TO 804  
-  802 CA=0.D0     
-      CB=0.D0     
-      SA=0.D0     
-      SB=0.D0     
-      GO TO 804  
-  803 CA=1.D0     
-      CB=1.D0        
-      SA=0.D0        
-      SB=0.D0        
- 804  CONTINUE      
+      IF(FIRST) THEN
+         FIRST=.FALSE.
+         DO 10 I=1,13
+            BI(I,1)=1.D0
+            BI(I,I)=1.D0
+   10    CONTINUE
+         DO 20 I=1,12
+            I1=I-1
+            DO 20 J=1,I1
+               BI(I+1,J+1)=BI(I,J+1)+BI(I,J)
+   20    CONTINUE
+         AFF(1,1,1)=1.D0
+         AFF(2,1,1)=1.D0
+         AFF(2,2,1)=1.D0
+         AFF(3,1,1)=1.5D0
+         AFF(3,2,1)=1.73205D0
+         AFF(3,3,1)=1.224745D0
+         AFF(3,1,3)=-0.5D0
+      ENDIF
+      P=(UA+UB)*ER*0.5D0
+      BA=(UA-UB)*ER*0.5D0
+      EX=EXP(BA)
+      QUO=1/P
+      AF(1)=QUO*EXP(-P)
+      NANB=NA+NB
+      DO 30 N=1,19
+         AF(N+1)=N*QUO*AF(N)+AF(1)
+   30 CONTINUE
+      NANB1=NANB+1
+      CALL BFN(BA,BF)
+      SUM=0.D0
+      LAM1=LA-M+1
+      LBM1=LB-M+1
+      DO 50 I=1,LAM1,2
+         A=NA+I-LA
+         IC=LA+2-I-M
+         DO 50 J=1,LBM1,2
+            B=NB+J-LB
+            ID=LB-J-M+2
+            SUM1=0.D0
+            IA=A+1
+            IB=B+1
+            AB=A+B-1
+            DO 40 K1=1,IA
+               PART1=BI(IA,K1)
+               DO 40 K2=1,IB
+                  PART2=PART1*BI(IB,K2)
+                  DO 40 K3=1,IC
+                     PART3=PART2*BI(IC,K3)
+                     DO 40 K4=1,ID
+                        PART4=PART3*BI(ID,K4)
+                        DO 40 K5=1,M
+                           PART5=PART4*BI(M,K5)
+                           Q=AB-K1-K2+K3+K4+2*K5
+                           DO 40 K6=1,M
+                              PART6=PART5*BI(M,K6)
+                              PP=K1+K2+K3+K4+2*K6-5
+                              JX=M+K2+K4+K5+K6-5
+                              IX=JX/2
+                              SUM1=SUM1+PART6*(IX*2-JX+0.5D0)*AF(Q)*BF(P
+     1P)
+   40       CONTINUE
+            SUM=SUM+SUM1*AFF(LA,M,I)*AFF(LB,M,J)*2.D0
+   50 CONTINUE
+      X=R**(NA+NB+1)*UA**NA*UB**NB
+      SA=SUM*X*SQRT(UA*UB/(FA(NA+NA+1)*FA(NB+NB+1))*((LA+LA-1
+     1)*(LB+LB-1)))/(2.D0**M)
+   60 CONTINUE
+      SS=SA
+      RETURN
+      END
+      SUBROUTINE COE(X1,Y1,Z1,X2,Y2,Z2,PQ1,PQ2,C,R)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INTEGER PQ1,PQ2,PQ,CO
+      DIMENSION C(75)
+      XY=(X2-X1)**2+(Y2-Y1)**2
+      R=SQRT(XY+(Z2-Z1)**2)
+      XY=SQRT(XY)
+      IF (XY.LT.1.D-10) GO TO 10
+      CA=(X2-X1)/XY
+      CB=(Z2-Z1)/R
+      SA=(Y2-Y1)/XY
+      SB=XY/R
+      GO TO 50
+   10 IF (Z2-Z1) 20,30,40
+   20 CA=-1.D0
+      CB=-1.D0
+      SA=0.D0
+      SB=0.D0
+      GO TO 50
+   30 CA=0.D0
+      CB=0.D0
+      SA=0.D0
+      SB=0.D0
+      GO TO 50
+   40 CA=1.D0
+      CB=1.D0
+      SA=0.D0
+      SB=0.D0
+   50 CONTINUE
       CO=0
-      DO 805 I=1,5  
-      DO 805 J=1,5  
-      DO 805 K=1,3  
-      C(K,I,J)=0.D0  
- 805  CONTINUE      
-      IF (PQ1.GT.PQ2) GO TO 806         
-      PQ=PQ2        
-      GO TO 807     
- 806  PQ=PQ1        
- 807  CONTINUE      
-      C(1,3,3)=1.D0  
-      IF (PQ.LT.2) GO TO 808  
-      C(2,4,4)=CA*CB
-      C(2,4,3)=CA*SB
-      C(2,4,2)=-SA  
-      C(2,3,4)=-SB  
-      C(2,3,3)=CB   
-      C(2,3,2)=0.D0  
-      C(2,2,4)=SA*CB
-      C(2,2,3)=SA*SB
-      C(2,2,2)=CA   
-      IF (PQ.LT.3) GO TO 808  
-      C2A=2*CA*CA-1.D0         
-      C2B=2*CB*CB-1.D0         
-      S2A=2*SA*CA   
-      S2B=2*SB*CB   
-      C(3,5,5)=C2A*CB*CB+0.5D0*C2A*SB*SB  
-      C(3,5,4)=0.5D0*C2A*S2B    
-      C(3,5,3)=0.8660254037841D0*C2A*SB*SB       
-      C(3,5,2)=-S2A*SB        
-      C(3,5,1)=-S2A*CB        
-      C(3,4,5)=-0.5D0*CA*S2B    
-      C(3,4,4)=CA*C2B         
-      C(3,4,3)=0.8660254037841D0*CA*S2B
-      C(3,4,2)=-SA*CB         
-      C(3,4,1)=SA*SB
-      C(3,3,5)=0.5773502691894D0*SB*SB*1.5D0        
-      C(3,3,4)=-0.8660254037841D0*S2B  
-      C(3,3,3)=CB*CB-0.5D0*SB*SB
-      C(3,2,5)=-0.5D0*SA*S2B    
-      C(3,2,4)=SA*C2B         
-      C(3,2,3)=0.8660254037841D0*SA*S2B
-      C(3,2,2)=CA*CB
-      C(3,2,1)=-CA*SB         
-      C(3,1,5)=S2A*CB*CB+0.5D0*S2A*SB*SB  
-      C(3,1,4)=0.5D0*S2A*S2B    
-      C(3,1,3)=0.8660254037841D0*S2A*SB*SB       
-      C(3,1,2)=C2A*SB         
-      C(3,1,1)=C2A*CB         
- 808  CONTINUE      
-      RETURN        
-      END 
+      DO 60 I=1,75
+   60 C(I)=0.D0
+      IF (PQ1.GT.PQ2) GO TO 70
+      PQ=PQ2
+      GO TO 80
+   70 PQ=PQ1
+   80 CONTINUE
+      C(37)=1.D0
+      IF (PQ.LT.2) GO TO 90
+      C(56)=CA*CB
+      C(41)=CA*SB
+      C(26)=-SA
+      C(53)=-SB
+      C(38)=CB
+      C(23)=0.D0
+      C(50)=SA*CB
+      C(35)=SA*SB
+      C(20)=CA
+      IF (PQ.LT.3) GO TO 90
+      C2A=2*CA*CA-1.D0
+      C2B=2*CB*CB-1.D0
+      S2A=2*SA*CA
+      S2B=2*SB*CB
+      C(75)=C2A*CB*CB+0.5D0*C2A*SB*SB
+      C(60)=0.5D0*C2A*S2B
+      C(45)=0.8660254037841D0*C2A*SB*SB
+      C(30)=-S2A*SB
+      C(15)=-S2A*CB
+      C(72)=-0.5D0*CA*S2B
+      C(57)=CA*C2B
+      C(42)=0.8660254037841D0*CA*S2B
+      C(27)=-SA*CB
+      C(12)=SA*SB
+      C(69)=0.5773502691894D0*SB*SB*1.5D0
+      C(54)=-0.8660254037841D0*S2B
+      C(39)=CB*CB-0.5D0*SB*SB
+      C(66)=-0.5D0*SA*S2B
+      C(51)=SA*C2B
+      C(36)=0.8660254037841D0*SA*S2B
+      C(21)=CA*CB
+      C(6)=-CA*SB
+      C(63)=S2A*CB*CB+0.5D0*S2A*SB*SB
+      C(48)=0.5D0*S2A*S2B
+      C(33)=0.8660254037841D0*S2A*SB*SB
+      C(18)=C2A*SB
+      C(3)=C2A*CB
+   90 CONTINUE
+      RETURN
+      END
+      SUBROUTINE BFN(X,BF)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION BF(13)
+C**********************************************************************
+C
+C     BINTGS FORMS THE "B" INTEGRALS FOR THE OVERLAP CALCULATION.
+C
+C**********************************************************************
+      DIMENSION FACT(17)
+      DATA FACT/1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
+     1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0,
+     28.71782912D10,1.307674368D12,2.092278989D13,3.556874281D14/
+      K=12
+      IO=0
+      ABSX = ABS(X)
+      IF (ABSX.GT.3.D00) GO TO 40
+      IF (ABSX.LE.2.D00) GO TO 10
+      LAST=15
+      GO TO 60
+   10 IF (ABSX.LE.1.D00) GO TO 20
+      LAST=12
+      GO TO 60
+   20 IF (ABSX.LE.0.5D00) GO TO 30
+      LAST=7
+      GO TO 60
+   30 IF (ABSX.LE.1.D-6) GOTO 90
+      LAST=6
+      GO TO 60
+   40 EXPX=EXP(X)
+      EXPMX=1.D00/EXPX
+      BF(1)=(EXPX-EXPMX)/X
+      DO 50 I=1,K
+   50 BF(I+1)=(I*BF(I)+(-1.D00)**I*EXPX-EXPMX)/X
+      GO TO 110
+   60 DO 80 I=IO,K
+         Y=0.0D00
+         DO 70 M=IO,LAST
+            XF=1.0D00
+            IF(M.NE.0) XF=FACT(M)
+   70    Y=Y+(-X)**M*(2*MOD(M+I+1,2))/(XF*(M+I+1))
+   80 BF(I+1)=Y
+      GO TO 110
+   90 DO 100 I=IO,K
+  100 BF(I+1)=(2*MOD(I+1,2))/(I+1.D0)
+  110 CONTINUE
+      RETURN
+C
+      END

@@ -1,37 +1,56 @@
       DOUBLE PRECISION FUNCTION READA(A,ISTART)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*1 A(80)
-   2  FORMAT('   IN READA')
       NINE=ICHAR('9')
       IZERO=ICHAR('0')
       MINUS=ICHAR('-')
       IDOT=ICHAR('.')
-      X=0.D0
-      K=0
+      IDIG=0
+      C1=0
+      C2=0
       ONE=1.D0
-      DO 6 J=ISTART,80
-      N=ICHAR(A(J))
-      IF(N.LE.NINE.AND.N.GE.IZERO .OR. N.EQ.MINUS.OR.N.EQ.IDOT) GOTO 7
-   6  CONTINUE
+      X = 1.D0
+      DO 10 J=ISTART,80
+         N=ICHAR(A(J))
+         IF(N.LE.NINE.AND.N.GE.IZERO .OR. N.EQ.MINUS.OR.N.EQ.IDOT)GOTO 2
+     10
+   10 CONTINUE
       READA=0.D0
       RETURN
-   7  CONTINUE
-      DO 10 I=J,80
-      N=ICHAR(A(I))
-      IF(N.GT.NINE.OR.N.LT.IZERO) GOTO 20
-      K=K*10+N-IZERO
-      GOTO 10
-  20  IF(N.EQ.MINUS.AND.I.EQ.J) THEN
-          ONE=-1.D0
-          GOTO 10
-      ENDIF
-      IF(N.EQ.IDOT.AND.X.EQ.0.D0) THEN
-          X=0.1D0
-          GOTO 10
-      ENDIF
-      GOTO 30
-  10  X=X*10.D0
-  30  IF(X.EQ.0.D0) X=0.999999999D0
-      READA=ONE*K/X
+   20 CONTINUE
+      DO 30 I=J,80
+         N=ICHAR(A(I))
+         IF(N.LE.NINE.AND.N.GE.IZERO) THEN
+            IDIG=IDIG+1
+            IF (IDIG.GT.10) GOTO 60
+            C1=C1*10+N-IZERO
+         ELSEIF(N.EQ.MINUS.AND.I.EQ.J) THEN
+            ONE=-1.D0
+         ELSEIF(N.EQ.IDOT) THEN
+            GOTO 40
+         ELSE
+            GOTO 60
+         ENDIF
+   30 CONTINUE
+   40 CONTINUE
+      IDIG=0
+      DO 50 II=I+1,80
+         N=ICHAR(A(II))
+         IF(N.LE.NINE.AND.N.GE.IZERO) THEN
+            IDIG=IDIG+1
+            IF (IDIG.GT.10) GOTO 60
+            C2=C2*10+N-IZERO
+            X = X /10
+         ELSEIF(N.EQ.MINUS.AND.II.EQ.I) THEN
+            X=-X
+         ELSE
+            GOTO 60
+         ENDIF
+   50 CONTINUE
+C
+C PUT THE PIECES TOGETHER
+C
+   60 CONTINUE
+      READA= ONE * ( C1 + C2 * X)
       RETURN
       END

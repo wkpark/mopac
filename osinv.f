@@ -1,7 +1,7 @@
       SUBROUTINE OSINV (A,N,D)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION A(*)
-**************************************************************************
+************************************************************************
 *
 *    OSINV INVERTS A GENERAL SQUARE MATRIX OF ORDER UP TO 100. SEE
 *          DIMENSION STATEMENTS BELOW.
@@ -14,15 +14,15 @@
 *                  D = DETERMINANT OF ORIGINAL A, UNLESS A WAS SINGULAR,
 *                      IN WHICH CASE D = 0.0
 *
-**************************************************************************
+************************************************************************
       DIMENSION L(100), M(100)
-**************************************************************************
+************************************************************************
 *
 *    IF THE VALUE OF TOL GIVEN HERE IS UNSUITABLE, IT CAN BE CHANGED.
       TOL=1.D-8
 *
 *
-**************************************************************************
+************************************************************************
       D=1.0
       NK=-N
       DO 180 K=1,N
@@ -33,15 +33,15 @@
          BIGA=A(KK)
          DO 20 J=K,N
             IZ=N*(J-1)
-         DO 20 I=K,N
-            IJ=IZ+I
+            DO 20 I=K,N
+               IJ=IZ+I
 C
 C     10 FOLLOWS
 C
-            IF (ABS(BIGA)-ABS(A(IJ))) 10,20,20
-   10       BIGA=A(IJ)
-            L(K)=I
-            M(K)=J
+               IF (ABS(BIGA)-ABS(A(IJ))) 10,20,20
+   10          BIGA=A(IJ)
+               L(K)=I
+               M(K)=J
    20    CONTINUE
          J=L(K)
          IF (J-K) 50,50,30
@@ -72,12 +72,12 @@ C
          DO 150 I=1,N
             IK=NK+I
             IJ=I-N
-         DO 150 J=1,N
-            IJ=IJ+N
-            IF (I-K) 130,150,130
-  130       IF (J-K) 140,150,140
-  140       KJ=IJ-I+K
-            A(IJ)=A(IK)*A(KJ)+A(IJ)
+            DO 150 J=1,N
+               IJ=IJ+N
+               IF (I-K) 130,150,130
+  130          IF (J-K) 140,150,140
+  140          KJ=IJ-I+K
+               A(IJ)=A(IK)*A(KJ)+A(IJ)
   150    CONTINUE
          KJ=K-N
          DO 170 J=1,N
@@ -114,4 +114,3 @@ C
   260 RETURN
 C
       END
-           

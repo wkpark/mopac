@@ -1,4 +1,3 @@
-
       SUBROUTINE DIAG(FAO,VECTOR,NOCC,EIG,MDIM,N)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       INCLUDE 'SIZES'
@@ -42,8 +41,7 @@ C             STEWART. J.J.P., CSASZAR, P., PULAY, P., J. COMP. CHEM.,
 C             3, 227, (1982)
 C
 C***********************************************************************
-      PARAMETER (MDUMY=MAXORB*MAXORB+(NUMATM*(NUMATM+1))/2-MORB2)
-      COMMON /SCRACH/ FMO(MORB2), XDUMY(MDUMY)
+      COMMON /SCRACH/ FMO(MORB2), XDUMY(MAXPAR**2-MORB2)
 C             FMO  IS A WORK-SPACE OF SIZE (N-NOCC)*NOCC, IT WILL HOLD
 C                  THE FOCK MOLECULAR ORBITAL INTERACTION MATRIX.
 C
@@ -51,32 +49,32 @@ C  FIRST, CONSTRUCT THAT PART OF A SECULAR DETERMINANT OVER MOLECULAR
 C  ORBITALS WHICH CONNECTS THE OCCUPIED AND VIRTUAL SETS.
 C
 C***********************************************************************
-
+C
       TINY=0.D0
       LUMO=NOCC+1
       IJ=0
-      DO 6 I=LUMO,N
-        KK=0
-        DO 3 J=1,N
-          SUM=0.D0
-          DO 1 K=1,J
-            KK=KK+1
-   1        SUM=SUM+FAO(KK)*VECTOR(K,I)
-          IF(J.EQ.N) GOTO 3
-          J1=J+1
-          K2=KK
-          DO 2 K=J1,N
-            K2=K2+K-1
-   2        SUM=SUM+FAO(K2)*VECTOR(K,I)
-   3      WS(J)=SUM
-          DO 5 J=1,NOCC
-          IJ=IJ+1
-          SUM=0.D0
-          DO 4 K=1,N
-   4        SUM=SUM+WS(K)*VECTOR(K,J)
-          IF(TINY.LT.ABS(SUM)) TINY=ABS(SUM)
-   5      FMO(IJ)=SUM
-   6    CONTINUE
+      DO 60 I=LUMO,N
+         KK=0
+         DO 30 J=1,N
+            SUM=0.D0
+            DO 10 K=1,J
+               KK=KK+1
+   10       SUM=SUM+FAO(KK)*VECTOR(K,I)
+            IF(J.EQ.N) GOTO 30
+            J1=J+1
+            K2=KK
+            DO 20 K=J1,N
+               K2=K2+K-1
+   20       SUM=SUM+FAO(K2)*VECTOR(K,I)
+   30    WS(J)=SUM
+         DO 50 J=1,NOCC
+            IJ=IJ+1
+            SUM=0.D0
+            DO 40 K=1,N
+   40       SUM=SUM+WS(K)*VECTOR(K,J)
+            IF(TINY.LT.ABS(SUM)) TINY=ABS(SUM)
+   50    FMO(IJ)=SUM
+   60 CONTINUE
       TINY=0.04D0*TINY
 C***********************************************************************
 C
@@ -84,30 +82,30 @@ C   NOW DO A CRUDE 2 BY 2 ROTATION TO "ELIMINATE" SIGNIFICANT ELEMENTS
 C
 C***********************************************************************
       IJ=0
-      DO 10 I=LUMO,N
-          DO 9 J=1,NOCC
-          IJ=IJ+1
-          IF(ABS(FMO(IJ)).LT.TINY) GOTO 9
+      DO 90 I=LUMO,N
+         DO 80 J=1,NOCC
+            IJ=IJ+1
+            IF(ABS(FMO(IJ)).LT.TINY) GOTO 80
 C
 C      BEGIN 2 X 2 ROTATIONS
 C
-          A=EIG(J)
-          B=EIG(I)
-          C=FMO(IJ)
-          D=A-B
-          E=SIGN(SQRT(4.D0*C*C+D*D),D)
-          ALPHA=SQRT(0.5D0*(1.D0+D/E))
-          BETA=-SIGN(SQRT(0.5D0*(1.D0-D/E)),C)
+            A=EIG(J)
+            B=EIG(I)
+            C=FMO(IJ)
+            D=A-B
+            E=SIGN(SQRT(4.D0*C*C+D*D),D)
+            ALPHA=SQRT(0.5D0*(1.D0+D/E))
+            BETA=-SIGN(SQRT(0.5D0*(1.D0-D/E)),C)
 C
 C      ROTATION OF PSEUDO-EIGENVECTORS
 C
-            DO 8 M=1,N
-            A=VECTOR(M,J)
-            B=VECTOR(M,I)
-            VECTOR(M,J)=ALPHA*A+BETA*B
-            VECTOR(M,I)=ALPHA*B-BETA*A
-    8     CONTINUE
-    9   CONTINUE
-   10 CONTINUE
+            DO 70 M=1,N
+               A=VECTOR(M,J)
+               B=VECTOR(M,I)
+               VECTOR(M,J)=ALPHA*A+BETA*B
+               VECTOR(M,I)=ALPHA*B-BETA*A
+   70       CONTINUE
+   80    CONTINUE
+   90 CONTINUE
       RETURN
       END

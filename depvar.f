@@ -1,6 +1,6 @@
-
       SUBROUTINE DEPVAR (A,I,W,L)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION A(3,*)
 C***********************************************************************
 C
 C  IN SUBROUTINE HADDON WHEN M, THE SYMMETRY OPERATION, IS 18 DEPVAR IS
@@ -19,5 +19,17 @@ C
 C  NOTE:  IT IS THE WRITER'S RESPONSIBILITY TO MAKE CERTAIN THAT THE
 C         SUBROUTINE DOES NOT CONTAIN ANY ERRORS!
 C***********************************************************************
+      COMMON /KEYWRD/ KEYWRD
+      CHARACTER*80 KEYWRD
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+      IF (FIRST) THEN
+         FIRST=.FALSE.
+         FACT=READA(KEYWRD,INDEX(KEYWRD,'DEPVAR='))
+         WRITE(6,'(''  UNIT CELL LENGTH ='',F14.7,
+     1'' TIMES BOND LENGTH'')')FACT
+      ENDIF
+      W=A(1,I)*FACT
+      L=1
       RETURN
       END

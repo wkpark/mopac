@@ -1,4 +1,3 @@
-
       SUBROUTINE EXCHNG (A,B,C,D,X,Y,T,Q,N)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*), Y(*)
@@ -16,5 +15,5 @@ C********************************************************************
          Y(I)=X(I)
    10 CONTINUE
       RETURN
-
+C
       END

@@ -1,15 +1,15 @@
       SUBROUTINE DIAT2(NA,ESA,EPA,R12,NB,ESB,EPB,S)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION S(3,3,3)
-C*************************************************************************
+C***********************************************************************
 C
 C OVERLP CALCULATES OVERLAPS BETWEEN ATOMIC ORBITALS FOR PAIRS OF ATOMS
 C        IT CAN HANDLE THE ORBITALS 1S, 2S, 3S, 2P, AND 3P.
 C
-C*************************************************************************
+C***********************************************************************
       COMMON /SETC/ A(7),B(7),SA,SB,FACTOR,ISP,IPS
       DIMENSION INMB(17),III(78)
-      DATA INMB/1,0,0,2,3,4,5,6,7,0,0,0,8,9,10,11,12/
+      DATA INMB/1,0,2,2,3,4,5,6,7,0,8,8,8,9,10,11,12/
 C     NUMBERING CORRESPONDS TO BOND TYPE MATRIX GIVEN ABOVE
 C      THE CODE IS
 C
@@ -31,16 +31,16 @@ C
       NBOND=(JMAX*(JMAX-1))/2+JMIN
       II=III(NBOND)
       DO 10 I=1,3
-      DO 10 J=1,3
-      DO 10 K=1,3
-  10  S(I,J,K)=0.D0
+         DO 10 J=1,3
+            DO 10 K=1,3
+   10 S(I,J,K)=0.D0
       RAB=R12/0.529167D0
-      GO TO (20,30,40,50,60,70), II
+      GOTO (20,30,40,50,60,70), II
 C
 C     ------------------------------------------------------------------
 C *** THE ORDERING OF THE ELEMENTS WITHIN S IS
-C *** S(1,1,1)=(S(B)/S(A))   
-C *** S(1,2,1)=(P-SIGMA(B)/S(A))   
+C *** S(1,1,1)=(S(B)/S(A))
+C *** S(1,2,1)=(P-SIGMA(B)/S(A))
 C *** S(2,1,1)=(S(B)/P-SIGMA(A))
 C *** S(2,2,1)=(P-SIGMA(B)/P-SIGMA(A))
 C *** S(2,2,2)=(P-PI(B)/P-PI(A))
@@ -69,12 +69,12 @@ C
       W=SQRT((SA**3)*(SB**7)/7.5D00)*(RAB**5)*0.0625D00
       SROOT3 = SQRT(3.D00)
       S(1,1,1)=W*(A(5)*B(1)-B(5)*A(1)+
-     +2.D00*(A(4)*B(2)-B(4)*A(2)))/SROOT3
+     12.D00*(A(4)*B(2)-B(4)*A(2)))/SROOT3
       IF (NA.GT.1) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
       IF (NB.GT.1) CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
       W=SQRT((SA**3)*(SB**7)/7.5D00)*(RAB**5)*0.0625D00
       S(ISP,IPS,1)=W*(A(4)*(B(1)+B(3))-B(4)*(A(1)+A(3))+
-     +B(2)*(A(3)+A(5))-A(2)*(B(3)+B(5)))
+     1B(2)*(A(3)+A(5))-A(2)*(B(3)+B(5)))
       RETURN
 C
 C *** SECOND ROW - SECOND ROW OVERLAPS
@@ -100,7 +100,7 @@ C
       S(2,2,1)=-W*(B(3)*(A(5)+A(1))-A(3)*(B(5)+B(1)))
       HD = .5D00
       S(2,2,2)=HD*W*(A(5)*(B(1)-B(3))-B(5)*(A(1)-A(3))
-     +-A(3)*B(1)+B(3)*A(1))
+     1-A(3)*B(1)+B(3)*A(1))
       RETURN
 C
 C *** SECOND ROW - THIRD ROW OVERLAPS
@@ -110,8 +110,8 @@ C
       RT3 = 1.D00 / SQRT(3.D00)
       TD = 2.D00
       S(1,1,1)=W*(A(6)*B(1)+A(5)*B(2)-TD*(A(4)*B(3)+
-     +A(3)*B(4))+A(2)*B(5)+A(
-     11)*B(6))/3.D00
+     1A(3)*B(4))+A(2)*B(5)+A(
+     21)*B(6))/3.D00
       CALL SET (ESA,EPB,NA,NB,RAB,NBOND,II)
       IF (NA.GT.NB) CALL SET (EPA,ESB,NA,NB,RAB,NBOND,II)
       W=SQRT((SA**5)*(SB**7)/7.5D00)*(RAB**6)*0.03125D00
@@ -127,11 +127,11 @@ C
       CALL SET (EPA,EPB,NA,NB,RAB,NBOND,II)
       W=SQRT((SA**5)*SB**7/7.5D00)*(RAB**6)*0.03125D00
       S(2,2,1)=-W*(B(4)*(A(1)+A(5))-A(4)*(B(1)+B(5))
-     ++B(3)*(A(2)+A(6))-A(3)*(B(2)+B(6)))
+     1+B(3)*(A(2)+A(6))-A(3)*(B(2)+B(6)))
       HD = .5D00
       S(2,2,2)=HD*W*(A(6)*(B(1)-B(3))-B(6)*(A(1)-
-     +A(3))+A(5)*(B(2)-B(4))-B(5
-     1)*(A(2)-A(4))-A(4)*B(1)+B(4)*A(1)-A(3)*B(2)+B(3)*A(2))
+     1A(3))+A(5)*(B(2)-B(4))-B(5
+     2)*(A(2)-A(4))-A(4)*B(1)+B(4)*A(1)-A(3)*B(2)+B(3)*A(2))
       RETURN
 C
 C *** THIRD ROW - THIRD ROW OVERLAPS
@@ -156,29 +156,29 @@ C
       W=SQRT((SA*SB*RAB*RAB)**7)/480.D00
       TD = 2.D00
       S(2,2,1)=-W*(A(3)*(B(7)+TD*B(3))-A(5)*(B(1)+
-     +TD*B(5))-B(5)*A(1)+A(7)*B(3))
+     1TD*B(5))-B(5)*A(1)+A(7)*B(3))
       HD = .5D00
       S(2,2,2)=HD*W*(A(7)*(B(1)-B(3))+B(7)*(A(1)-
-     +A(3))+A(5)*(B(5)-B(3)-B(1)
-     1)+B(5)*(A(5)-A(3)-A(1))+2.D00*A(3)*B(3))
+     1A(3))+A(5)*(B(5)-B(3)-B(1)
+     2)+B(5)*(A(5)-A(3)-A(1))+2.D00*A(3)*B(3))
       RETURN
 C
       END
       SUBROUTINE SET (S1,S2,NA,NB,RAB,NBOND,II)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       COMMON /SETC/ A(7),B(7),SA,SB,FACTOR,ISP,IPS
-C****************************************************************************
+C***********************************************************************
 C
 C     SET IS PART OF THE OVERLAP CALCULATION, CALLED BY OVERLP.
 C         IT CALLS AINTGS AND BINTGS
 C
-C****************************************************************************
+C***********************************************************************
       IF (NA.GT.NB) GO TO 10
       ISP=1
       IPS=2
       SA=S1
       SB=S2
-      GO TO 20
+      GOTO 20
    10 ISP=2
       IPS=1
       SA=S2
@@ -196,15 +196,15 @@ C
       SUBROUTINE AINTGS (X,K)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       COMMON /SETC/ A(7),B(7),SDUM(3),IDUM(2)
-C*************************************************************************
+C***********************************************************************
 C
 C    AINTGS FORMS THE "A" INTEGRALS FOR THE OVERLAP CALCULATION.
 C
-C*************************************************************************
+C***********************************************************************
       C=EXP(-X)
       A(1)=C/X
       DO 10 I=1,K
-         A(I+1)=(A(I)*DFLOAT(I)+C)/X
+         A(I+1)=(A(I)*I+C)/X
    10 CONTINUE
       RETURN
 C
@@ -219,8 +219,8 @@ C     BINTGS FORMS THE "B" INTEGRALS FOR THE OVERLAP CALCULATION.
 C
 C**********************************************************************
       DATA FACT/1.D0,2.D0,6.D0,24.D0,120.D0,720.D0,5040.D0,40320.D0,
-     +362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0,
-     18.71782912D10,1.307674368D12,2.092278989D13,3.556874281D14/
+     1362880.D0,3628800.D0,39916800.D0,479001600.D0,6227020800.D0,
+     28.71782912D10,1.307674368D12,2.092278989D13,3.556874281D14/
       IO=0
       ABSX = ABS(X)
       IF (ABSX.GT.3.D00) GO TO 40
@@ -243,18 +243,18 @@ C**********************************************************************
       EXPMX=1.D00/EXPX
       B(1)=(EXPX-EXPMX)/X
       DO 50 I=1,K
-   50 B(I+1)=(DFLOAT(I)*B(I)+(-1.D00)**I*EXPX-EXPMX)/X
+   50 B(I+1)=(I*B(I)+(-1.D00)**I*EXPX-EXPMX)/X
       GO TO 110
    60 DO 80 I=IO,K
          Y=0.0D00
          DO 70 M=IO,LAST
-         XF=1.0D00
-         IF(M.NE.0) XF=FACT(M)
-   70    Y=Y+(-X)**M*DFLOAT(2*MOD(M+I+1,2))/(XF*DFLOAT(M+I+1))
+            XF=1.0D00
+            IF(M.NE.0) XF=FACT(M)
+   70    Y=Y+(-X)**M*(2*MOD(M+I+1,2))/(XF*(M+I+1))
    80 B(I+1)=Y
       GO TO 110
    90 DO 100 I=IO,K
-  100 B(I+1)=DFLOAT(2*MOD(I+1,2))/DFLOAT(I+1)
+  100 B(I+1)=(2*MOD(I+1,2))/(I+1.D0)
   110 CONTINUE
       RETURN
 C

@@ -42,33 +42,33 @@ C   MAX. SIZE OF MATRICES = 200, NV= (200*(200+1))/2
 C
       NV=20100
       NM=N
-      IF (N .LE. NM) GO TO 5
+      IF (N .LE. NM) GO TO 10
       IERR = 10 * N
-      GO TO 50
-    5 IF (NV .GE. (N * (N + 1)) / 2) GO TO 10
+      GO TO 60
+   10 IF (NV .GE. (N * (N + 1)) / 2) GO TO 20
       IERR = 20 * N
-      GO TO 50
+      GO TO 60
 C
-   10 CALL  TRED3(N,NV,A,W,FV1,FV2)
-      IF (MATZ .NE. 0) GO TO 20
+   20 CALL  TRED3(N,NV,A,W,FV1,FV2)
+      IF (MATZ .NE. 0) GO TO 30
 C     ********** FIND EIGENVALUES ONLY **********
       CALL  TQLRAT(N,W,FV2,IERR)
-      GO TO 50
+      GO TO 60
 C     ********** FIND BOTH EIGENVALUES AND EIGENVECTORS **********
-   20 DO 40    I = 1, N
+   30 DO 50    I = 1, N
 C
-      DO 30    J = 1, N
-      Z(J,I)=0.0D0
-   30    CONTINUE
+         DO 40    J = 1, N
+            Z(J,I)=0.0D0
+   40    CONTINUE
 C
-      Z(I,I)=1.0D0
-   40 CONTINUE
+         Z(I,I)=1.0D0
+   50 CONTINUE
 C
       CALL  TQL2(NM,N,W,FV1,Z,IERR)
-      IF (IERR .NE. 0) GO TO 50
+      IF (IERR .NE. 0) GO TO 60
       CALL  TRBAK3(NM,N,NV,A,N,Z)
 C     ********** LAST CARD OF RSP **********
-   50 RETURN
+   60 RETURN
       END
 C
 C     ------------------------------------------------------------------
@@ -144,108 +144,108 @@ C                **********
       MACHEP = 2.D0**(-51)
 C
       IERR = 0
-      IF (N .EQ. 1) GO TO 1001
+      IF (N .EQ. 1) GO TO 160
 C
-      DO 100   I = 2, N
-  100 E(I-1) = E(I)
+      DO 10   I = 2, N
+   10 E(I-1) = E(I)
 C
       F=0.0D0
       B=0.0D0
       E(N)=0.0D0
 C
-      DO 240   L = 1, N
+      DO 110   L = 1, N
          J = 0
-      H=MACHEP*(ABS (D(L))+ABS (E(L)))
-      IF (B .LT. H) B=H
+         H=MACHEP*(ABS (D(L))+ABS (E(L)))
+         IF (B .LT. H) B=H
 C     ********** LOOK FOR SMALL SUB-DIAGONAL ELEMENT **********
-      DO 110   M = L, N
-      IF (ABS (E(M)).LE.B)  GO TO 120
+         DO 20   M = L, N
+            IF (ABS (E(M)).LE.B)  GO TO 30
 C     ********** E(N) IS ALWAYS ZERO, SO THERE IS NO EXIT
 C                THROUGH THE BOTTOM OF THE LOOP **********
-  110    CONTINUE
+   20    CONTINUE
 C
-  120    IF (M .EQ. L) GO TO 220
-  130    IF (J .EQ. 30) GO TO 1000
+   30    IF (M .EQ. L) GO TO 100
+   40    IF (J .EQ. 30) GO TO 150
          J = J + 1
 C     ********** FORM SHIFT **********
          L1 = L + 1
          G = D(L)
-      P=(D(L1)-G)/(2.0D0*E(L))
-      R=SQRT (P*P+1.0D0)
-      D(L)=E(L)/(P+SIGN (R,P))
+         P=(D(L1)-G)/(2.0D0*E(L))
+         R=SQRT (P*P+1.0D0)
+         D(L)=E(L)/(P+SIGN (R,P))
          H = G - D(L)
 C
-      DO 140   I = L1, N
-  140    D(I) = D(I) - H
+         DO 50   I = L1, N
+   50    D(I) = D(I) - H
 C
          F = F + H
 C     ********** QL TRANSFORMATION **********
          P = D(M)
-      C=1.0D0
-      S=0.0D0
+         C=1.0D0
+         S=0.0D0
          MML = M - L
 C     ********** FOR I=M-1 STEP -1 UNTIL L DO -- **********
-      DO 200   II = 1, MML
+         DO 90   II = 1, MML
             I = M - II
             G = C * E(I)
             H = C * P
-      IF (ABS (P).LT.ABS (E(I)))  GO TO 150
+            IF (ABS (P).LT.ABS (E(I)))  GO TO 60
             C = E(I) / P
-      R=SQRT (C*C+1.0D0)
+            R=SQRT (C*C+1.0D0)
             E(I+1) = S * P * R
             S = C / R
-      C=1.0D0/R
-            GO TO 160
-  150       C = P / E(I)
-      R=SQRT (C*C+1.0D0)
+            C=1.0D0/R
+            GO TO 70
+   60       C = P / E(I)
+            R=SQRT (C*C+1.0D0)
             E(I+1) = S * E(I) * R
-      S=1.0D0/R
+            S=1.0D0/R
             C = C * S
-  160       P = C * D(I) - S * G
+   70       P = C * D(I) - S * G
             D(I+1) = H + S * (C * G + S * D(I))
 C     ********** FORM VECTOR **********
-      DO 180   K = 1, N
+            DO 80   K = 1, N
                H = Z(K,I+1)
                Z(K,I+1) = S * Z(K,I) + C * H
                Z(K,I) = C * Z(K,I) - S * H
-  180       CONTINUE
+   80       CONTINUE
 C
-  200    CONTINUE
+   90    CONTINUE
 C
          E(L) = S * P
          D(L) = C * P
-      IF (ABS (E(L)).GT.B)  GO TO 130
-  220    D(L) = D(L) + F
-  240 CONTINUE
+         IF (ABS (E(L)).GT.B)  GO TO 40
+  100    D(L) = D(L) + F
+  110 CONTINUE
 C     ********** ORDER EIGENVALUES AND EIGENVECTORS **********
-      DO 300   II = 2, N
+      DO 140   II = 2, N
          I = II - 1
          K = I
          P = D(I)
 C
-      DO 260   J = II, N
-            IF (D(J) .GE. P) GO TO 260
+         DO 120   J = II, N
+            IF (D(J) .GE. P) GO TO 120
             K = J
             P = D(J)
-  260    CONTINUE
+  120    CONTINUE
 C
-         IF (K .EQ. I) GO TO 300
+         IF (K .EQ. I) GO TO 140
          D(K) = D(I)
          D(I) = P
 C
-      DO 280   J = 1, N
+         DO 130   J = 1, N
             P = Z(J,I)
             Z(J,I) = Z(J,K)
             Z(J,K) = P
-  280    CONTINUE
+  130    CONTINUE
 C
-  300 CONTINUE
+  140 CONTINUE
 C
-      GO TO 1001
+      GO TO 160
 C     ********** SET ERROR -- NO CONVERGENCE TO AN
 C                EIGENVALUE AFTER 30 ITERATIONS **********
- 1000 IERR = L
- 1001 RETURN
+  150 IERR = L
+  160 RETURN
 C     ********** LAST CARD OF TQL2 **********
       END
 C
@@ -304,52 +304,52 @@ C                **********
       MACHEP = 2.D0 **(-47)
 C
       IERR = 0
-      IF (N .EQ. 1) GO TO 1001
+      IF (N .EQ. 1) GO TO 140
 C
-      DO 100   I = 2, N
-  100 E2(I-1) = E2(I)
+      DO 10   I = 2, N
+   10 E2(I-1) = E2(I)
 C
       F=0.0D0
       B=0.0D0
       E2(N)=0.0D0
 C
-      DO 290   L = 1, N
+      DO 120   L = 1, N
          J = 0
-      H=MACHEP*(ABS (D(L))+SQRT (E2(L)))
-         IF (B .GT. H) GO TO 105
+         H=MACHEP*(ABS (D(L))+SQRT (E2(L)))
+         IF (B .GT. H) GO TO 20
          B = H
          C = B * B
 C     ********** LOOK FOR SMALL SQUARED SUB-DIAGONAL ELEMENT **********
-  105 DO 110   M = L, N
-            IF (E2(M) .LE. C) GO TO 120
+   20    DO 30   M = L, N
+            IF (E2(M) .LE. C) GO TO 40
 C     ********** E2(N) IS ALWAYS ZERO, SO THERE IS NO EXIT
 C                THROUGH THE BOTTOM OF THE LOOP **********
-  110    CONTINUE
+   30    CONTINUE
 C
-  120    IF (M .EQ. L) GO TO 210
-  130    IF (J .EQ. 30) GO TO 1000
+   40    IF (M .EQ. L) GO TO 80
+   50    IF (J .EQ. 30) GO TO 130
          J = J + 1
 C     ********** FORM SHIFT **********
          L1 = L + 1
-      S=SQRT (E2(L))
+         S=SQRT (E2(L))
          G = D(L)
-      P=(D(L1)-G)/(2.0D0*S)
-      R=SQRT (P*P+1.0D0)
-      D(L)=S/(P+SIGN (R,P))
+         P=(D(L1)-G)/(2.0D0*S)
+         R=SQRT (P*P+1.0D0)
+         D(L)=S/(P+SIGN (R,P))
          H = G - D(L)
 C
-      DO 140   I = L1, N
-  140    D(I) = D(I) - H
+         DO 60   I = L1, N
+   60    D(I) = D(I) - H
 C
          F = F + H
 C     ********** RATIONAL QL TRANSFORMATION **********
          G = D(M)
-      IF (G.EQ.0.0D0) G=B
+         IF (G.EQ.0.0D0) G=B
          H = G
-      S=0.0D0
+         S=0.0D0
          MML = M - L
 C     ********** FOR I=M-1 STEP -1 UNTIL L DO -- **********
-      DO 200   II = 1, MML
+         DO 70   II = 1, MML
             I = M - II
             P = G * H
             R = P + E2(I)
@@ -357,36 +357,36 @@ C     ********** FOR I=M-1 STEP -1 UNTIL L DO -- **********
             S = E2(I) / R
             D(I+1) = H + S * (H + D(I))
             G = D(I) - E2(I) / G
-      IF (G.EQ.0.0D0) G=B
+            IF (G.EQ.0.0D0) G=B
             H = G * P / R
-  200    CONTINUE
+   70    CONTINUE
 C
          E2(L) = S * G
          D(L) = H
 C     ********** GUARD AGAINST UNDERFLOW IN CONVERGENCE TEST **********
-      IF (H.EQ.0.0D0)  GO TO 210
-      IF (ABS (E2(L)).LE.ABS (C/H))  GO TO 210
+         IF (H.EQ.0.0D0)  GO TO 80
+         IF (ABS (E2(L)).LE.ABS (C/H))  GO TO 80
          E2(L) = H * E2(L)
-      IF (E2(L).NE.0.0D0)  GO TO 130
-  210    P = D(L) + F
+         IF (E2(L).NE.0.0D0)  GO TO 50
+   80    P = D(L) + F
 C     ********** ORDER EIGENVALUES **********
-         IF (L .EQ. 1) GO TO 250
+         IF (L .EQ. 1) GO TO 100
 C     ********** FOR I=L STEP -1 UNTIL 2 DO -- **********
-      DO 230   II = 2, L
+         DO 90   II = 2, L
             I = L + 2 - II
-            IF (P .GE. D(I-1)) GO TO 270
+            IF (P .GE. D(I-1)) GO TO 110
             D(I) = D(I-1)
-  230    CONTINUE
+   90    CONTINUE
 C
-  250    I = 1
-  270    D(I) = P
-  290 CONTINUE
+  100    I = 1
+  110    D(I) = P
+  120 CONTINUE
 C
-      GO TO 1001
+      GO TO 140
 C     ********** SET ERROR -- NO CONVERGENCE TO AN
 C                EIGENVALUE AFTER 30 ITERATIONS **********
- 1000 IERR = L
- 1001 RETURN
+  130 IERR = L
+  140 RETURN
 C     ********** LAST CARD OF TQLRAT **********
       END
 C
@@ -442,38 +442,38 @@ C     APPLIED MATHEMATICS DIVISION, ARGONNE NATIONAL LABORATORY
 C
 C     ------------------------------------------------------------------
 C
-      IF (M .EQ. 0) GO TO 200
-      IF (N .EQ. 1) GO TO 200
+      IF (M .EQ. 0) GO TO 50
+      IF (N .EQ. 1) GO TO 50
 C
-      DO 140   I = 2, N
+      DO 40   I = 2, N
          L = I - 1
          IZ = (I * L) / 2
          IK = IZ + I
          H = A(IK)
-      IF (H.EQ.0.0D0)  GO TO 140
+         IF (H.EQ.0.0D0)  GO TO 40
 C
-      DO 130   J = 1, M
-      S=0.0D0
+         DO 30   J = 1, M
+            S=0.0D0
             IK = IZ
 C
-      DO 110   K = 1, L
+            DO 10   K = 1, L
                IK = IK + 1
                S = S + A(IK) * Z(K,J)
-  110       CONTINUE
+   10       CONTINUE
 C     ********** DOUBLE DIVISION AVOIDS POSSIBLE UNDERFLOW **********
             S = (S / H) / H
             IK = IZ
 C
-      DO 120   K = 1, L
+            DO 20   K = 1, L
                IK = IK + 1
                Z(K,J) = Z(K,J) - S * A(IK)
-  120       CONTINUE
+   20       CONTINUE
 C
-  130    CONTINUE
+   30    CONTINUE
 C
-  140 CONTINUE
+   40 CONTINUE
 C
-  200 RETURN
+   50 RETURN
 C     ********** LAST CARD OF TRBAK3 **********
       END
 C
@@ -528,76 +528,76 @@ C
 C     ------------------------------------------------------------------
 C
 C     ********** FOR I=N STEP -1 UNTIL 1 DO -- **********
-      DO 300   II = 1, N
+      DO 110   II = 1, N
          I = N + 1 - II
          L = I - 1
          IZ = ( I * L ) / 2
-      H=0.0D0
-      SCALE=0.0D0
-         IF (L .LT. 1) GO TO 130
+         H=0.0D0
+         SCALE=0.0D0
+         IF (L .LT. 1) GO TO 20
 C     ********** SCALE ROW (ALGOL TOL THEN NOT NEEDED) **********
-      DO 120   K = 1, L
+         DO 10   K = 1, L
             IZ = IZ + 1
             D(K) = A(IZ)
-      SCALE=SCALE+ABS( D(K) )
-  120    CONTINUE
+            SCALE=SCALE+ABS( D(K) )
+   10    CONTINUE
 C
-      IF ( SCALE.NE.0.0D0 ) GO TO 140
-  130 E(I)=0.0D0
-      E2(I)=0.0D0
-         GO TO 290
+         IF ( SCALE.NE.0.0D0 ) GO TO 30
+   20    E(I)=0.0D0
+         E2(I)=0.0D0
+         GO TO 100
 C
-  140 DO 150   K = 1, L
+   30    DO 40   K = 1, L
             D(K) = D(K) / SCALE
             H = H + D(K) * D(K)
-  150    CONTINUE
+   40    CONTINUE
 C
          E2(I) = SCALE * SCALE * H
          F = D(L)
-      G=-SIGN (SQRT (H),F)
+         G=-SIGN (SQRT (H),F)
          E(I) = SCALE * G
          H = H - F * G
          D(L) = F - G
          A(IZ) = SCALE * D(L)
-         IF (L .EQ. 1) GO TO 290
-      F=0.0D0
+         IF (L .EQ. 1) GO TO 100
+         F=0.0D0
 C
-      DO 240   J = 1, L
-      G=0.0D0
+         DO 80   J = 1, L
+            G=0.0D0
             JK = (J * (J-1)) / 2
 C     ********** FORM ELEMENT OF A*U **********
             K = 0
-  180          K = K + 1
-               JK = JK + 1
-               G = G + A(JK) * D(K)
-          IF ( K .LT. J ) GO TO 180
-          IF ( K .EQ. L ) GO TO 220
-  200          JK = JK + K
-               K = K + 1
-               G = G + A(JK) * D(K)
-          IF ( K .LT. L ) GO TO 200
+   50       K = K + 1
+            JK = JK + 1
+            G = G + A(JK) * D(K)
+            IF ( K .LT. J ) GO TO 50
+            IF ( K .EQ. L ) GO TO 70
+   60       JK = JK + K
+            K = K + 1
+            G = G + A(JK) * D(K)
+            IF ( K .LT. L ) GO TO 60
 C     ********** FORM ELEMENT OF P **********
-  220 CONTINUE
+   70       CONTINUE
             E(J) = G / H
             F = F + E(J) * D(J)
-  240    CONTINUE
+   80    CONTINUE
 C
          HH = F / (H + H)
          JK = 0
 C     ********** FORM REDUCED A **********
-      DO 260   J = 1, L
+         DO 90   J = 1, L
             F = D(J)
             G = E(J) - HH * F
             E(J) = G
 C
-      DO 260   K = 1, J
+            DO 90   K = 1, J
                JK = JK + 1
                A(JK) = A(JK) - F * E(K) - G * D(K)
-  260    CONTINUE
+   90    CONTINUE
 C
-  290    D(I) = A(IZ+1)
-      A(IZ+1)=SCALE*SQRT (H)
-  300 CONTINUE
+  100    D(I) = A(IZ+1)
+         A(IZ+1)=SCALE*SQRT (H)
+  110 CONTINUE
 C
       RETURN
 C     ********** LAST CARD OF TRED3 **********
