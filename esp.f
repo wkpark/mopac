@@ -659,7 +659,7 @@ C***********************************************************************
       COMMON /POTESP/ XC,YC,ZC,ESPNUC,ESPELE,NESP
       COMMON /ABC/    CO(3,NUMATM),IAN(NUMATM),NATOM
       COMMON /WORK1/  POTPT(3,MESP), ES(MESP), ESP(MESP), WORK1D(2*MESP)
-      COMMON /STO6G/  ALLC(6,5,2),ALLZ(6,5,2)
+      COMMON /STO6G/  ALLC(6,6,2),ALLZ(6,6,2)
       COMMON /VECTOR/ C(MORB2*2+MAXORB*2)
       COMMON /MOLKST/ NUMAT,NAT(NUMATM),NFIRST(NUMATM),NMIDLE(NUMATM),
      1                NLAST(NUMATM), NORBS, NELECS,NALPHA,NBETA,
@@ -1208,7 +1208,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
       COMMON /NATYPE/ NZTYPE(107),MTYPE(30),LTYPE
-      COMMON /STO6G/ ALLC(6,5,2),ALLZ(6,5,2)
+      COMMON /STO6G/ ALLC(6,6,2),ALLZ(6,6,2)
 C     SET-UP THE STEWART'S STO-3G EXPANSIONS
 C     FROM J. CHEM. PHYS. 52 431.
 C                                            1S
@@ -1315,7 +1315,7 @@ C***********************************************************************
       COMMON /ABC/    CO(3,NUMATM),IAN(NUMATM),NATOM
       COMMON /WORK1/  POTPT(3,MESP), ES(MESP), ESP(MESP), WORK1D(2*MESP)
       COMMON /EXPONT/ ZS(107),ZP(107),ZD(107)
-      COMMON /STO6G/  ALLC(6,5,2),ALLZ(6,5,2)
+      COMMON /STO6G/  ALLC(6,6,2),ALLZ(6,6,2)
       COMMON /ESPC/ CC(MAXPR),CEN(MAXPR,3),IAM(MAXPR,2),IND(MAXPR),
      1EX(MAXPR),ESPI(MAXORB,MAXORB),FV(0:8,821),
      2FAC(0:7),DEX(-1:96),TF(0:2),
@@ -1462,7 +1462,7 @@ C***********************************************************************
       COMMON /ABC/    CO(3,NUMATM),IAN(NUMATM),NATOM
       COMMON /WORK1/  POTPT(3,MESP), ES(MESP), ESP(MESP), WORK1D(2*MESP)
       COMMON /EXPONT/ ZS(107),ZP(107),ZD(107)
-      COMMON /STO6G/  ALLC(6,5,2),ALLZ(6,5,2)
+      COMMON /STO6G/  ALLC(6,6,2),ALLZ(6,6,2)
       COMMON /ESPC/ CC(MAXPR),CEN(MAXPR,3),IAM(MAXPR,2),IND(MAXPR),
      1EX(MAXPR),ESPI(MAXORB,MAXORB),FV(0:8,821),
      2FAC(0:7),DEX(-1:96),TF(0:2),
@@ -1667,7 +1667,7 @@ C***********************************************************************
       COMMON /ABC/    CO(3,NUMATM),IAN(NUMATM),NATOM
       COMMON /WORK1/  POTPT(3,MESP), ES(MESP), ESP(MESP), WORK1D(2*MESP)
       COMMON /EXPONT/ ZS(107),ZP(107),ZD(107)
-      COMMON /STO6G/  ALLC(6,5,2),ALLZ(6,5,2)
+      COMMON /STO6G/  ALLC(6,6,2),ALLZ(6,6,2)
       COMMON /ESPC/ CC(MAXPR),CEN(MAXPR,3),IAM(MAXPR,2),IND(MAXPR),
      1EX(MAXPR),ESPI(MAXORB,MAXORB),FV(0:8,821),
      2FAC(0:7),DEX(-1:96),TF(0:2),
