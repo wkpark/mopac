@@ -4,7 +4,7 @@
       COMMON /PATH  / LATOM,LPARAM,REACT(100)
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), XPARAM(MAXPAR)
       COMMON /KEYWRD/ KEYWRD
-      COMMON /GMETRY/ GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM)
       COMMON /ALPARM/ ALPARM(3,MAXPAR),ILOOP, X0, X1, X2
 *************************************************************************** 
 *

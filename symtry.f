@@ -2,7 +2,7 @@
       SUBROUTINE SYMTRY
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'SIZES'
-      COMMON /GMETRY/ GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM)
       COMMON /GEOSYM/ NDEP, LOCPAR(200), IDEPFN(200), LOCDEP(200)
 C**********************************************************************
 C

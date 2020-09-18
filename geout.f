@@ -7,7 +7,7 @@
 *         FROM ANY POINT IN THE PROGRAM AND DOES NOT AFFECT ANYTHING. 
 *
 **********************************************************************
-      COMMON /GMETRY/ GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM)
       COMMON /GEOKST/ NATOMS,LABELS(NUMATM),
      +NA(NUMATM),NB(NUMATM),NC(NUMATM)
       COMMON /GEOVAR/ NVAR,LOC(2,MAXPAR),XPARAM(MAXPAR)
