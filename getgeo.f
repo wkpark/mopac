@@ -23,6 +23,7 @@
 *****************************************************************************
       COMMON /ATMASS/ ATMASS(NUMATM)
       DIMENSION ISTART(40)
+      LOGICAL LEADSP
       CHARACTER ELEMNT(99)*2, LINE*80, SPACE*1, NINE*1,ZERO*1,
      +TAB*1, COMMA*1, UPCASE*80, STRING*80, ELE*2
       DATA (ELEMNT(I),I=1,99)/'H','HE',
