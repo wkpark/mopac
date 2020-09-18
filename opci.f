@@ -1,6 +1,6 @@
       FUNCTION OPCI(EE,XKKKK,XLLLL,XKLLK)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
 *****************************************************************************
 *
 *     OPCI PERFORMS A 3X3 CI BASED ON THE SCFMOS OF THE GROUND STATE, 

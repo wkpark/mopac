@@ -1,6 +1,6 @@
       SUBROUTINE PARSAV(MODE,N,M)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
 **********************************************************************
 *
 *   PARSAV SAVES AND RESTORES DATA USED IN NLLSQ GRADIENT MINIMIZATION.

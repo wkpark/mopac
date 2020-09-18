@@ -1,6 +1,6 @@
       SUBROUTINE FMAT(GEO, FMATRX, TSCF, TDER, DELDIP, HEATAA)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
       DIMENSION GEO(3,*), FMATRX(*), DELDIP(3,*)
 ***********************************************************************
 *

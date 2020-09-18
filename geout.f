@@ -1,6 +1,6 @@
       SUBROUTINE GEOUT
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
 **********************************************************************
 *
 *   GEOUT PRINTS THE CURRENT GEOMETRY.  IT CAN BE CALLED ANY TIME,

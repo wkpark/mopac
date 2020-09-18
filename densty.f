@@ -1,4 +1,4 @@
-      SUBROUTINE DENSTY( C,MDIM, NORBS,NDUBL, NSINGL, P)
+      SUBROUTINE DENSIT( C,MDIM, NORBS,NDUBL, NSINGL, P)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION P(*), C(MDIM,*)
 C***********************************************************************

@@ -1,6 +1,6 @@
       SUBROUTINE SEARCH(XPARAM,ALPHA,SIG,NVAR,GMIN,OKC,OKF)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
       DIMENSION XPARAM(*), SIG(*)
 *************************************************************************
 *

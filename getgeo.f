@@ -53,7 +53,7 @@
 *  UPCASE IS MACHINE DEPENDENT CODE!!!! 
 *  IF YOUR MACHINE DOES NOT HAVE LOWER CASE, REMOVE THE FOLLOWING LINE
 *      LINE=UPCASE(LINE) 
-       I=STR$UPCASE(LINE,LINE)
+*      I=STR$UPCASE(LINE,LINE)
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 *****************************************************************************
       DO 9 I=1,80

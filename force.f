@@ -10,7 +10,7 @@
       COMMON /KEYWRD/ KEYWRD
       COMMON /GRADNT/ GRAD(MAXPAR),GNORM
       COMMON /VECTOR/ CNORML(MORB22),FREQ(MAXOR2)
-      COMMON /GMETRY/ GEO(3,NUMATM)
+      COMMON /GEOM  / GEO(3,NUMATM)
 ***********************************************************************
 *
 *   FORCE CALCULATES THE FORCE CONSTANTS FOR THE MOLECULE, AND THE

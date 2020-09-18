@@ -1,6 +1,6 @@
       SUBROUTINE POWSAV(HESS, GRAD, XPARAM, PMAT, ILOOP, BMAT, IPOW)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
       DIMENSION HESS(97,*),GRAD(*),BMAT(97,*),IPOW(9), XPARAM(*)
      +, PMAT(*)
 **********************************************************************

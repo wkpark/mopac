@@ -1,6 +1,6 @@
       SUBROUTINE FREQCY(FMATRX,FREQ,CNORML,REDMAS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
       DIMENSION FMATRX(*), REDMAS(*), FREQ(*), CNORML(*)
 *********************************************************************
 *

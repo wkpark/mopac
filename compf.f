@@ -1,6 +1,6 @@
       SUBROUTINE COMPF(NUMPAR,NUMVAR,VALVAR,SUMERR,DIFFS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INCLUDE 'SIZES/NOLIST'
+      INCLUDE 'SIZES'
       DIMENSION DIFFS(*), VALVAR(*)
       COMMON /GEOVAR/ NVAR, LOC(2,MAXPAR), XPARAM(MAXPAR)
 ***************************************************************************
