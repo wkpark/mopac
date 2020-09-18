@@ -325,3 +325,483 @@ C
   620 FORMAT(I3,F10.5,2F15.10)
   630 FORMAT(10X)
       END
+      SUBROUTINE SPLINE
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+      LOGICAL SKIP1,SKIP2
+C
+C     FIT F(X) BY A CUBIC SPLINE GIVEN VALUES OF THE FUNCTION
+C     AND ITS FIRST DERIVATIVE AT N PNTS.
+C     SUBROUTINE RETURNS VALUES OF XMIN,FMIN, AND DFMIN
+C     AND MAY REORDER THE DATA.
+C     CALLING PROGRAM SUPPLIES ALL OTHER VALUES IN THE
+C     COMMON BLOCK.
+C     XLOW AND XHIGH SET LIMITS ON THE INTERVAL WITHIN WHICH
+C     TO SEARCH.  SUBROUTINE MAY FURTHER REDUCE THIS INTERVAL.
+C
+      COMMON/FIT/N,IDUM2,XLOW,XHIGH,XMIN,FMIN,DFMIN,X(12),F(12),DF(12)
+      DATA CLOSE, BIG, HUGE, USTEP, DSTEP/1.0E-8,500.0,1.0E+10,1.0,2.0/
+C
+C     SUBROUTINE ASSUMES THAT THE FIRST N-1 DATA PNTS HAVE BEEN
+C     PREVIOUSLY ORDERED,  X(I).LT.X(I+1) FOR I=1,2,...,N-2
+C     NOW MOVE NTH POINT TO ITS PROPER PLACE.
+C
+      XMIN=X(N)
+      FMIN=F(N)
+      DFMIN=DF(N)
+      N1=N-1
+      K=N1
+   10 IF(X(K).LT.XMIN) GO TO 20
+      X(K+1)=X(K)
+      F(K+1)=F(K)
+      DF(K+1)=DF(K)
+      K=K-1
+      IF(K.GT.0) GO TO 10
+   20 X(K+1)=XMIN
+      F(K+1)=FMIN
+      DF(K+1)=DFMIN
+C
+C     DEFINE THE INTERVAL WITHIN WHICH WE TRUST THE SPLINE FIT.
+C     USTEP =  UP HILL STEP SIZE FACTOR
+C     DSTEP = DOWN HILL STEP SIZE FACTOR
+C
+      IF(DF(1).GT.0.0) STEP=DSTEP
+      IF(DF(1).LE.0.0) STEP=USTEP
+      XSTART=X(1)-STEP*(X(2)-X(1))
+      XSTART=MAX(XSTART,XLOW)
+      IF(DF(N).GT.0.0) STEP=USTEP
+      IF(DF(N).LE.0.0) STEP=DSTEP
+      XSTOP=X(N)+STEP*(X(N)-X(N1))
+      XSTOP=MIN(XSTOP,XHIGH)
+C
+C     SEARCH FOR MINIMUM
+C
+      DO 110 K=1,N1
+         SKIP1=K.NE.1
+         SKIP2=K.NE.N1
+         IF(F(K).GE.FMIN) GO TO 30
+         XMIN=X(K)
+         FMIN=F(K)
+         DFMIN=DF(K)
+   30    DX=X(K+1)-X(K)
+C
+C     SKIP INTERVAL IF PNTS ARE TOO CLOSE TOGETHER
+C
+         IF(DX.LE.CLOSE) GO TO 110
+         X1=0.0
+         IF(K.EQ.1) X1=XSTART-X(1)
+         X2=DX
+         IF(K.EQ.N1) X2=XSTOP-X(N1)
+C
+C     (A,B,C)=COEF OF (CUBIC,QUADRATIC,LINEAR) TERMS
+C
+         DUM=(F(K+1)-F(K))/DX
+         A=(DF(K)+DF(K+1)-DUM-DUM)/(DX*DX)
+         B=(DUM+DUM+DUM-DF(K)-DF(K)-DF(K+1))/DX
+         C=DF(K)
+C
+C     XK = X-X(K) AT THE MINIMUM WITHIN THE KTH SUBINTERVAL
+C     TEST FOR PATHOLOGICAL CASES.
+C
+         BB=B*B
+         AC3=(A+A+A)*C
+         IF(BB.LT.AC3) GO TO 90
+         IF( B.GT.0.0) GO TO 40
+         IF(ABS(B).GT.HUGE*ABS(A)) GO TO 90
+         GO TO 50
+   40    IF(BB.GT.BIG*ABS(AC3)) GO TO 60
+C
+C     WELL BEHAVED CUBIC
+C
+   50    XK=(-B+SQRT(BB-AC3))/(A+A+A)
+         GO TO 70
+C
+C     CUBIC IS DOMINATED BY QUADRATIC TERM
+C
+   60    R=AC3/BB
+         XK=-(((0.039063*R+0.0625)*R+0.125)*R+0.5)*C/B
+   70    IF(XK.LT.X1.OR.XK.GT.X2) GO TO 90
+   80    FM=((A*XK+B)*XK+C)*XK+F(K)
+         IF(FM.GT.FMIN) GO TO 90
+         XMIN=XK+X(K)
+         FMIN=FM
+         DFMIN=((A+A+A)*XK+B+B)*XK+C
+C
+C     EXTRAPOLATE TO END OF INTERVAL IF K=1 AND/OR K=N1
+C
+   90    IF(SKIP1) GO TO 100
+         SKIP1=.TRUE.
+         XK=X1
+         GO TO 80
+  100    IF(SKIP2) GO TO 110
+         SKIP2=.TRUE.
+         XK=X2
+         GO TO 80
+  110 CONTINUE
+      RETURN
+      END
+      SUBROUTINE SCHMIT(U,N,NDIM)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+      DIMENSION U(NDIM,NDIM)
+      DATA ZERO,SMALL,ONE/0.0,0.01,1.0/
+      II=0
+      DO 110 K=1,N
+         K1=K-1
+C
+C     NORMALIZE KTH COLUMN VECTOR
+C
+         DOT = ZERO
+         DO 10 I=1,N
+   10    DOT=DOT+U(I,K)*U(I,K)
+         IF(DOT.EQ.ZERO) GO TO 100
+         SCALE=ONE/SQRT(DOT)
+         DO 20 I=1,N
+   20    U(I,K)=SCALE*U(I,K)
+   30    IF(K1.EQ.0) GO TO 110
+         NPASS=0
+C
+C     PROJECT OUT K-1 PREVIOUS ORTHONORMAL VECTORS FROM KTH VECTOR
+C
+   40    NPASS=NPASS+1
+         DO 70 J=1,K1
+            DOT=ZERO
+            DO 50 I=1,N
+   50       DOT=DOT+U(I,J)*U(I,K)
+            DO 60 I=1,N
+   60       U(I,K)=U(I,K)-DOT*U(I,J)
+   70    CONTINUE
+C
+C     SECOND NORMALIZATION (AFTER PROJECTION)
+C     IF KTH VECTOR IS SMALL BUT NOT ZERO THEN NORMALIZE
+C     AND PROJECT AGAIN TO CONTROL ROUND-OFF ERRORS.
+C
+         DOT=ZERO
+         DO 80 I=1,N
+   80    DOT=DOT+U(I,K)*U(I,K)
+         IF(DOT.EQ.ZERO) GO TO 100
+         IF(DOT.LT.SMALL.AND.NPASS.GT.2) GO TO 100
+         SCALE=ONE/SQRT(DOT)
+         DO 90 I=1,N
+   90    U(I,K)=SCALE*U(I,K)
+         IF(DOT.LT.SMALL) GO TO 40
+         GO TO 110
+C
+C     REPLACE LINEARLY DEPENDENT KTH VECTOR BY A UNIT VECTOR.
+C
+  100    II=II+1
+C     IF(II.GT.N) STOP
+         U(II,K)=ONE
+         GO TO 30
+  110 CONTINUE
+      RETURN
+      END
+      SUBROUTINE SCHMIB(U,N,NDIM)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+C
+C     SAME AS SCHMIDT BUT WORKS FROM RIGHT TO LEFT.
+C
+      DIMENSION U(NDIM,NDIM)
+      DATA ZERO,SMALL,ONE/0.0,0.01,1.0/
+      N1=N+1
+      II=0
+      DO 110 K=1,N
+         K1=K-1
+C
+C     NORMALIZE KTH COLUMN VECTOR
+C
+         DOT = ZERO
+         DO 10 I=1,N
+   10    DOT=DOT+U(I,N1-K)*U(I,N1-K)
+         IF(DOT.EQ.ZERO) GO TO 100
+         SCALE=ONE/SQRT(DOT)
+         DO 20 I=1,N
+   20    U(I,N1-K)=SCALE*U(I,N1-K)
+   30    IF(K1.EQ.0) GO TO 110
+         NPASS=0
+C
+C     PROJECT OUT K-1 PREVIOUS ORTHONORMAL VECTORS FROM KTH VECTOR
+C
+   40    NPASS=NPASS+1
+         DO 70 J=1,K1
+            DOT=ZERO
+            DO 50 I=1,N
+   50       DOT=DOT+U(I,N1-J)*U(I,N1-K)
+            DO 60 I=1,N
+   60       U(I,N1-K)=U(I,N1-K)-DOT*U(I,N1-J)
+   70    CONTINUE
+C
+C     SECOND NORMALIZATION (AFTER PROJECTION)
+C     IF KTH VECTOR IS SMALL BUT NOT ZERO THEN NORMALIZE
+C     AND PROJECT AGAIN TO CONTROL ROUND-OFF ERRORS.
+C
+         DOT=ZERO
+         DO 80 I=1,N
+   80    DOT=DOT+U(I,N1-K)*U(I,N1-K)
+         IF(DOT.EQ.ZERO) GO TO 100
+         IF(DOT.LT.SMALL.AND.NPASS.GT.2) GO TO 100
+         SCALE=ONE/SQRT(DOT)
+         DO 90 I=1,N
+   90    U(I,N1-K)=SCALE*U(I,N1-K)
+         IF(DOT.LT.SMALL) GO TO 40
+         GO TO 110
+C
+C     REPLACE LINEARLY DEPENDENT KTH VECTOR BY A UNIT VECTOR.
+C
+  100    II=II+1
+C     IF(II.GT.N) STOP
+         U(II,N1-K)=ONE
+         GO TO 30
+  110 CONTINUE
+      RETURN
+      END
+      SUBROUTINE PULAY(F,P,N,FPPF,FOCK,EMAT,LFOCK,NFOCK,MSIZE,START,PL)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION F(*), P(*), FPPF(*), FOCK(*)
+      LOGICAL START
+************************************************************************
+*
+*   PULAY USES DR. PETER PULAY'S METHOD FOR CONVERGENCE.
+*         A MATHEMATICAL DESCRIPTION CAN BE FOUND IN
+*         "P. PULAY, J. COMP. CHEM. 3, 556 (1982).
+*
+* ARGUMENTS:-
+*         ON INPUT F      = FOCK MATRIX, PACKED, LOWER HALF TRIANGLE.
+*                  P      = DENSITY MATRIX, PACKED, LOWER HALF TRIANGLE.
+*                  N      = NUMBER OF ORBITALS.
+*                  FPPF   = WORKSTORE OF SIZE MSIZE, CONTENTS WILL BE
+*                           OVERWRITTEN.
+*                  FOCK   =      "       "              "         "
+*                  EMAT   = WORKSTORE OF AT LEAST 15**2 ELEMENTS.
+*                  START  = LOGICAL, = TRUE TO START PULAY.
+*                  PL     = UNDEFINED ELEMENT.
+*      ON OUTPUT   F      = "BEST" FOCK MATRIX, = LINEAR COMBINATION
+*                           OF KNOWN FOCK MATRICES.
+*                  START  = FALSE
+*                  PL     = MEASURE OF NON-SELF-CONSISTENCY
+*                         = [F*P] = F*P - P*F.
+*
+************************************************************************
+      COMMON /KEYWRD/ KEYWRD
+      DIMENSION EMAT(20,20), EVEC(1000), COEFFS(20)
+      CHARACTER*80 KEYWRD
+      LOGICAL FIRST, DEBUG
+      DATA FIRST/.TRUE./
+      IF(FIRST) THEN
+         FIRST=.FALSE.
+         MAXLIM=6
+         DEBUG=(INDEX(KEYWRD,'DEBUGPULAY') .NE.0)
+      ENDIF
+      IF(START) THEN
+         LINEAR=(N*(N+1))/2
+         MFOCK=MSIZE/LINEAR
+         IF(MFOCK.GT.MAXLIM)MFOCK=MAXLIM
+         IF(DEBUG)
+     1    WRITE(6,'('' MAXIMUM SIZE:'',I5)')MFOCK
+         NFOCK=1
+         LFOCK=1
+         START=.FALSE.
+      ELSE
+         IF(NFOCK.LT.MFOCK)      NFOCK=NFOCK+1
+         IF(LFOCK.NE.MFOCK)THEN
+            LFOCK=LFOCK+1
+         ELSE
+            LFOCK=1
+         ENDIF
+      ENDIF
+      LBASE=(LFOCK-1)*LINEAR
+*
+*   FIRST, STORE FOCK MATRIX FOR FUTURE REFERENCE.
+*
+      DO 10 I=1,LINEAR
+   10 FOCK((I-1)*MFOCK+LFOCK)=F(I)
+*
+*   NOW FORM /FOCK*DENSITY-DENSITY*FOCK/, AND STORE THIS IN FPPF
+*
+      CALL MAMULT(P,F,FPPF(LBASE+1),N,0.D0)
+      CALL MAMULT(F,P,FPPF(LBASE+1),N,-1.D0)
+*
+*   FPPF NOW CONTAINS THE RESULT OF FP - PF.
+*
+      NFOCK1=NFOCK+1
+      DO 20 I=1,NFOCK
+         EMAT(NFOCK1,I)=-1.D0
+         EMAT(I,NFOCK1)=-1.D0
+         EMAT(LFOCK,I)=DOT(FPPF((I-1)*LINEAR+1),FPPF(LBASE+1),LINEAR)
+   20 EMAT(I,LFOCK)=EMAT(LFOCK,I)
+      PL=EMAT(LFOCK,LFOCK)/LINEAR
+      EMAT(NFOCK1,NFOCK1)=0.D0
+      CONST=1.D0/EMAT(LFOCK,LFOCK)
+      DO 30 I=1,NFOCK
+         DO 30 J=1,NFOCK
+   30 EMAT(I,J)=EMAT(I,J)*CONST
+      IF(DEBUG) THEN
+         WRITE(6,'('' EMAT'')')
+         DO 40 I=1,NFOCK1
+   40    WRITE(6,'(6E13.6)')(EMAT(J,I),J=1,NFOCK1)
+      ENDIF
+      L=0
+      DO 50 I=1,NFOCK1
+         DO 50 J=1,NFOCK1
+            L=L+1
+   50 EVEC(L)=EMAT(I,J)
+      CONST=1.D0/CONST
+      DO 60 I=1,NFOCK
+         DO 60 J=1,NFOCK
+   60 EMAT(I,J)=EMAT(I,J)*CONST
+*********************************************************************
+*   THE MATRIX EMAT SHOULD HAVE FORM
+*
+*      |<E(1)*E(1)>  <E(1)*E(2)> ...   -1.0|
+*      |<E(2)*E(1)>  <E(2)*E(2)> ...   -1.0|
+*      |<E(3)*E(1)>  <E(3)*E(2)> ...   -1.0|
+*      |<E(4)*E(1)>  <E(4)*E(2)> ...   -1.0|
+*      |     .            .      ...     . |
+*      |   -1.0         -1.0     ...    0. |
+*
+*   WHERE <E(I)*E(J)> IS THE SCALAR PRODUCT OF [F*P] FOR ITERATION I
+*   TIMES [F*P] FOR ITERATION J.
+*
+*********************************************************************
+      CALL OSINV(EVEC,NFOCK1,D)
+      IF(ABS(D).LT.1.D-6)THEN
+         START=.TRUE.
+         RETURN
+      ENDIF
+      IF(NFOCK.LT.2) RETURN
+      IL=NFOCK*NFOCK1
+      DO 70 I=1,NFOCK
+   70 COEFFS(I)=-EVEC(I+IL)
+      IF(DEBUG) THEN
+         WRITE(6,'('' EVEC'')')
+         WRITE(6,'(6F12.6)')(COEFFS(I),I=1,NFOCK)
+         WRITE(6,'(''    LAGRANGIAN MULTIPLIER (ERROR) =''
+     1             ,F13.6)')EVEC(NFOCK1*NFOCK1)
+      ENDIF
+      DO 90 I=1,LINEAR
+         SUM=0
+         L=0
+         II=(I-1)*MFOCK
+         DO 80 J=1,NFOCK
+   80    SUM=SUM+COEFFS(J)*FOCK(J+II)
+   90 F(I)=SUM
+      RETURN
+      END
+      SUBROUTINE OSINV (A,N,D)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+      DIMENSION A(*)
+************************************************************************
+*
+*    OSINV INVERTS A GENERAL SQUARE MATRIX OF ORDER UP TO MAXORB. SEE
+*          DIMENSION STATEMENTS BELOW.
+*
+*   ON INPUT       A = GENERAL SQUARE MATRIX STORED LINEARLY.
+*                  N = DIMENSION OF MATRIX A.
+*                  D = VARIABLE, NOT DEFINED ON INPUT.
+*
+*   ON OUTPUT      A = INVERSE OF ORIGINAL A.
+*                  D = DETERMINANT OF ORIGINAL A, UNLESS A WAS SINGULAR,
+*                      IN WHICH CASE D = 0.0
+*
+************************************************************************
+      DIMENSION L(MAXORB), M(MAXORB)
+************************************************************************
+*
+*    IF THE VALUE OF TOL GIVEN HERE IS UNSUITABLE, IT CAN BE CHANGED.
+      TOL=1.D-8
+*
+*
+************************************************************************
+      D=1.0
+      NK=-N
+      DO 180 K=1,N
+         NK=NK+N
+         L(K)=K
+         M(K)=K
+         KK=NK+K
+         BIGA=A(KK)
+         DO 20 J=K,N
+            IZ=N*(J-1)
+            DO 20 I=K,N
+               IJ=IZ+I
+C
+C     10 FOLLOWS
+C
+               IF (ABS(BIGA)-ABS(A(IJ))) 10,20,20
+   10          BIGA=A(IJ)
+               L(K)=I
+               M(K)=J
+   20    CONTINUE
+         J=L(K)
+         IF (J-K) 50,50,30
+   30    KI=K-N
+         DO 40 I=1,N
+            KI=KI+N
+            HOLO=-A(KI)
+            JI=KI-K+J
+            A(KI)=A(JI)
+   40    A(JI)=HOLO
+   50    I=M(K)
+         IF (I-K) 80,80,60
+   60    JP=N*(I-1)
+         DO 70 J=1,N
+            JK=NK+J
+            JI=JP+J
+            HOLO=-A(JK)
+            A(JK)=A(JI)
+   70    A(JI)=HOLO
+   80    IF (ABS(BIGA)-TOL) 90,100,100
+   90    D=0.0
+         RETURN
+  100    DO 120 I=1,N
+            IF (I-K) 110,120,110
+  110       IK=NK+I
+            A(IK)=A(IK)/(-BIGA)
+  120    CONTINUE
+         DO 150 I=1,N
+            IK=NK+I
+            IJ=I-N
+            DO 150 J=1,N
+               IJ=IJ+N
+               IF (I-K) 130,150,130
+  130          IF (J-K) 140,150,140
+  140          KJ=IJ-I+K
+               A(IJ)=A(IK)*A(KJ)+A(IJ)
+  150    CONTINUE
+         KJ=K-N
+         DO 170 J=1,N
+            KJ=KJ+N
+            IF (J-K) 160,170,160
+  160       A(KJ)=A(KJ)/BIGA
+  170    CONTINUE
+         D=D*BIGA
+         A(KK)=1.0/BIGA
+  180 CONTINUE
+      K=N
+  190 K=K-1
+      IF (K) 260,260,200
+  200 I=L(K)
+      IF (I-K) 230,230,210
+  210 JQ=N*(K-1)
+      JR=N*(I-1)
+      DO 220 J=1,N
+         JK=JQ+J
+         HOLO=A(JK)
+         JI=JR+J
+         A(JK)=-A(JI)
+  220 A(JI)=HOLO
+  230 J=M(K)
+      IF (J-K) 190,190,240
+  240 KI=K-N
+      DO 250 I=1,N
+         KI=KI+N
+         HOLO=A(KI)
+         JI=KI+J-K
+         A(KI)=-A(JI)
+  250 A(JI)=HOLO
+      GO TO 190
+  260 RETURN
+C
+      END
