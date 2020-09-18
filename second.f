@@ -6,23 +6,29 @@ C   SECOND, ON EXIT, CONTAINS THE NUMBER OF CPU SECONDS
 C   SINCE THE START OF THE CALCULATION.
 C
 C******************************************************
-      LOGICAL FIRST, SET, SETOK
-      DATA FIRST, SETOK   /  2 * .TRUE.    /
-      IF(FIRST) THEN
-          FIRST=.FALSE.
-          CALL DEFINE_EVENT_FLAG_CLUSTER
-      ENDIF
-      CALL TIMCLK(CPU)
-      CALL CHECK_EVENT_FLAG(64,SET)
-      IF(SET)   THEN
-      CPU=CPU+1.D6
+      LOGICAL SETOK
+      CHARACTER*1 X
+      DIMENSION A(2)
+      DATA SETOK   /  .TRUE.    /, SHUT/0.D0/
+      Y=ETIME(A)
+      CPU=A(1)
+***********************************************************************
+*
+*   NOW TO SEE IF A FILE LOGICALLY CALLED SHUTDOWN EXISTS, IF IT DOES
+*   THEN INCREMENT CPU TIME BY 1,000,000 SECONDS.
+*
+************************************************************************
+      OPEN(UNIT=4, FILE='SHUTDOWN',STATUS='UNKNOWN')
+      READ(4,'(A)',END=10, ERR=10)X
+*
+*          FILE EXISTS, THEREFORE INCREMENT TIME
+*
+      SHUT=1.D6
       IF( SETOK) THEN
-      WRITE(6,'(///10X,''****   JOB STOPPED BY OPERATOR   ****'')')
-      SETOK=.FALSE.
+         WRITE(6,'(///10X,''****   JOB STOPPED BY OPERATOR   ****'')')
+         SETOK=.FALSE.
       ENDIF
-      ENDIF
-C TIMCLK IS MACHINE-DEPENDENT. IF YOU DO NOT KNOW THE LOCAL CALL THEN
-C INSERT INSTEAD OF THIS LINE "      CPU=CPU+0.1D0"
-      SECOND=CPU
+   10 CONTINUE
+      SECOND=CPU+SHUT
       RETURN
       END
