@@ -5,7 +5,7 @@
 *     MAXHEV = MAXIMUM NUMBER OF HEAVY ATOMS (HEAVY: NON-HYDROGEN ATOMS)  *
 *     MAXLIT = MAXIMUM NUMBER OF HYDROGEN ATOMS.                          *
 *                                                                         *
-      PARAMETER (MAXHEV=20, MAXLIT=20)
+      PARAMETER (MAXHEV=40, MAXLIT=40)
 *                                                                         *
 ***************************************************************************
 *                                                                         *
@@ -24,12 +24,19 @@
 *     MORB2          SQUARE OF THE MAXIMUM NUMBER OF ORBITALS ALLOWED.    *
 *     MAXHES         AREA OF HESSIAN MATRIX                               *
 ***************************************************************************
-      PARAMETER (VERSON=1.14D0)
+      PARAMETER (VERSON=3.00D0)
       PARAMETER (NUMATM=MAXHEV+MAXLIT)
       PARAMETER (MAXORB=4*MAXHEV+MAXLIT)
       PARAMETER (MAXPAR=3*NUMATM)
-      PARAMETER (N2ELEC=50*MAXHEV*(MAXHEV-1)+10*MAXHEV*MAXLIT
-     +                     +(MAXLIT*(MAXLIT-1))/2)
+      PARAMETER (MAXBIG=MAXORB*MAXORB*2)
+      PARAMETER (N2ELEC=2*(50*MAXHEV*(MAXHEV-1)+10*MAXHEV*MAXLIT
+     +                     +(MAXLIT*(MAXLIT-1))/2))
       PARAMETER (MAXHES=(MAXPAR*(MAXPAR+1))/2,MORB2=MAXORB**2)
       PARAMETER (MPACK=(MAXORB*(MAXORB+1))/2)
+***************************************************************************
+*   FOR SHORT VERSION USE LINE WITH NMECI=1, FOR LONG VERSION USE LINE    *
+*   WITH NMECI=10                                                         *
+***************************************************************************
+      PARAMETER (NMECI=10,   NPULAY=MPACK)
+C      PARAMETER (NMECI=1,   NPULAY=1)
 ***************************************************************************
