@@ -61,7 +61,7 @@
     To save time, small compounds, such as H2O and CO2 etc. are suggested
     as model systems.
 *****************   SEPARATE FILES ALONG THIS LINE   **************************
-OT=2 THERMO(298,298,) PRECISE FORCE     ISOTOPE SYMMETRY                                                   
+ROT=2 THERMO(298,298,) PRECISE FORCE     ISOTOPE SYMMETRY
 DEMONSTRATION OF MOPAC - FORCE AND THERMODYNAMICS CALCULATION                  
 FORMALDEHYDE, MNDO ENERGY = -32.8819                                           
  O    0.000000  0    0.000000  0    0.000000  0    0    0    0      -0.2902
@@ -139,7 +139,7 @@ ENTHALPY(200K) =1593 CALORIES
 *****************   SEPARATE FILES ALONG THIS LINE   **************************
 MINDO3 FORCE
 TEST OF MINDO/3 AT RHF LEVEL, CORRECTION OF FAULTY DATA
-IRST VIBRATION SHOULD BE 1045-1047 CM**(-1)
+FIRST VIBRATION SHOULD BE 1045-1047 CM**(-1)
   O    0.000000  0    0.000000  0    0.000000  0   0  0  0
   C    1.        1    0.000000  0    0.000000  0   1  0  0
   H    1.        1  126.588842  1    0.000000  0   2  1  0
@@ -233,4 +233,4 @@ TEST OF SIGMA. HEAT OF FORMATION =-32.8819, GRADIENT NORM LESS THAN 1.0
   H    1.354391  1   57.393818  1 -101.253058  1   2  1  3       0.1343
   H    1.088141  1  120.710342  1   -0.061328  1   1  2  3       0.0401
   H    1.088158  1  120.676893  1 -157.364486  1   1  2  3       0.0401
-  0    0.000000  0    0.000000  0    0.000000  0   0  0  0
+  0    0.000000  0    0.000000  0    0.000000  0   0  0  0
