@@ -1,0 +1,157 @@
+
+*******************************************************************************
+** FRANK J. SEILER RES. LAB., U.S. AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **
+*******************************************************************************
+
+                            MINDO/3 CALCULATION RESULTS
+
+
+*******************************************************************************
+*                    VERSION  4.00
+*  GRADIENTS- ALL GRADIENTS TO BE PRINTED
+*   T=      - A TIME OF  3600.0 SECONDS REQUESTED
+*  DUMP=N   - RESTART FILE WRITTEN EVERY  3600.0 SECONDS
+*  1SCF     - DO 1 SCF AND THEN STOP 
+*  MINDO/3  - THE MINDO/3 HAMILTONIAN TO BE USED
+*  PRECISE  - CRITERIA TO BE INCREASED BY 100 TIMES
+*******************************************************************************
+  GRADIENTS   1SCF PRECISE     MINDO3                                          
+TEST OF MINDO/3 AT RHF LEVEL, TEST IS SUCCESSFUL IF CALCULATED                 
+HEAT OF FORMATION = -25.5614 AND GRADIENTS LESS THAN 1.0                       
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      O
+     2      C         1.18139 *                                   1
+     3      H         1.12304 *      126.59114 *                  2    1
+     4      H         1.12304 *      126.59099 *   179.99732 *    2    1    3
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM         X         Y         Z
+
+    1         O        0.0000    0.0000    0.0000
+    2         C        1.1814    0.0000    0.0000
+    3         H        1.8508    0.9017    0.0000
+    4         H        1.8508   -0.9017    0.0000
+ H: (MINDO/3): R.C.BINGHAM ET.AL., J.AM.CHEM.SOC. 97,1285,1294,1302,1307 (1975)
+ C: (MINDO/3): R.C.BINGHAM ET.AL., J.AM.CHEM.SOC. 97,1285,1294,1302,1307 (1975)
+ O: (MINDO/3): R.C.BINGHAM ET.AL., J.AM.CHEM.SOC. 97,1285,1294,1302,1307 (1975)
+
+
+         RHF CALCULATION, NO. OF DOUBLY OCCUPIED LEVELS =  6
+
+
+           INTERATOMIC DISTANCES
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   0.000000
+    C    2   1.181394   0.000000
+    H    3   2.058802   1.123040   0.000000
+    H    4   2.058802   1.123041   1.803402   0.000000
+  GRADIENTS   1SCF PRECISE     MINDO3                                          
+TEST OF MINDO/3 AT RHF LEVEL, TEST IS SUCCESSFUL IF CALCULATED                 
+HEAT OF FORMATION = -25.5614 AND GRADIENTS LESS THAN 1.0                       
+
+
+    1SCF WAS SPECIFIED, SO BFGS WAS NOT USED                 
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                             MINDO/3  CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -25.56137 KCAL
+
+
+         ELECTRONIC ENERGY       =       -841.62624 EV
+         CORE-CORE REPULSION     =        374.45617 EV
+
+         GRADIENT NORM           =          0.00198
+         IONIZATION POTENTIAL    =         10.73707
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          6
+         MOLECULAR WEIGHT        =     30.026
+
+
+         SCF CALCULATIONS  =                1
+         COMPUTATION TIME  =                2.40 SECONDS
+
+
+
+      FINAL  POINT  AND  DERIVATIVES
+
+  PARAMETER     ATOM    TYPE            VALUE       GRADIENT
+     1          2  C    BOND            1.181394     0.000741  KCAL/ANGSTROM
+     2          3  H    BOND            1.123040    -0.001334  KCAL/ANGSTROM
+     3          3  H    ANGLE         126.591139    -0.000586  KCAL/RADIAN  
+     4          4  H    BOND            1.123041    -0.000722  KCAL/ANGSTROM
+     5          4  H    ANGLE         126.590990    -0.000497  KCAL/RADIAN  
+     6          4  H    DIHEDRAL      179.997318     0.000685  KCAL/RADIAN  
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      O
+     2      C         1.18139 *                                   1
+     3      H         1.12304 *      126.59114 *                  2    1
+     4      H         1.12304 *      126.59099 *   179.99732 *    2    1    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   0.000000
+    C    2   1.181394   0.000000
+    H    3   2.058802   1.123040   0.000000
+    H    4   2.058802   1.123041   1.803402   0.000000
+
+
+                 EIGENVALUES
+
+-32.64042 -22.86829 -16.36221 -14.35561 -13.64983 -10.73707   1.49835   1.62118
+  3.62187   5.65004
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          O          -0.4250          6.4250
+          2          C           0.6433          3.3567
+          3          H          -0.1091          1.1091
+          4          H          -0.1091          1.1091
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     1.710     0.000     0.000     1.710
+HYBRID         0.361     0.000     0.000     0.361
+SUM            2.071     0.000     0.000     2.071
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         O                  0.0000    0.0000    0.0000
+    2         C                  1.1814    0.0000    0.0000
+    3         H                  1.8508    0.9017    0.0000
+    4         H                  1.8508   -0.9017    0.0000
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.83929   1.27754   1.87017   1.43801   1.26765   0.74773   0.77936   0.56199
+  1.10914   1.10914

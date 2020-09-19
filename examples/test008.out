@@ -1,0 +1,157 @@
+
+*******************************************************************************
+** FRANK J. SEILER RES. LAB., U.S. AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **
+*******************************************************************************
+
+                            MNDO CALCULATION RESULTS
+
+
+*******************************************************************************
+*                    VERSION  4.00
+*  GRADIENTS- ALL GRADIENTS TO BE PRINTED
+*   T=      - A TIME OF  3600.0 SECONDS REQUESTED
+*  DUMP=N   - RESTART FILE WRITTEN EVERY  3600.0 SECONDS
+*  SIGMA    - GEOMETRY TO BE OPTIMIZED USING SIGMA.
+*  GNORM=   - FLEPO EXIT WHEN GRADIENT NORM BELOW .100E-01
+*******************************************************************************
+GNORM=0.01 GRADIENTS     SIGMA                                                 
+TEST OF SIGMA. HEAT OF FORMATION =-32.8819, GRADIENT NORM LESS THAN 1.0        
+                                                                               
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      O
+     2      C         1.18138 *                                   1
+     3      H         1.12307 *      126.58884 *                  2    1
+     4      H         1.12306 *      126.58846 *   180.00000 *    2    1    3
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM         X         Y         Z
+
+    1         O        0.0000    0.0000    0.0000
+    2         C        1.1814    0.0000    0.0000
+    3         H        1.8508    0.9017    0.0000
+    4         H        1.8508   -0.9017    0.0000
+ H: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+ C: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+ O: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+
+
+         RHF CALCULATION, NO. OF DOUBLY OCCUPIED LEVELS =  6
+
+
+           INTERATOMIC DISTANCES
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   0.000000
+    C    2   1.181383   0.000000
+    H    3   2.058795   1.123066   0.000000
+    H    4   2.058787   1.123061   1.803495   0.000000
+CYCLE:    1 TIME:   4.3 TIME LEFT:   3584.8 GRAD.:     3.795 HEAT: -32.87811    
+GNORM=0.01 GRADIENTS     SIGMA                                                 
+TEST OF SIGMA. HEAT OF FORMATION =-32.8819, GRADIENT NORM LESS THAN 1.0        
+                                                                               
+
+
+    GEOMETRY OPTIMIZED USING POWSQ. GRADIENT NORM MINIMIZED  
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -32.88183 KCAL
+
+
+         ELECTRONIC ENERGY       =       -870.71842 EV
+         CORE-CORE REPULSION     =        392.59925 EV
+
+         GRADIENT NORM           =          0.34400
+         IONIZATION POTENTIAL    =         11.04087
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          6
+         MOLECULAR WEIGHT        =     30.026
+
+
+         SCF CALCULATIONS  =               13
+         COMPUTATION TIME  =               18.79 SECONDS
+
+
+
+      FINAL  POINT  AND  DERIVATIVES
+
+  PARAMETER     ATOM    TYPE            VALUE       GRADIENT
+     1          2  C    BOND            1.216392    -0.189134  KCAL/ANGSTROM
+     2          3  H    BOND            1.106365     0.202285  KCAL/ANGSTROM
+     3          3  H    ANGLE         123.526560     0.016970  KCAL/RADIAN  
+     4          4  H    BOND            1.106363     0.202604  KCAL/ANGSTROM
+     5          4  H    ANGLE         123.509648     0.017272  KCAL/RADIAN  
+     6          4  H    DIHEDRAL      180.002262     0.003614  KCAL/RADIAN  
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      O
+     2      C         1.21639 *                                   1
+     3      H         1.10637 *      123.52656 *                  2    1
+     4      H         1.10636 *      123.50965 *   180.00226 *    2    1    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   0.000000
+    C    2   1.216392   0.000000
+    H    3   2.047012   1.106365   0.000000
+    H    4   2.046849   1.106363   1.844777   0.000000
+
+
+                 EIGENVALUES
+
+-42.99321 -25.11628 -16.95359 -16.29975 -14.18080 -11.04087   0.86029   3.67374
+  3.84799   7.12665
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          O          -0.2901          6.2901
+          2          C           0.2921          3.7079
+          3          H          -0.0010          1.0010
+          4          H          -0.0010          1.0010
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     1.689     0.000     0.000     1.689
+HYBRID         0.475     0.000     0.000     0.475
+SUM            2.164     0.000     0.000     2.164
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         O                  0.0000    0.0000    0.0000
+    2         C                  1.2164    0.0000    0.0000
+    3         H                  1.8275    0.9223    0.0000
+    4         H                  1.8272   -0.9225    0.0000
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.88258   1.21605   1.89099   1.30052   1.25538   0.86213   0.89089   0.69948
+  1.00097   1.00102

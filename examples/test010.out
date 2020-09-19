@@ -1,0 +1,1577 @@
+*******************************************************************************
+** FRANK J. SEILER RES. LAB., U.S. AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **
+*******************************************************************************
+
+                            MNDO CALCULATION RESULTS
+
+
+*******************************************************************************
+*                    VERSION  4.00
+*  SYMMETRY - SYMMETRY CONDITIONS TO BE IMPOSED
+*   T=      - A TIME OF  3600.0 SECONDS REQUESTED
+*  DUMP=N   - RESTART FILE WRITTEN EVERY  3600.0 SECONDS
+*******************************************************************************
+
+
+
+    PARAMETER DEPENDENCE DATA
+
+       REFERENCE ATOM      FUNCTION NO.    DEPENDENT ATOM(S)
+           3                  1             4
+           3                  1             5
+           3                  1             6
+           3                  1             7
+           3                  1             8
+           3                  2             4
+           3                  2             5
+           3                  2             6
+           3                  2             7
+           3                  2             8
+           6                  7             7
+           6                 11             8
+
+            DESCRIPTIONS OF THE FUNCTIONS USED
+
+  1      BOND LENGTH    IS SET EQUAL TO THE REFERENCE BOND LENGTH   
+  2      BOND ANGLE     IS SET EQUAL TO THE REFERENCE BOND ANGLE    
+  7      DIHEDRAL ANGLE VARIES AS 120 DEGREES + REFERENCE DIHEDRAL  
+ 11      DIHEDRAL ANGLE VARIES AS 240 DEGREES + REFERENCE DIHEDRAL  
+
+
+          POINTS ON REACTION COORDINATE
+            60.00   50.00   40.00   30.00   20.00   10.00    0.00  -10.00
+           -20.00  -30.00  -40.00  -50.00  -60.00
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.54485 *                                   1
+     3      H         1.11694 *      110.66527 *                  2    1
+     4      H         1.11694        110.66527     120.00000      2    1    3
+     5      H         1.11694        110.66527     240.00000      2    1    3
+     6      H         1.11694        110.66527      60.00000 +    1    2    3
+     7      H         1.11694        110.66527     180.00000      1    2    3
+     8      H         1.11694        110.66527     300.00000      1    2    3
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM         X         Y         Z
+
+    1         C        0.0000    0.0000    0.0000
+    2         C        1.5448    0.0000    0.0000
+    3         H        1.9390    1.0451    0.0000
+    4         H        1.9390   -0.5225    0.9051
+    5         H        1.9390   -0.5225   -0.9051
+    6         H       -0.3942    0.5225   -0.9051
+    7         H       -0.3942   -1.0451    0.0000
+    8         H       -0.3942    0.5225    0.9051
+ H: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+ C: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+
+
+         RHF CALCULATION, NO. OF DOUBLY OCCUPIED LEVELS =  7
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.544846   0.000000
+    H    3   2.202719   1.116935   0.000000
+    H    4   2.202719   1.116935   1.810113   0.000000
+    H    5   2.202719   1.116935   1.810113   1.810113   0.000000
+    H    6   1.116935   2.202719   2.556555   3.132488   2.556555   0.000000
+    H    7   1.116935   2.202719   3.132488   2.556555   2.556555   1.810113
+    H    8   1.116935   2.202719   2.556555   2.556555   3.132488   1.810113
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.810113   0.000000
+ ABOUT TO ENTER FLEPO FROM PATH
+CYCLE:  1 TIME:   8.74 TIME LEFT:   3587.4 GRAD.:     5.765 HEAT: -19.71381    
+CYCLE:  2 TIME:   4.14 TIME LEFT:   3583.2 GRAD.:     1.525 HEAT: -19.72135    
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+ OPTIMIZED VALUES OF PARAMETERS, INITIAL POINT
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.72200 KCAL
+         ELECTRONIC ENERGY       =       -935.73266 EV
+         CORE-CORE REPULSION     =        594.06202 EV
+         FOR REACTION COORDINATE =         60.00000 DEGREES
+         REACTION GRADIENT       =         -0.02142 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.69904
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =               15
+         COMPUTATION TIME  =               25.29 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52090 *                                   1
+     3      H         1.10918 *      111.19093 *                  2    1
+     4      H         1.10918        111.19093     120.00000      2    1    3
+     5      H         1.10918        111.19093    -120.00000      2    1    3
+     6      H         1.10918        111.19093      60.00000 +    1    2    3
+     7      H         1.10918        111.19093     180.00000      1    2    3
+     8      H         1.10918        111.19093     -60.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.520896   0.000000
+    H    3   2.182425   1.109177   0.000000
+    H    4   2.182425   1.109177   1.791244   0.000000
+    H    5   2.182425   1.109177   1.791244   1.791244   0.000000
+    H    6   1.109177   2.182425   2.542602   3.110206   2.542602   0.000000
+    H    7   1.109177   2.182425   3.110206   2.542602   2.542602   1.791244
+    H    8   1.109177   2.182425   2.542602   2.542602   3.110206   1.791244
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.791244   0.000000
+
+
+                 EIGENVALUES
+
+-35.24061 -24.81401 -15.08643 -15.08643 -13.32763 -12.69905 -12.69904   3.75539
+  3.75539   4.37518   4.70787   4.70787   5.77967   5.83587
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0166          3.9834
+          2          C           0.0166          3.9834
+          3          H          -0.0055          1.0055
+          4          H          -0.0055          1.0055
+          5          H          -0.0055          1.0055
+          6          H          -0.0055          1.0055
+          7          H          -0.0055          1.0055
+          8          H          -0.0055          1.0055
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5209    0.0000    0.0000
+    3         H                  1.9218    1.0342    0.0000
+    4         H                  1.9218   -0.5171    0.8956
+    5         H                  1.9218   -0.5171   -0.8956
+    6         H                 -0.4009    0.5171   -0.8956
+    7         H                 -0.4009   -1.0342    0.0000
+    8         H                 -0.4009    0.5171    0.8956
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21965   0.92865   0.91753   0.91753   1.21965   0.92865   0.91753   0.91753
+  1.00555   1.00555   1.00555   1.00555   1.00555   1.00555
+********************************************************************************
+
+                REACTION COORDINATE =      50.0000  DEGREES   
+
+********************************************************************************
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    GRADIENTS WERE INITIALLY ACCEPTABLY SMALL                
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.65367 KCAL
+         ELECTRONIC ENERGY       =       -935.73774 EV
+         CORE-CORE REPULSION     =        594.07006 EV
+         FOR REACTION COORDINATE =         50.00000 DEGREES
+         REACTION GRADIENT       =         -0.74671 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.69684
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                1
+         COMPUTATION TIME  =                5.29 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52090 *                                   1
+     3      H         1.10918 *      111.19093 *                  2    1
+     4      H         1.10918        111.19093     120.00000      2    1    3
+     5      H         1.10918        111.19093    -120.00000      2    1    3
+     6      H         1.10918        111.19093      50.00000 +    1    2    3
+     7      H         1.10918        111.19093     170.00000      1    2    3
+     8      H         1.10918        111.19093     -70.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.520896   0.000000
+    H    3   2.182425   1.109177   0.000000
+    H    4   2.182425   1.109177   1.791244   0.000000
+    H    5   2.182425   1.109177   1.791244   1.791244   0.000000
+    H    6   1.109177   2.182425   2.481813   3.104977   2.608208   0.000000
+    H    7   1.109177   2.182425   3.104977   2.608208   2.481813   1.791244
+    H    8   1.109177   2.182425   2.608208   2.481813   3.104977   1.791244
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.791244   0.000000
+
+
+                 EIGENVALUES
+
+-35.24083 -24.81338 -15.08819 -15.08819 -13.32779 -12.69684 -12.69684   3.75364
+  3.75364   4.37553   4.70946   4.70946   5.78039   5.83506
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0166          3.9834
+          2          C           0.0166          3.9834
+          3          H          -0.0055          1.0055
+          4          H          -0.0055          1.0055
+          5          H          -0.0055          1.0055
+          6          H          -0.0055          1.0055
+          7          H          -0.0055          1.0055
+          8          H          -0.0055          1.0055
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5209    0.0000    0.0000
+    3         H                  1.9218    1.0342    0.0000
+    4         H                  1.9218   -0.5171    0.8956
+    5         H                  1.9218   -0.5171   -0.8956
+    6         H                 -0.4009    0.6648   -0.7922
+    7         H                 -0.4009   -1.0185   -0.1796
+    8         H                 -0.4009    0.3537    0.9718
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21967   0.92862   0.91755   0.91755   1.21967   0.92863   0.91755   0.91755
+  1.00554   1.00554   1.00554   1.00554   1.00554   1.00554
+********************************************************************************
+
+                  REACTION COORDINATE =      40.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.46755 KCAL
+         ELECTRONIC ENERGY       =       -935.59640 EV
+         CORE-CORE REPULSION     =        593.93679 EV
+         FOR REACTION COORDINATE =         40.00000 DEGREES
+         REACTION GRADIENT       =         -1.35185 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.69171
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               16.39 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52188 *                                   1
+     3      H         1.10914 *      111.24470 *                  2    1
+     4      H         1.10914        111.24470     120.00000      2    1    3
+     5      H         1.10914        111.24470    -120.00000      2    1    3
+     6      H         1.10914        111.24470      40.00000 +    1    2    3
+     7      H         1.10914        111.24470     160.00000      1    2    3
+     8      H         1.10914        111.24470     -80.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.521877   0.000000
+    H    3   2.183935   1.109137   0.000000
+    H    4   2.183935   1.109137   1.790527   0.000000
+    H    5   2.183935   1.109137   1.790527   1.790527   0.000000
+    H    6   1.109137   2.183935   2.430801   3.091037   2.678607   0.000000
+    H    7   1.109137   2.183935   3.091037   2.678607   2.430801   1.790527
+    H    8   1.109137   2.183935   2.678607   2.430801   3.091037   1.790527
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.790527   0.000000
+
+
+                 EIGENVALUES
+
+-35.22687 -24.82230 -15.08707 -15.08707 -13.33021 -12.69171 -12.69171   3.74850
+  3.74850   4.37761   4.71264   4.71264   5.77784   5.83537
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0167          3.9833
+          2          C           0.0167          3.9833
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5219    0.0000    0.0000
+    3         H                  1.9238    1.0338    0.0000
+    4         H                  1.9238   -0.5169    0.8953
+    5         H                  1.9238   -0.5169   -0.8953
+    6         H                 -0.4019    0.7919   -0.6645
+    7         H                 -0.4019   -0.9714   -0.3536
+    8         H                 -0.4019    0.1795    1.0181
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21983   0.92824   0.91762   0.91762   1.21983   0.92824   0.91762   0.91762
+  1.00557   1.00557   1.00557   1.00557   1.00557   1.00557
+********************************************************************************
+
+                  REACTION COORDINATE =      30.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.21371 KCAL
+         ELECTRONIC ENERGY       =       -935.48792 EV
+         CORE-CORE REPULSION     =        593.83932 EV
+         FOR REACTION COORDINATE =         30.00000 DEGREES
+         REACTION GRADIENT       =         -1.54451 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.68426
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               16.79 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52269 *                                   1
+     3      H         1.10906 *      111.30325 *                  2    1
+     4      H         1.10906        111.30325     120.00000      2    1    3
+     5      H         1.10906        111.30325    -120.00000      2    1    3
+     6      H         1.10906        111.30325      30.00000 +    1    2    3
+     7      H         1.10906        111.30325     150.00000      1    2    3
+     8      H         1.10906        111.30325     -90.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.522687   0.000000
+    H    3   2.185323   1.109056   0.000000
+    H    4   2.185323   1.109056   1.789685   0.000000
+    H    5   2.185323   1.109056   1.789685   1.789685   0.000000
+    H    6   1.109056   2.185323   2.389176   3.067023   2.749072   0.000000
+    H    7   1.109056   2.185323   3.067023   2.749072   2.389176   1.789685
+    H    8   1.109056   2.185323   2.749072   2.389176   3.067023   1.789685
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.789685   0.000000
+
+
+                 EIGENVALUES
+
+-35.21576 -24.83098 -15.08810 -15.08810 -13.33415 -12.68426 -12.68426   3.74154
+  3.74154   4.38074   4.71748   4.71748   5.77685   5.83562
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0168          3.9832
+          2          C           0.0168          3.9832
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5227    0.0000    0.0000
+    3         H                  1.9256    1.0333    0.0000
+    4         H                  1.9256   -0.5166    0.8948
+    5         H                  1.9256   -0.5166   -0.8948
+    6         H                 -0.4029    0.8948   -0.5166
+    7         H                 -0.4029   -0.8948   -0.5166
+    8         H                 -0.4029    0.0000    1.0333
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21996   0.92783   0.91772   0.91772   1.21996   0.92783   0.91772   0.91772
+  1.00559   1.00559   1.00559   1.00559   1.00559   1.00559
+********************************************************************************
+
+                  REACTION COORDINATE =      20.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -18.96069 KCAL
+         ELECTRONIC ENERGY       =       -935.40018 EV
+         CORE-CORE REPULSION     =        593.76255 EV
+         FOR REACTION COORDINATE =         20.00000 DEGREES
+         REACTION GRADIENT       =         -1.32003 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.67463
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                6
+         COMPUTATION TIME  =               14.02 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52290 *                                   1
+     3      H         1.10906 *      111.39898 *                  2    1
+     4      H         1.10906        111.39898     120.00000      2    1    3
+     5      H         1.10906        111.39898    -120.00000      2    1    3
+     6      H         1.10906        111.39898      20.00000 +    1    2    3
+     7      H         1.10906        111.39898     140.00000      1    2    3
+     8      H         1.10906        111.39898    -100.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.522904   0.000000
+    H    3   2.186718   1.109058   0.000000
+    H    4   2.186718   1.109058   1.788519   0.000000
+    H    5   2.186718   1.109058   1.788519   1.788519   0.000000
+    H    6   1.109058   2.186718   2.359617   3.034030   2.818161   0.000000
+    H    7   1.109058   2.186718   3.034030   2.818161   2.359617   1.788519
+    H    8   1.109058   2.186718   2.818161   2.359617   3.034030   1.788519
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.788519   0.000000
+
+
+                 EIGENVALUES
+
+-35.20882 -24.83954 -15.08809 -15.08809 -13.34487 -12.67463 -12.67463   3.73199
+  3.73199   4.38750   4.72135   4.72135   5.77617   5.83709
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0169          3.9831
+          2          C           0.0169          3.9831
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5229    0.0000    0.0000
+    3         H                  1.9276    1.0326    0.0000
+    4         H                  1.9276   -0.5163    0.8943
+    5         H                  1.9276   -0.5163   -0.8943
+    6         H                 -0.4047    0.9703   -0.3532
+    7         H                 -0.4047   -0.7910   -0.6637
+    8         H                 -0.4047   -0.1793    1.0169
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21999   0.92732   0.91789   0.91789   1.21999   0.92732   0.91789   0.91789
+  1.00563   1.00563   1.00563   1.00563   1.00563   1.00563
+********************************************************************************
+
+                  REACTION COORDINATE =      10.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -18.77567 KCAL
+         ELECTRONIC ENERGY       =       -935.34730 EV
+         CORE-CORE REPULSION     =        593.71770 EV
+         FOR REACTION COORDINATE =         10.00000 DEGREES
+         REACTION GRADIENT       =         -0.74786 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.66748
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               16.42 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52294 *                                   1
+     3      H         1.10916 *      111.44272 *                  2    1
+     4      H         1.10916        111.44272     120.00000      2    1    3
+     5      H         1.10916        111.44272    -120.00000      2    1    3
+     6      H         1.10916        111.44272      10.00000 +    1    2    3
+     7      H         1.10916        111.44272     130.00000      1    2    3
+     8      H         1.10916        111.44272    -110.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.522944   0.000000
+    H    3   2.187377   1.109156   0.000000
+    H    4   2.187377   1.109156   1.788142   0.000000
+    H    5   2.187377   1.109156   1.788142   1.788142   0.000000
+    H    6   1.109156   2.187377   2.340822   2.991469   2.882318   0.000000
+    H    7   1.109156   2.187377   2.991469   2.882318   2.340822   1.788142
+    H    8   1.109156   2.187377   2.882318   2.340822   2.991469   1.788142
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.788142   0.000000
+
+
+                 EIGENVALUES
+
+-35.20499 -24.84104 -15.08942 -15.08942 -13.35006 -12.66748 -12.66748   3.72529
+  3.72529   4.39090   4.72416   4.72416   5.77596   5.83600
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0169          3.9831
+          2          C           0.0169          3.9831
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5229    0.0000    0.0000
+    3         H                  1.9284    1.0324    0.0000
+    4         H                  1.9284   -0.5162    0.8941
+    5         H                  1.9284   -0.5162   -0.8941
+    6         H                 -0.4055    1.0167   -0.1793
+    7         H                 -0.4055   -0.6636   -0.7909
+    8         H                 -0.4055   -0.3531    0.9701
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.22005   0.92707   0.91798   0.91798   1.22005   0.92707   0.91798   0.91798
+  1.00564   1.00564   1.00564   1.00564   1.00564   1.00564
+********************************************************************************
+
+                  REACTION COORDINATE =       0.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -18.70822 KCAL
+         ELECTRONIC ENERGY       =       -935.27368 EV
+         CORE-CORE REPULSION     =        593.64699 EV
+         FOR REACTION COORDINATE =          0.00000 DEGREES
+         REACTION GRADIENT       =          0.02623 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.66665
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               15.99 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52362 *                                   1
+     3      H         1.10908 *      111.46097 *                  2    1
+     4      H         1.10908        111.46097     120.00000      2    1    3
+     5      H         1.10908        111.46097    -120.00000      2    1    3
+     6      H         1.10908        111.46097       0.00000 +    1    2    3
+     7      H         1.10908        111.46097     120.00000      1    2    3
+     8      H         1.10908        111.46097    -120.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.523617   0.000000
+    H    3   2.188142   1.109081   0.000000
+    H    4   2.188142   1.109081   1.787797   0.000000
+    H    5   2.188142   1.109081   1.787797   1.787797   0.000000
+    H    6   1.109081   2.188142   2.335170   2.940958   2.940958   0.000000
+    H    7   1.109081   2.188142   2.940958   2.940958   2.335170   1.787797
+    H    8   1.109081   2.188142   2.940958   2.335170   2.940958   1.787797
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.787797   0.000000
+
+
+                 EIGENVALUES
+
+-35.19704 -24.84655 -15.08838 -15.08838 -13.34947 -12.66665 -12.66665   3.72441
+  3.72441   4.39074   4.72537   4.72537   5.77453   5.83658
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0170          3.9830
+          2          C           0.0170          3.9830
+          3          H          -0.0057          1.0057
+          4          H          -0.0057          1.0057
+          5          H          -0.0057          1.0057
+          6          H          -0.0057          1.0057
+          7          H          -0.0057          1.0057
+          8          H          -0.0057          1.0057
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5236    0.0000    0.0000
+    3         H                  1.9294    1.0322    0.0000
+    4         H                  1.9294   -0.5161    0.8939
+    5         H                  1.9294   -0.5161   -0.8939
+    6         H                 -0.4058    1.0322    0.0000
+    7         H                 -0.4058   -0.5161   -0.8939
+    8         H                 -0.4058   -0.5161    0.8939
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.22014   0.92690   0.91799   0.91799   1.22014   0.92690   0.91799   0.91799
+  1.00566   1.00566   1.00566   1.00566   1.00566   1.00566
+********************************************************************************
+
+                  REACTION COORDINATE =     -10.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -18.77578 KCAL
+         ELECTRONIC ENERGY       =       -935.31959 EV
+         CORE-CORE REPULSION     =        593.68998 EV
+         FOR REACTION COORDINATE =        -10.00000 DEGREES
+         REACTION GRADIENT       =          0.79322 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.66977
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               16.00 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52359 *                                   1
+     3      H         1.10900 *      111.42791 *                  2    1
+     4      H         1.10900        111.42791     120.00000      2    1    3
+     5      H         1.10900        111.42791    -120.00000      2    1    3
+     6      H         1.10900        111.42791     -10.00000 +    1    2    3
+     7      H         1.10900        111.42791     110.00000      1    2    3
+     8      H         1.10900        111.42791    -130.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.523590   0.000000
+    H    3   2.187644   1.109003   0.000000
+    H    4   2.187644   1.109003   1.788076   0.000000
+    H    5   2.187644   1.109003   1.788076   1.788076   0.000000
+    H    6   1.109003   2.187644   2.340822   2.882282   2.991426   0.000000
+    H    7   1.109003   2.187644   2.882282   2.991426   2.340822   1.788076
+    H    8   1.109003   2.187644   2.991426   2.340822   2.882282   1.788076
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.788076   0.000000
+
+
+                 EIGENVALUES
+
+-35.20019 -24.84484 -15.08924 -15.08924 -13.34571 -12.66977 -12.66977   3.72769
+  3.72769   4.38853   4.72491   4.72491   5.77549   5.83660
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0169          3.9831
+          2          C           0.0169          3.9831
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5236    0.0000    0.0000
+    3         H                  1.9287    1.0323    0.0000
+    4         H                  1.9287   -0.5162    0.8940
+    5         H                  1.9287   -0.5162   -0.8940
+    6         H                 -0.4052    1.0167    0.1793
+    7         H                 -0.4052   -0.3531   -0.9701
+    8         H                 -0.4052   -0.6636    0.7908
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.22011   0.92708   0.91794   0.91794   1.22011   0.92708   0.91794   0.91794
+  1.00564   1.00564   1.00564   1.00564   1.00564   1.00564
+********************************************************************************
+
+                  REACTION COORDINATE =     -20.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -18.96069 KCAL
+         ELECTRONIC ENERGY       =       -935.38078 EV
+         CORE-CORE REPULSION     =        593.74315 EV
+         FOR REACTION COORDINATE =        -20.00000 DEGREES
+         REACTION GRADIENT       =          1.34935 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.67530
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                6
+         COMPUTATION TIME  =               13.61 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52314 *                                   1
+     3      H         1.10906 *      111.38720 *                  2    1
+     4      H         1.10906        111.38720     120.00000      2    1    3
+     5      H         1.10906        111.38720    -120.00000      2    1    3
+     6      H         1.10906        111.38720     -20.00000 +    1    2    3
+     7      H         1.10906        111.38720     100.00000      1    2    3
+     8      H         1.10906        111.38720    -140.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.523137   0.000000
+    H    3   2.186777   1.109060   0.000000
+    H    4   2.186777   1.109060   1.788666   0.000000
+    H    5   2.186777   1.109060   1.788666   1.788666   0.000000
+    H    6   1.109060   2.186777   2.359433   2.818076   3.033985   0.000000
+    H    7   1.109060   2.186777   2.818076   3.033985   2.359433   1.788666
+    H    8   1.109060   2.186777   3.033985   2.359433   2.818076   1.788666
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.788666   0.000000
+
+
+                 EIGENVALUES
+
+-35.20646 -24.83935 -15.08809 -15.08809 -13.34248 -12.67530 -12.67530   3.73275
+  3.73275   4.38616   4.72145   4.72145   5.77568   5.83641
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0169          3.9831
+          2          C           0.0169          3.9831
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5231    0.0000    0.0000
+    3         H                  1.9276    1.0327    0.0000
+    4         H                  1.9276   -0.5163    0.8943
+    5         H                  1.9276   -0.5163   -0.8943
+    6         H                 -0.4044    0.9704    0.3532
+    7         H                 -0.4044   -0.1793   -1.0170
+    8         H                 -0.4044   -0.7911    0.6638
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.22004   0.92735   0.91787   0.91787   1.22004   0.92735   0.91787   0.91787
+  1.00563   1.00563   1.00563   1.00563   1.00563   1.00563
+********************************************************************************
+
+                  REACTION COORDINATE =     -30.0000  DEGREES   
+
+********************************************************************************
+
+TEST ON X SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.21383 KCAL
+         ELECTRONIC ENERGY       =       -935.50873 EV
+         CORE-CORE REPULSION     =        593.86012 EV
+         FOR REACTION COORDINATE =        -30.00000 DEGREES
+         REACTION GRADIENT       =          1.54810 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.68246
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                6
+         COMPUTATION TIME  =               13.23 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52220 *                                   1
+     3      H         1.10913 *      111.32769 *                  2    1
+     4      H         1.10913        111.32769     120.00000      2    1    3
+     5      H         1.10913        111.32769    -120.00000      2    1    3
+     6      H         1.10913        111.32769     -30.00000 +    1    2    3
+     7      H         1.10913        111.32769      90.00000      1    2    3
+     8      H         1.10913        111.32769    -150.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.522201   0.000000
+    H    3   2.185258   1.109129   0.000000
+    H    4   2.185258   1.109129   1.789504   0.000000
+    H    5   2.185258   1.109129   1.789504   1.789504   0.000000
+    H    6   1.109129   2.185258   2.389601   2.749374   3.067233   0.000000
+    H    7   1.109129   2.185258   2.749374   3.067233   2.389601   1.789504
+    H    8   1.109129   2.185258   3.067233   2.389601   2.749374   1.789504
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.789504   0.000000
+
+
+                 EIGENVALUES
+
+-35.21939 -24.83016 -15.08769 -15.08769 -13.33902 -12.68246 -12.68246   3.73949
+  3.73949   4.38340   4.71690   4.71690   5.77723   5.83624
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0168          3.9832
+          2          C           0.0168          3.9832
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5222    0.0000    0.0000
+    3         H                  1.9256    1.0332    0.0000
+    4         H                  1.9256   -0.5166    0.8948
+    5         H                  1.9256   -0.5166   -0.8948
+    6         H                 -0.4034    0.8948    0.5166
+    7         H                 -0.4034    0.0000   -1.0332
+    8         H                 -0.4034   -0.8948    0.5166
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21989   0.92777   0.91777   0.91777   1.21989   0.92777   0.91777   0.91777
+  1.00560   1.00560   1.00560   1.00560   1.00560   1.00560
+********************************************************************************
+
+                  REACTION COORDINATE =     -40.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.46759 KCAL
+         ELECTRONIC ENERGY       =       -935.60565 EV
+         CORE-CORE REPULSION     =        593.94604 EV
+         FOR REACTION COORDINATE =        -40.00000 DEGREES
+         REACTION GRADIENT       =          1.33130 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.69051
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                6
+         COMPUTATION TIME  =               13.11 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52158 *                                   1
+     3      H         1.10918 *      111.26426 *                  2    1
+     4      H         1.10918        111.26426     120.00000      2    1    3
+     5      H         1.10918        111.26426    -120.00000      2    1    3
+     6      H         1.10918        111.26426     -40.00000 +    1    2    3
+     7      H         1.10918        111.26426      80.00000      1    2    3
+     8      H         1.10918        111.26426    -160.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.521580   0.000000
+    H    3   2.183952   1.109181   0.000000
+    H    4   2.183952   1.109181   1.790360   0.000000
+    H    5   2.183952   1.109181   1.790360   1.790360   0.000000
+    H    6   1.109181   2.183952   2.431203   2.678928   3.091243   0.000000
+    H    7   1.109181   2.183952   2.678928   3.091243   2.431203   1.790360
+    H    8   1.109181   2.183952   3.091243   2.431203   2.678928   1.790360
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.790360   0.000000
+
+
+                 EIGENVALUES
+
+-35.22888 -24.82228 -15.08657 -15.08657 -13.33373 -12.69051 -12.69051   3.74707
+  3.74707   4.37954   4.71222   4.71222   5.77797   5.83597
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0167          3.9833
+          2          C           0.0167          3.9833
+          3          H          -0.0056          1.0056
+          4          H          -0.0056          1.0056
+          5          H          -0.0056          1.0056
+          6          H          -0.0056          1.0056
+          7          H          -0.0056          1.0056
+          8          H          -0.0056          1.0056
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5216    0.0000    0.0000
+    3         H                  1.9238    1.0337    0.0000
+    4         H                  1.9238   -0.5168    0.8952
+    5         H                  1.9238   -0.5168   -0.8952
+    6         H                 -0.4023    0.7918    0.6644
+    7         H                 -0.4023    0.1795   -1.0180
+    8         H                 -0.4023   -0.9713    0.3535
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21978   0.92818   0.91765   0.91765   1.21978   0.92818   0.91765   0.91765
+  1.00558   1.00558   1.00558   1.00558   1.00558   1.00558
+********************************************************************************
+
+                  REACTION COORDINATE =     -50.0000  DEGREES   
+
+********************************************************************************
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    GRADIENTS WERE INITIALLY ACCEPTABLY SMALL                
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.65373 KCAL
+         ELECTRONIC ENERGY       =       -935.67657 EV
+         CORE-CORE REPULSION     =        594.00888 EV
+         FOR REACTION COORDINATE =        -50.00000 DEGREES
+         REACTION GRADIENT       =          0.76020 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.69723
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                1
+         COMPUTATION TIME  =                4.79 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52127 *                                   1
+     3      H         1.10921 *      111.19691 *                  2    1
+     4      H         1.10921        111.19691     120.00000      2    1    3
+     5      H         1.10921        111.19691    -120.00000      2    1    3
+     6      H         1.10921        111.19691     -50.00000 +    1    2    3
+     7      H         1.10921        111.19691      70.00000      1    2    3
+     8      H         1.10921        111.19691    -170.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.521271   0.000000
+    H    3   2.182860   1.109215   0.000000
+    H    4   2.182860   1.109215   1.791234   0.000000
+    H    5   2.182860   1.109215   1.791234   1.791234   0.000000
+    H    6   1.109215   2.182860   2.482390   2.608756   3.105432   0.000000
+    H    7   1.109215   2.182860   2.608756   3.105432   2.482390   1.791234
+    H    8   1.109215   2.182860   3.105432   2.482390   2.608756   1.791234
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.791234   0.000000
+
+
+                 EIGENVALUES
+
+-35.23512 -24.81509 -15.08648 -15.08648 -13.32679 -12.69723 -12.69723   3.75373
+  3.75373   4.37494   4.70901   4.70901   5.77859   5.83478
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0166          3.9834
+          2          C           0.0166          3.9834
+          3          H          -0.0055          1.0055
+          4          H          -0.0055          1.0055
+          5          H          -0.0055          1.0055
+          6          H          -0.0055          1.0055
+          7          H          -0.0055          1.0055
+          8          H          -0.0055          1.0055
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5213    0.0000    0.0000
+    3         H                  1.9223    1.0342    0.0000
+    4         H                  1.9223   -0.5171    0.8956
+    5         H                  1.9223   -0.5171   -0.8956
+    6         H                 -0.4011    0.6648    0.7922
+    7         H                 -0.4011    0.3537   -0.9718
+    8         H                 -0.4011   -1.0185    0.1796
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21975   0.92856   0.91753   0.91753   1.21975   0.92855   0.91753   0.91753
+  1.00554   1.00554   1.00554   1.00554   1.00554   1.00554
+********************************************************************************
+
+                  REACTION COORDINATE =     -60.0000  DEGREES   
+
+********************************************************************************
+HEAT OF FORMATION TEST SATISFIED
+PETERS TEST SATISFIED 
+  SYMMETRY                                                                     
+                                                                               
+                                                                               
+
+
+    PETERS TEST WAS SATISFIED IN BFGS            OPTIMIZATION
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                              MNDO    CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =        -19.72195 KCAL
+         ELECTRONIC ENERGY       =       -935.70155 EV
+         CORE-CORE REPULSION     =        594.03090 EV
+         FOR REACTION COORDINATE =        -60.00000 DEGREES
+         REACTION GRADIENT       =         -0.02273 KCAL/RADIAN  
+         IONIZATION POTENTIAL    =         12.70002
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          7
+         MOLECULAR WEIGHT        =     30.069
+         SCF CALCULATIONS  =                8
+         COMPUTATION TIME  =               15.29 SECONDS
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.52126 *                                   1
+     3      H         1.10914 *      111.18536 *                  2    1
+     4      H         1.10914        111.18536     120.00000      2    1    3
+     5      H         1.10914        111.18536    -120.00000      2    1    3
+     6      H         1.10914        111.18536     -60.00000 +    1    2    3
+     7      H         1.10914        111.18536      60.00000      1    2    3
+     8      H         1.10914        111.18536     180.00000      1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.521258   0.000000
+    H    3   2.182648   1.109142   0.000000
+    H    4   2.182648   1.109142   1.791256   0.000000
+    H    5   2.182648   1.109142   1.791256   1.791256   0.000000
+    H    6   1.109142   2.182648   2.542729   2.542729   3.110316   0.000000
+    H    7   1.109142   2.182648   2.542729   3.110316   2.542729   1.791256
+    H    8   1.109142   2.182648   3.110316   2.542729   2.542729   1.791256
+
+
+                 H  7       H  8
+------------------------------
+    H    7   0.000000
+    H    8   1.791256   0.000000
+
+
+                 EIGENVALUES
+
+-35.23689 -24.81561 -15.08585 -15.08585 -13.32544 -12.70002 -12.70002   3.75634
+  3.75634   4.37400   4.70798   4.70798   5.77885   5.83580
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C           0.0166          3.9834
+          2          C           0.0166          3.9834
+          3          H          -0.0055          1.0055
+          4          H          -0.0055          1.0055
+          5          H          -0.0055          1.0055
+          6          H          -0.0055          1.0055
+          7          H          -0.0055          1.0055
+          8          H          -0.0055          1.0055
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000     0.000     0.000     0.000
+SUM            0.000     0.000     0.000     0.000
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.5213    0.0000    0.0000
+    3         H                  1.9221    1.0342    0.0000
+    4         H                  1.9221   -0.5171    0.8956
+    5         H                  1.9221   -0.5171   -0.8956
+    6         H                 -0.4008    0.5171    0.8956
+    7         H                 -0.4008    0.5171   -0.8956
+    8         H                 -0.4008   -1.0342    0.0000
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.21971   0.92863   0.91751   0.91751   1.21971   0.92863   0.91751   0.91751
+  1.00555   1.00555   1.00555   1.00555   1.00555   1.00555

@@ -1,0 +1,184 @@
+
+*******************************************************************************
+** FRANK J. SEILER RES. LAB., U.S. AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **
+*******************************************************************************
+
+                            MINDO/3 CALCULATION RESULTS
+
+
+*******************************************************************************
+*                    VERSION  4.00
+*  GRADIENTS- ALL GRADIENTS TO BE PRINTED
+*  BIRADICAL- SYSTEM HAS TWO UNPAIRED ELECTRONS
+*   T=      - A TIME OF  3600.0 SECONDS REQUESTED
+*  DUMP=N   - RESTART FILE WRITTEN EVERY  3600.0 SECONDS
+*  1SCF     - DO 1 SCF AND THEN STOP 
+*  MINDO/3  - THE MINDO/3 HAMILTONIAN TO BE USED
+*  PRECISE  - CRITERIA TO BE INCREASED BY 100 TIMES
+*******************************************************************************
+    PRECISE GRADIENTS   BIRADICAL MINDO3 1SCF                                  
+TEST OF BIRADICAL RHF. TEST IS SUCCESSFUL IF THE HEAT OF FORMATION = 64.4866   
+AND GRADIENT NORM IS LESS THAN 2.0                                             
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.40947 *                                   1
+     3      H         1.09359 *      122.75828 *                  2    1
+     4      H         1.09359        122.75828     180.00000      2    1    3
+     5      H         1.09359        122.75828      90.00000      1    2    3
+     6      H         1.09359        122.75828     270.00000      1    2    3
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM         X         Y         Z
+
+    1         C        0.0000    0.0000    0.0000
+    2         C        1.4095    0.0000    0.0000
+    3         H        2.0012    0.9197    0.0000
+    4         H        2.0012   -0.9197    0.0000
+    5         H       -0.5917    0.0000   -0.9197
+    6         H       -0.5917    0.0000    0.9197
+ H: (MINDO/3): R.C.BINGHAM ET.AL., J.AM.CHEM.SOC. 97,1285,1294,1302,1307 (1975)
+ C: (MINDO/3): R.C.BINGHAM ET.AL., J.AM.CHEM.SOC. 97,1285,1294,1302,1307 (1975)
+
+
+SYSTEM IS A BIRADICAL
+THERE ARE  5 DOUBLY FILLED LEVELS
+
+
+         RHF CALCULATION, NO. OF DOUBLY OCCUPIED LEVELS =  5
+
+                          NO. OF SINGLY OCCUPIED LEVELS =  2
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.409472   0.000000
+    H    3   2.202417   1.093594   0.000000
+    H    4   2.202417   1.093594   1.839339   0.000000
+    H    5   1.093594   2.202417   2.900858   2.900858   0.000000
+    H    6   1.093594   2.202417   2.900858   2.900858   1.839339   0.000000
+    PRECISE GRADIENTS   BIRADICAL MINDO3 1SCF                                  
+TEST OF BIRADICAL RHF. TEST IS SUCCESSFUL IF THE HEAT OF FORMATION = 64.4866   
+AND GRADIENT NORM IS LESS THAN 2.0                                             
+
+
+    1SCF WAS SPECIFIED, SO BFGS WAS NOT USED                 
+    SCF FIELD WAS ACHIEVED                                   
+
+
+                             MINDO/3  CALCULATION
+                                                           VERSION  4.00
+
+
+
+
+         FINAL HEAT OF FORMATION =         64.48664 KCAL
+
+
+         ELECTRONIC ENERGY       =       -713.67968 EV
+         CORE-CORE REPULSION     =        403.65809 EV
+
+         GRADIENT NORM           =          1.33087
+         IONIZATION POTENTIAL    =          3.81705
+                                                       7-OCT-87               
+         NO. OF FILLED LEVELS    =          5
+         AND NO. OF OPEN LEVELS  =          2
+         MOLECULAR WEIGHT        =     28.054
+
+
+         SCF CALCULATIONS  =               14
+         COMPUTATION TIME  =               25.09 SECONDS
+
+
+
+      FINAL  POINT  AND  DERIVATIVES
+
+  PARAMETER     ATOM    TYPE            VALUE       GRADIENT
+     1          2  C    BOND            1.409472    -0.544857  KCAL/ANGSTROM
+     2          3  H    BOND            1.093594    -0.603470  KCAL/ANGSTROM
+     3          3  H    ANGLE         122.758282    -0.055872  KCAL/RADIAN  
+     4          4  H    BOND            1.093594    -0.603317  KCAL/ANGSTROM
+     5          4  H    ANGLE         122.758282    -0.055854  KCAL/RADIAN  
+     6          4  H    DIHEDRAL      180.000000     0.028716  KCAL/RADIAN  
+     7          5  H    BOND            1.093594    -0.605878  KCAL/ANGSTROM
+     8          5  H    ANGLE         122.758282    -0.055883  KCAL/RADIAN  
+     9          5  H    DIHEDRAL       90.000000     0.028717  KCAL/RADIAN  
+    10          6  H    BOND            1.093594    -0.603433  KCAL/ANGSTROM
+    11          6  H    ANGLE         122.758282    -0.055855  KCAL/RADIAN  
+    12          6  H    DIHEDRAL      -90.000000     0.028715  KCAL/RADIAN  
+
+
+
+
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      C
+     2      C         1.40947 *                                   1
+     3      H         1.09359 *      122.75828 *                  2    1
+     4      H         1.09359 *      122.75828 *   180.00000 *    2    1    3
+     5      H         1.09359 *      122.75828 *    90.00000 *    1    2    3
+     6      H         1.09359 *      122.75828 *   -90.00000 *    1    2    3
+
+
+           INTERATOMIC DISTANCES
+
+
+                 C  1       C  2       H  3       H  4       H  5       H  6
+------------------------------------------------------------------------------
+    C    1   0.000000
+    C    2   1.409472   0.000000
+    H    3   2.202417   1.093594   0.000000
+    H    4   2.202417   1.093594   1.839339   0.000000
+    H    5   1.093594   2.202417   2.900858   2.900858   0.000000
+    H    6   1.093594   2.202417   2.900858   2.900858   1.839339   0.000000
+
+
+                 EIGENVALUES
+
+-30.29621 -20.81086 -13.80566 -13.80439 -12.70130  -3.81869  -3.81705   2.53206
+  3.80923   4.59189   4.59251   5.89827
+
+
+             NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+        ATOM NO.   TYPE          CHARGE        ATOM  ELECTRON DENSITY
+          1          C          -0.0498          4.0498
+          2          C          -0.0498          4.0498
+          3          H           0.0249          0.9751
+          4          H           0.0249          0.9751
+          5          H           0.0249          0.9751
+          6          H           0.0249          0.9751
+DIPOLE           X         Y         Z       TOTAL
+POINT-CHG.     0.000     0.000     0.000     0.000
+HYBRID         0.000    -0.001     0.000     0.001
+SUM            0.000    -0.001     0.000     0.001
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM               X         Y         Z
+
+    1         C                  0.0000    0.0000    0.0000
+    2         C                  1.4095    0.0000    0.0000
+    3         H                  2.0012    0.9197    0.0000
+    4         H                  2.0012   -0.9197    0.0000
+    5         H                 -0.5917    0.0000   -0.9197
+    6         H                 -0.5917    0.0000    0.9197
+
+
+         ATOMIC ORBITAL ELECTRON POPULATIONS
+
+  1.28278   0.87133   1.01272   0.88293   1.28278   0.87133   0.88292   1.01272
+  0.97511   0.97513   0.97512   0.97512

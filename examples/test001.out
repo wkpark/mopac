@@ -1,0 +1,306 @@
+*******************************************************************************
+** FRANK J. SEILER RES. LAB., U.S. AIR FORCE ACADEMY, COLO. SPGS., CO. 80840 **
+*******************************************************************************
+
+                            MNDO CALCULATION RESULTS
+
+
+*******************************************************************************
+*                    VERSION  4.00
+*  SYMMETRY - SYMMETRY CONDITIONS TO BE IMPOSED
+*   T=      - A TIME OF  3600.0 SECONDS REQUESTED
+*  DUMP=N   - RESTART FILE WRITTEN EVERY  3600.0 SECONDS
+*  FORCE    - FORCE CALCULATION SPECIFIED
+*  PRECISE  - CRITERIA TO BE INCREASED BY 100 TIMES
+*  ISOTOPE  - FORCE MATRIX WRITTEN TO DISK (CHAN. 9 )
+*  THERMO   - THERMODYNAMIC QUANTITIES TO BE CALCULATED
+*  ROT      - SYMMETRY NUMBER OF  2 SPECIFIED
+*******************************************************************************
+
+
+
+    PARAMETER DEPENDENCE DATA
+
+       REFERENCE ATOM      FUNCTION NO.    DEPENDENT ATOM(S)
+
+            DESCRIPTIONS OF THE FUNCTIONS USED
+
+ROT=2 THERMO(298,298,) PRECISE FORCE    ISOTOPE SYMMETRY                       
+DEMONSTRATION OF MOPAC - FORCE AND THERMODYNAMICS CALCULATION                  
+FORMALDEHYDE, MNDO ENERGY = -32.8819                                           
+
+   ATOM   CHEMICAL  BOND LENGTH    BOND ANGLE     TWIST ANGLE
+  NUMBER  SYMBOL    (ANGSTROMS)     (DEGREES)      (DEGREES)
+   (I)                  NA:I          NB:NA:I      NC:NB:NA:I     NA   NB   NC
+
+     1      O
+     2      C         1.21649 *                                   1
+     3      H         1.10611 *      123.51338 *                  2    1
+     4      H         1.10611 *      123.51337 *   179.99772 *    2    1    3
+
+
+         CARTESIAN COORDINATES 
+
+   NO.       ATOM         X         Y         Z
+
+    1         O        0.0000    0.0000    0.0000
+    2         C        1.2165    0.0000    0.0000
+    3         H        1.8272    0.9222    0.0000
+    4         H        1.8272   -0.9222    0.0000
+ H: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+ C: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+ O: (MNDO):  M.J.S. DEWAR, W. THIEL, J. AM. CHEM. SOC., 99, 4899, (1977)       
+
+
+         RHF CALCULATION, NO. OF DOUBLY OCCUPIED LEVELS =  6
+
+
+           INTERATOMIC DISTANCES
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   0.000000
+    C    2   1.216487   0.000000
+    H    3   2.046747   1.106108   0.000000
+    H    4   2.046748   1.106109   1.844451   0.000000
+
+
+         HEAT OF FORMATION =  -32.881900 KCALS/MOLE
+
+
+         INTERNAL COORDINATE DERIVATIVES
+
+  ATOM  AT. NO.  BOND         ANGLE        DIHEDRAL
+
+    1     O
+    2     C     0.000717
+    3     H    -0.000766  0.000176
+    4     H     0.000063  0.000200 -0.001334
+
+
+         GRADIENT NORM =   0.00172
+
+
+         TIME FOR SCF CALCULATION =    1.88
+
+
+         TIME FOR DERIVATIVES     =    1.11
+
+         MOLECULAR WEIGHT =   30.03
+
+
+
+          PRINCIPAL MOMENTS OF INERTIA IN CM(-1)
+
+         A =    9.832755   B =    1.261998   C =    1.118449
+
+
+
+          PRINCIPAL MOMENTS OF INERTIA IN UNITS OF 10**(-40)*GRAM-CM**2
+
+         A =    2.846876   B =   22.181206   C =   25.028083
+
+
+        ORIENTATION OF MOLECULE IN FORCE CALCULATION
+
+   NO.       ATOM         X         Y         Z
+
+    1         8       -0.6093    0.0000    0.0000
+    2         6        0.6072    0.0000    0.0000
+    3         1        1.2179    0.9222    0.0000
+    4         1        1.2179   -0.9222    0.0000
+
+
+   FIRST DERIVATIVES WILL BE USED IN THE CALCULATION OF SECOND DERIVATIVES
+
+         DEFAULT TIME OF 3600.00 SECONDS ALLOCATED FOR THIS STEP
+
+         ESTIMATED TIME TO COMPLETE CALCULATION =   143.52 SECONDS
+STEP:   1 TIME =     8.39 SECS, INTEGRAL =      8.39 TIME LEFT:   3588.62
+STEP:   2 TIME =     9.91 SECS, INTEGRAL =     18.30 TIME LEFT:   3578.71
+STEP:   3 TIME =     9.75 SECS, INTEGRAL =     28.05 TIME LEFT:   3568.96
+STEP:   4 TIME =     8.91 SECS, INTEGRAL =     36.96 TIME LEFT:   3560.05
+STEP:   5 TIME =     9.60 SECS, INTEGRAL =     46.56 TIME LEFT:   3550.45
+STEP:   6 TIME =     9.23 SECS, INTEGRAL =     55.79 TIME LEFT:   3541.22
+STEP:   7 TIME =     8.61 SECS, INTEGRAL =     64.40 TIME LEFT:   3532.61
+STEP:   8 TIME =     8.74 SECS, INTEGRAL =     73.14 TIME LEFT:   3523.87
+STEP:   9 TIME =    12.25 SECS, INTEGRAL =     85.39 TIME LEFT:   3511.62
+STEP:  10 TIME =     9.32 SECS, INTEGRAL =     94.71 TIME LEFT:   3502.30
+STEP:  11 TIME =     8.66 SECS, INTEGRAL =    103.37 TIME LEFT:   3493.64
+STEP:  12 TIME =    12.60 SECS, INTEGRAL =    115.97 TIME LEFT:   3481.04
+
+
+          FORCE MATRIX IN MILLIDYNES/ANGSTROM
+
+
+                 O  1       C  2       H  3       H  4
+------------------------------------------------------
+    O    1   9.557395
+    C    2   8.682883  11.426693
+    H    3   0.598863   2.553334   3.034871
+    H    4   0.598862   2.553319   0.304451   3.034862
+
+
+         HEAT OF FORMATION =  -32.881900 KCALS/MOLE
+
+
+          ZERO POINT ENERGY      18.010 KILOCALORIES PER MOLE
+
+
+   THE LAST 6 VIBRATIONS ARE THE TRANSLATION AND ROTATION MODES
+   THE FIRST THREE OF THESE BEING TRANSLATIONS IN X, Y, AND Z, RESPECTIVELY
+
+
+          NORMAL COORDINATE ANALYSIS
+
+
+
+
+   ROOT NO.    1           2           3           4           5           6
+
+         1209.88319  1214.68013  1490.52802  2114.52557  3255.93028  3302.10951
+ 
+        1   0.00000     0.00000    -0.02897     0.27080     0.00000     0.00047
+        2   0.04861    -0.00001     0.00000     0.00000     0.00287     0.00000
+        3   0.00000    -0.02732     0.00000     0.00000     0.00000     0.00000
+        4   0.00000     0.00000    -0.02661    -0.34468     0.00000    -0.04416
+        5  -0.09729     0.00001     0.00000     0.00000     0.05937     0.00000
+        6   0.00002     0.10888     0.00000     0.00000     0.00000     0.00000
+        7  -0.38049     0.00006     0.38850    -0.09564    -0.27940     0.25941
+        8   0.19390    -0.00003    -0.26842    -0.16678    -0.37651     0.40114
+        9  -0.00005    -0.43190     0.00001     0.00000     0.00000     0.00000
+       10   0.38049    -0.00004     0.38850    -0.09564     0.27943     0.25938
+       11   0.19390    -0.00004     0.26842     0.16678    -0.37655    -0.40109
+       12  -0.00006    -0.43190     0.00000    -0.00001     0.00002     0.00001
+
+
+
+
+   ROOT NO.    7           8           9          10          11          12
+
+           -0.00048    -0.00041     0.00071    14.39988    -0.72290    -2.80680
+ 
+        1  -0.25000     0.00000     0.00000     0.00000     0.00000     0.00000
+        2   0.00000    -0.25000     0.00000     0.00000     0.00000    -0.14263
+        3   0.00000     0.00000    -0.25000     0.00000    -0.16682     0.00000
+        4  -0.25000     0.00000     0.00000     0.00000     0.00000     0.00000
+        5   0.00000    -0.25000     0.00000     0.00000     0.00000     0.14214
+        6   0.00000     0.00000    -0.25000     0.00000     0.16625     0.00000
+        7  -0.25000     0.00000     0.00000     0.00000     0.00000    -0.21588
+        8   0.00000    -0.25000     0.00000     0.00000     0.00001     0.28510
+        9   0.00000     0.00000    -0.25000     0.50000     0.33346    -0.00001
+       10  -0.25000     0.00000     0.00000     0.00000     0.00000     0.21588
+       11   0.00000    -0.25000     0.00000    -0.00002     0.00001     0.28510
+       12   0.00000     0.00000    -0.25000    -0.50000     0.33346     0.00000
+
+
+          MASS-WEIGHTED COORDINATE ANALYSIS
+
+
+
+
+   ROOT NO.    1           2           3           4           5           6
+
+         1209.88319  1214.68013  1490.52802  2114.52557  3255.93028  3302.10951
+ 
+        1   0.00000     0.00000    -0.16877     0.66232     0.00000     0.00271
+        2   0.26985    -0.00004     0.00000     0.00000     0.01649     0.00000
+        3  -0.00002    -0.15005     0.00000     0.00000     0.00000     0.00000
+        4   0.00000     0.00000    -0.13433    -0.73040    -0.00001    -0.22013
+        5  -0.46798     0.00007     0.00000     0.00000     0.29524    -0.00002
+        6   0.00008     0.51814     0.00000     0.00000    -0.00001     0.00000
+        7  -0.53018     0.00008     0.56806    -0.05871    -0.40252     0.37459
+        8   0.27018    -0.00004    -0.39249    -0.10238    -0.54241     0.57923
+        9  -0.00008    -0.59541     0.00001     0.00000     0.00000     0.00000
+       10   0.53018    -0.00006     0.56806    -0.05871     0.40256     0.37454
+       11   0.27018    -0.00005     0.39249     0.10238    -0.54248    -0.57917
+       12  -0.00009    -0.59541     0.00000     0.00000     0.00002     0.00002
+
+
+
+
+   ROOT NO.    7           8           9          10          11          12
+
+           -0.00049    -0.00035     0.00068    14.39988    -0.72290    -2.80680
+ 
+        1  -0.72996     0.00000     0.00000     0.00000     0.00000     0.00000
+        2   0.00000    -0.72996     0.00000     0.00000    -0.00001    -0.62774
+        3   0.00000     0.00000    -0.72996     0.00000    -0.66681     0.00001
+        4  -0.63247     0.00000     0.00000     0.00000     0.00000     0.00000
+        5   0.00000    -0.63247     0.00000     0.00001     0.00001     0.54204
+        6   0.00000     0.00000    -0.63247     0.00000     0.57578    -0.00001
+        7  -0.18321     0.00000     0.00000     0.00000     0.00000    -0.23848
+        8   0.00000    -0.18321     0.00000     0.00000     0.00001     0.31495
+        9   0.00000     0.00000    -0.18321     0.70711     0.33455    -0.00001
+       10  -0.18321     0.00000     0.00000     0.00000     0.00000     0.23848
+       11   0.00000    -0.18321     0.00000    -0.00002     0.00001     0.31495
+       12   0.00000     0.00000    -0.18321    -0.70711     0.33455    -0.00001
+
+         DESCRIPTION OF VIBRATIONS
+
+
+VIBRATION   1            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     1209.88       C 2 --  H 3           42.7% ( 79.4%)              12.6%
+T-DIPOLE   0.7705       C 2 --  H 4           42.7%                       12.6%
+TRAVEL     0.1199       O 1 --  C 2           14.6%                        0.0%
+RED. MASS  1.9377
+
+VIBRATION   2            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     1214.68       C 2 --  H 3           45.1% ( 62.3%)               0.0%
+T-DIPOLE   0.0490       C 2 --  H 4           45.1%                        0.0%
+TRAVEL     0.1360       O 1 --  C 2            9.8%                        0.0%
+RED. MASS  1.5004
+
+VIBRATION   3            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     1490.53       C 2 --  H 3           49.6% ( 61.5%)               0.6%
+T-DIPOLE   0.3443       C 2 --  H 4           49.6%                        0.6%
+TRAVEL     0.1846       O 1 --  C 2            0.9%                      100.0%
+RED. MASS  0.6639
+
+VIBRATION   4            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     2114.53       O 1 --  C 2           60.1% (100.5%)             100.0%
+T-DIPOLE   2.9487       C 2 --  H 4           20.0%                       17.7%
+TRAVEL     0.0484       C 2 --  H 3           20.0%                       17.7%
+RED. MASS  6.7922
+
+VIBRATION   5            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     3255.93       C 2 --  H 4           49.5% ( 72.2%)              98.1%
+T-DIPOLE   0.7518       C 2 --  H 3           49.5%                       98.1%
+TRAVEL     0.1174       O 1 --  C 2            1.0%                        0.0%
+RED. MASS  0.7508
+
+VIBRATION   6            ATOM PAIR     ENERGY CONTRIBUTION              RADIAL
+FREQ.     3302.11       C 2 --  H 3           49.3% ( 69.9%)              95.5%
+T-DIPOLE   0.3237       C 2 --  H 4           49.3%                       95.5%
+TRAVEL     0.1240       O 1 --  C 2            1.4%                      100.0%
+RED. MASS  0.6644
+
+
+         SYSTEM IS A GROUND STATE
+
+
+FORMALDEHYDE, MNDO ENERGY = -32.8819                                           
+DEMONSTRATION OF MOPAC - FORCE AND THERMODYNAMICS CALCULATION                  
+
+
+         MOLECULE IS NOT LINEAR
+
+         THERE ARE  6 GENUINE VIBRATIONS IN THIS SYSTEM
+         THIS THERMODYNAMICS CALCULATION IS LIMITED TO
+         MOLECULES WHICH HAVE NO INTERNAL ROTATIONS
+
+
+
+
+                   CALCULATED THERMODYNAMIC PROPERTIES
+
+  TEMP. (K)   PARTITION FUNCTION      ENTHALPY     HEAT CAPACITY    ENTROPY
+                                       CAL/MOL       CAL/K/MOL     CAL/K/MOL
+
+
+   298  VIB.         1.007             23.39526207    0.47839657    0.09150765
+        ROT.     709.                 888.305         2.981        16.026
+        INT.     714.                 911.700         3.459        16.117
+        TRA.    0.159E+27            1480.509         4.968        36.113
+        TOT.                         2392.2092        8.4274       52.2300
