@@ -733,8 +733,8 @@ C
          IF(INCITR)
      1    WRITE(6,'('' ITERATION'',I3,'' PLS='',2E10.3,'' ENERGY  '',
      2F14.7,'' DELTAE'',F13.7)')NITER,PL,PLB,ESCF,DIFF
-      close (6)
-      OPEN(UNIT=6,FILE=GETNAM('FOR006'),ACCESS='APPEND')
+C#      close (6)
+C#      OPEN(UNIT=6,FILE=GETNAM('FOR006'),ACCESS='APPEND')
       ENDIF
       IF(INCITR)EOLD=ESCF
 ************************************************************************
