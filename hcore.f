@@ -126,15 +126,15 @@ C     PATAS
                   IO1 = I1 - IA
                   JO1 = J1 - IA
                   IF ((JO1.EQ.0).AND.(IO1.EQ.1)) THEN
-                     HTERME = -0.529177D00*DD(NI)*EFIELD(1)*FLDCON
+                     HTERME = -0.529177D0*DD(NI)*EFIELD(1)*FLDCON
                      H(I2) = HTERME
                   ENDIF
                   IF ((JO1.EQ.0).AND.(IO1.EQ.2)) THEN
-                     HTERME = -0.529177D00*DD(NI)*EFIELD(2)*FLDCON
+                     HTERME = -0.529177D0*DD(NI)*EFIELD(2)*FLDCON
                      H(I2) = HTERME
                   ENDIF
                   IF ((JO1.EQ.0).AND.(IO1.EQ.3)) THEN
-                     HTERME = -0.529177D00*DD(NI)*EFIELD(3)*FLDCON
+                     HTERME = -0.529177D0*DD(NI)*EFIELD(3)*FLDCON
                      H(I2) = HTERME
                   ENDIF
                ENDIF
@@ -259,9 +259,9 @@ C
       IC=NMIDLE(I)
       NI=NAT(I)
       DO 330 J=1,NQS
-        CC(1,J)=XQ(J)/1.8897626D0
-        CC(2,J)=YQ(J)/1.8897626D0
-        CC(3,J)=ZQ(J)/1.8897626D0
+        CC(1,J)=XQ(J)*0.529177D0
+        CC(2,J)=YQ(J)*0.529177D0
+        CC(3,J)=ZQ(J)*0.529177D0
         NJ=J
         CALL ROTATE(NI,NJ,COORD(1,I),CC(1,J),
      +              W(KR),KR,E1B,E2A,ENUC,CUTOFF)

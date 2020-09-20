@@ -69,7 +69,7 @@ C ***************************** at 1994-05-25 *****
          RESFIL=.FALSE.
          LAST=0
          ILOOP=1
-         XINC=0.00529167D0
+         XINC=0.00529177D0
          RHO2=1.D-4
          TOL2=4.D-1
          IF(INDEX(KEYWRD,'PREC') .NE. 0) TOL2=1.D-2
@@ -321,7 +321,7 @@ C        *****  REPLACE APPROPRIATE DIRECTION AND DERIVATIVE ***
   340 HESS(ID,K) = -E2(K)
 C        *****  REPLACE STARTING POINT                     *****
       DO 350 K=1,NVAR
-  350 BMAT(K,ID) = SIG(K)/0.529167D0
+  350 BMAT(K,ID) = SIG(K)/0.529177D0
       DO 360 K=1,NVAR
   360 GNEXT1(K) = GMIN1(K)
       TIME1=TIME2

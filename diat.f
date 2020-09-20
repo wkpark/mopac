@@ -139,7 +139,7 @@ C#  12  WRITE(6,'(4F15.10)')(DI(J,I),J=1,4)
       M=M1-1
       LB=LB1-1
       LA=LA1-1
-      R=R1/0.529167D0
+      R=R1/0.529177D0
       IF(FIRST) THEN
          FIRST=.FALSE.
 C

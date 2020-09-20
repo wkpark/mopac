@@ -19,7 +19,7 @@
       IF (ICALCN.NE.NUMCAL) THEN
          ICALCN=NUMCAL
       ENDIF
-      A0=0.529167D0
+      A0=0.529177D0
       TERM=(27.21D0*DEL1)/(RR*A0*A0)
       DA=DD(NI)
       DB=DD(NJ)

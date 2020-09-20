@@ -37,7 +37,7 @@ C
 C
 C  CONVERT R INTO AU
 C
-      R=R/0.529167D0
+      R=R/0.529177D0
       R = R**2
       KA=0
       DO 80 I=IFA,ILA
@@ -58,11 +58,11 @@ C    P-P
             ELSEIF(NAT.GT.0) THEN
 C    P-S
                IS=3
-               TOMB=(XI(NAT)-XJ(NAT))*1.88976D0
+               TOMB=(XI(NAT)-XJ(NAT))/0.529177D0
             ELSEIF(NBT.GT.0) THEN
 C    S-P
                IS=2
-               TOMB=(XI(NBT)-XJ(NBT))*1.88976D0
+               TOMB=(XI(NBT)-XJ(NBT))/0.529177D0
             ELSE
 C    S-S
                IS=1

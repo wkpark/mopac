@@ -409,11 +409,11 @@ C
      1          QSC(NUMATM),d(numatm,mxmep),d1(numatm,mxmep),qq(numatm)
       LOGICAL CEQUIV(NUMATM,NUMATM),idip
 c
-      DATA AU/627.506d0/,BOHR/0.529167D0/,iz/0/,RMS/0.0d0/,RRMS/0.0d0/, 
+      DATA AU/627.506d0/,BOHR/0.529177D0/,iz/0/,RMS/0.0d0/,RRMS/0.0d0/,
      1   DIPX/0.0d0/, DIPY/0.0d0/, DIPZ/0.0d0/,idip/.false./
       BOHR1=1.0d0/BOHR
       AU1=1.0d0/AU
-      CF=5.2917715D0*1.601917D0/3.33564D0
+      CF=5.29177D0*1.601917D0/3.33564D0
       natom0=natom+1
 c
       WRITE(6,11)
@@ -613,7 +613,7 @@ c
       COMMON /CORE/ TORE(107)                                           
       COMMON /NATORB/ NATORB(107)                                       
       DIMENSION RI(22),CORE(4,2),ARG(72),SQR(72) 
-      DATA A0/0.529167D0/ ,EV/27.21D0/, EV1/13.605D0/, EV2/6.8025D0/
+      DATA A0/0.529177D0/,EV/27.21D0/, EV1/13.605D0/, EV2/6.8025D0/
       DATA PP/0.5D00/          
       R=RIJ/A0                                                          
       IF (NATORB(NI).lt.3) then 

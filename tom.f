@@ -79,7 +79,7 @@ C
       DO 998 I=1,NUMAT
       DO 998 J=1,3
       C(I,J)=CC(J,I)
-      C(I,J)=C(I,J)*1.8897626D00
+      C(I,J)=C(I,J)/0.529177D0
 998   CONTINUE
 C
 C     SET UP A STO-4G BASIS ADAPTED TO MOPAC-STO'S.
@@ -687,7 +687,7 @@ C
       WRITE(18,*) 'TOTAL     : ',IT345,' POINTS'
       DO 7247 I=1,IT345
       DO 7247 J=1,3
-      VWXYZ(J,I)=VWXYZ(J,I)*1.8897626
+      VWXYZ(J,I)=VWXYZ(J,I)/0.529177D0
 7247  CONTINUE
       ITUTUA=1000000
       DO 7000 I=55,1,-1
@@ -1085,8 +1085,9 @@ C ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       EQUIVALENCE (IDUM(1),JVT1(1,1))
 C
 C     DATA IOUT/6/,IN/5/
-      DATA ANTOAU/1.8897626D0/
-      DATA ZERO,FIRST,SECOND/0.D0,0.0174533D0,0.529167D0/
+      DATA ANTOAU/1.8897268777743552D0/
+      DATA BOHR /0.529177D0/
+      DATA ZERO,FIRST,SECOND/0.D0,0.0174533D0,0.529177D0/
       DATA THIRD/.150383D0/,UN2/0.5D0/
       DATA TWO/2.D0/,FOUR/4.D0/
 C     DATA ONE/1.0D0/,DR/0.02D0/,MC/4/,MD/6/,CEKM/0.0014389D0/
@@ -1497,9 +1498,9 @@ C
       NSF=NESF
       IF(ICENT.EQ.1)THEN
       DO 55 I=1,NESF
-      XE(I)=C(NC(I),1)/ANTOAU
-      YE(I)=C(NC(I),2)/ANTOAU
-      ZE(I)=C(NC(I),3)/ANTOAU
+      XE(I)=C(NC(I),1)*BOHR
+      YE(I)=C(NC(I),2)*BOHR
+      ZE(I)=C(NC(I),3)*BOHR
    55 CONTINUE
       END IF
 C********************************************************************
@@ -3102,7 +3103,7 @@ C
 C     DATA VANDER/1.20,1.20,1.37,1.45,1.45,1.50,1.50,1.40,1.35,1.30
 C    *           ,1.57,1.36,1.24,1.17,1.80,1.75,1.70,13*0/
       DATA MARKER/3HA   /,MARKSS/3HSS0/,MYNAM/3HUC /
-      DATA BOHR /0.5291775D0/
+      DATA BOHR /0.529177D0/
 C
       DATA IELDAT/4H  BQ,4H  H ,4H  HE,4H  LI,4H  BE,4H  B ,
      $            4H  C ,4H  N ,4H  O ,4H  F ,4H  NE,4H  NA,

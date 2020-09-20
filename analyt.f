@@ -44,7 +44,7 @@ C
          AM1=(INDEX(KEYWRD,'AM1')+INDEX(KEYWRD,'PM3').NE.0)
          MINDO3=(INDEX(KEYWRD,'MINDO').NE.0)
       ENDIF
-      A0=0.529167D0
+      A0=0.529177D0
       JD=JJD-JJA+1
       JA=1
       ID=IID-IIA+1+JD

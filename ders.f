@@ -17,7 +17,7 @@
       COMMON /DERIVS/ DS(16),DG(22),DR(100),TDX(3),TDY(3),TDZ(3)
       COMMON /TEMP/  CG(60,6),ZG(60,6)
       DIMENSION SS(6,6)
-      A0=0.529167D0
+      A0=0.529177D0
       DO 110 I=1,6
          DO 110 J=1,6
             SS(I,J)=0.0D0
