@@ -7,14 +7,20 @@
 % and Leslie Lamport's indexing tool MAKEIDX.STY
 % both of these are widely available from TeX/LaTeX archives
 % but are not essential
-\documentstyle[fancyheadings,makeidx]{book}
+\documentclass[a4paper]{book}
+\usepackage{fancyhdr}
+\usepackage{makeidx}
+\pagestyle{fancy}
+\usepackage{color}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=red, linktoc=all}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Pre-amble
 % Set up page parameters---basically A4 --- 72pt is 1 inch
  \topmargin 0pt
  \headheight 12pt % Height of page header
  \headsep 25pt    % Distance between header and text start
  \footskip 30pt   % Distance between text bottom and footer bottom
- \footheight 12pt % Height of page footer
+% \footheight 12pt % Height of page footer
  \oddsidemargin  0.25in  % extra left margin for odd pages
  \evensidemargin 0.125in % extra left margin for even pages
  \textwidth 5.875in
@@ -35,12 +41,14 @@
 % use as .... the \mi{sphaghetti} tree grows in the warm fertile soil ...
 \makeindex
 % This stuff for headering/footering pages
-\pagestyle{fancyplain}
+\fancyhf{}
+\fancyhead[RE]{\leftmark}
+\fancyhead[LO]{\rightmark}
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}} % remember chapter title
 \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
                                                 % section number and title
-\lhead[\fancyplain{}{\bf Page \thepage}]{\fancyplain{}{\bf\rightmark}}
-\rhead[\fancyplain{}{\bf\leftmark}]{\fancyplain{}{\bf Page \thepage}}
+%\lhead[\fancyplain{}{\bf Page \thepage}]{\fancyplain{}{\bf\rightmark}}
+%\rhead[\fancyplain{}{\bf\leftmark}]{\fancyplain{}{\bf Page \thepage}}
 \cfoot{}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
