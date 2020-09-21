@@ -205,7 +205,7 @@ C***********************************************************************
 C
       COMMON /ABC/    CO(3,NUMATM),IAN(NUMATM),NATOM
       COMMON /WORK1/    POTPT(3,MESP), PAD1(2*MESP), RAD(MESP),
-     1IAS(MESP)
+     1IAS(2*MESP)
       COMMON /POTESP/ XC,YC,ZC,ESPNUC,ESPELE,NESP
 C
       CHARACTER*241 KEYWRD
