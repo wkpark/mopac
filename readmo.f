@@ -537,13 +537,13 @@ C
   230       CONTINUE
          ELSE
             WRITE(6,'(//10X,''CARTESIAN COORDINATES '',/)')
-            WRITE(6,'(4X,''NO.'',7X,''ATOM'',9X,''X'',
-     1  9X,''Y'',9X,''Z'',/)')
+            WRITE(6,'(4X,''NO.'',7X,''ATOM'',11X,''X'',
+     1  13X,''Y'',13X,''Z'',/)')
             L=0
             DO 240 I=1,NATOMS
                IF(LABELS(I) .EQ. 99.OR.LABELS(I).EQ.107) GOTO 240
                L=L+1
-               WRITE(6,'(I6,8X,A2,4X,3F10.4)')
+               WRITE(6,'(I6,8X,A2,4X,3F14.8)')
      1  L,ELEMNT(LABELS(I)),(COORD(J,L),J=1,3)
   240       CONTINUE
          ENDIF

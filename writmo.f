@@ -419,9 +419,9 @@ C#  32  CONTINUE
       DIP= DIPOLE(P,Q2,COORD,DUMY,1)
       IF (INDEX(KEYWRD,' NOXYZ') .EQ. 0) THEN
          WRITE(6,'(//10X,''CARTESIAN COORDINATES '',/)')
-         WRITE(6,'(4X,''NO.'',7X,''ATOM'',15X,''X'',
-     1  9X,''Y'',9X,''Z'',/)')
-         WRITE(6,'(I6,8X,A2,14X,3F10.4)')
+         WRITE(6,'(4X,''NO.'',7X,''ATOM'',11X,''X'',
+     1  13X,''Y'',13X,''Z'',/)')
+         WRITE(6,'(I6,8X,A2,4X,3F14.8)')
      1  (I,ELEMNT(NAT(I)),(COORD(J,I),J=1,3),I=1,NUMAT)
       ENDIF
       IF(NORBS.GT.0) THEN
