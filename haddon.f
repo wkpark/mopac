@@ -11,7 +11,7 @@ C            A   = ARRAY OF INTERNAL COORDINATES
 C  ON OUTPUT W   = VALUE OF DEPENDENT FUNCTION
 C            L   = 1 (FOR BOND LENGTH), 2 (ANGLE), OR 3 (DIHEDRAL)
 C**********************************************************************
-      PI = 3.1415926536D00
+      PI = 3.141592653589793D0
       IF (M.GT.18 .OR. M.LT.1) THEN
          WRITE(6,'(///10X,''UNDEFINED SYMMETRY FUNCTION USED'')')
          STOP

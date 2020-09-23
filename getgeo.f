@@ -235,7 +235,7 @@ C   GEOMETRY CANNOT BE GAUSSIAN
 C
                   WRITE(6,'(A)')' GEOMETRY IS FAULTY.  GEOMETRY READ IN
      1IS'
-                  CONST=3.141592653598D0/180.D0
+                  CONST=3.141592653589793D0/180.D0
                   DO 100 L=1,NATOMS
                      GEO(2,L)=GEO(2,L)*CONST
   100             GEO(3,L)=GEO(3,L)*CONST

@@ -436,7 +436,7 @@ C#     1,HPOINT+POINTK-ETOT,HPOINT,POINTK,HPOINT+POINTK
                L=NAT(I)
   170       Q2(I)=CORE(L) - Q2(I)
             CALL XYZINT(GEO,NATOMS,NA,NB,NC,1.D0,COORDS)
-            DEGREE=57.29577951D0
+            DEGREE=57.295779513082323D0
             COORDS(2,1)=0.D0
             COORDS(3,1)=0.D0
             COORDS(1,1)=0.D0
